@@ -2825,11 +2825,36 @@ const apiKey = "";
 
             if (badge) {
                 if (isConnected) {
-                    badge.className = 'text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30';
-                    badge.innerHTML = '🟢 បានភ្ជាប់ជោគជ័យ (Connected)';
+                    badge.className = 'text-[10.5px] font-extrabold px-3 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5 shadow-sm';
+                    badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981] animate-pulse"></span> បានភ្ជាប់ជោគជ័យ (Connected 🟢)';
                 } else {
-                    badge.className = 'text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/30';
-                    badge.innerHTML = '🔴 មិនទាន់ភ្ជាប់ (Disconnected)';
+                    badge.className = 'text-[10.5px] font-extrabold px-3 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/30 flex items-center gap-1.5 shadow-sm';
+                    badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> មិនទាន់ភ្ជាប់ (Disconnected)';
+                }
+            }
+
+            // Update Live Connected Dashboard Card
+            const connectedCard = document.getElementById('googleConnectedCard');
+            const connectedKeyMasked = document.getElementById('connectedKeyMasked');
+            const connectedModelName = document.getElementById('connectedModelName');
+            const savedModel = localStorage.getItem('khmer_studio_gemini_model') || 'gemini-1.5-flash';
+
+            if (connectedCard) {
+                if (isConnected) {
+                    connectedCard.classList.remove('hidden');
+                    if (connectedKeyMasked) {
+                        connectedKeyMasked.textContent = key.length > 10 ? `${key.slice(0, 6)}...${key.slice(-4)}` : 'AIzaSy...****';
+                    }
+                    if (connectedModelName) {
+                        const modelMap = {
+                            'gemini-1.5-flash': 'Gemini 1.5 Flash (Free)',
+                            'gemini-2.0-flash': 'Gemini 2.0 Flash (Fast)',
+                            'gemini-1.5-pro': 'Gemini 1.5 Pro (Deep)'
+                        };
+                        connectedModelName.textContent = modelMap[savedModel] || savedModel;
+                    }
+                } else {
+                    connectedCard.classList.add('hidden');
                 }
             }
 
@@ -2887,6 +2912,55 @@ const apiKey = "";
             }
         }
 
+        function validateApiKeyInputFormat(val) {
+            const badge = document.getElementById('apiKeyFormatBadge');
+            if (!badge) return;
+            const trimmed = (val || '').trim();
+            if (!trimmed) {
+                badge.classList.add('hidden');
+                badge.textContent = '';
+                return;
+            }
+            badge.classList.remove('hidden');
+            if (trimmed.startsWith('AIzaSy')) {
+                badge.className = 'text-[10px] font-semibold text-emerald-400';
+                badge.innerHTML = '<i class="fa-solid fa-circle-check"></i> ទម្រង់ Google Key ត្រឹមត្រូវ';
+            } else {
+                badge.className = 'text-[10px] font-semibold text-amber-400';
+                badge.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> កូដ Key គួរផ្តើមដោយ AIzaSy...';
+            }
+        }
+
+        async function pasteApiKeyFromClipboard() {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (text && text.trim()) {
+                    const input = document.getElementById('customApiKeyInput');
+                    if (input) {
+                        input.value = text.trim();
+                        validateApiKeyInputFormat(input.value);
+                        showToast('បានបិទភ្ជាប់ API Key ពី Clipboard ជោគជ័យ!', 'success');
+                    }
+                } else {
+                    showToast('Clipboard គ្មានទិន្នន័យ Key ទេ!', 'warning');
+                }
+            } catch (err) {
+                showToast('សូមចុច Ctrl + V ដើម្បី Paste ដោយដៃ', 'info');
+            }
+        }
+
+        function disconnectGoogleApiKey() {
+            if (confirm('តើអ្នកពិតជាចង់ផ្ដាច់ Google Gemini API Key មែនទេ?')) {
+                localStorage.removeItem('khmer_studio_custom_api_key');
+                const input = document.getElementById('customApiKeyInput');
+                if (input) input.value = '';
+                const formatBadge = document.getElementById('apiKeyFormatBadge');
+                if (formatBadge) formatBadge.classList.add('hidden');
+                updateGoogleConnectionUI();
+                showToast('បានផ្ដាច់ Google API Key រួចរាល់!', 'info');
+            }
+        }
+
         async function testGoogleApiKey() {
             const keyInput = document.getElementById('customApiKeyInput');
             const modelSelect = document.getElementById('geminiModelSelect');
@@ -2937,7 +3011,10 @@ const apiKey = "";
             if (!modal) return;
             if (modal.classList.contains('hidden') || modal.style.display === 'none') {
                 const keyInput = document.getElementById('customApiKeyInput');
-                if (keyInput) keyInput.value = localStorage.getItem('khmer_studio_custom_api_key') || '';
+                if (keyInput) {
+                    keyInput.value = localStorage.getItem('khmer_studio_custom_api_key') || '';
+                    if (typeof validateApiKeyInputFormat === 'function') validateApiKeyInputFormat(keyInput.value);
+                }
                 const modelSelect = document.getElementById('geminiModelSelect');
                 if (modelSelect) modelSelect.value = localStorage.getItem('khmer_studio_gemini_model') || 'gemini-1.5-flash';
                 updateGoogleConnectionUI();
