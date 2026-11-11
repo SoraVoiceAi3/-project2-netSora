@@ -2438,39 +2438,511 @@
 
                     <!-- ==================== PANEL 6: SHORTCUTS ==================== -->
                     <div id="setPanel-shortcuts" class="settings-content-panel hidden relative z-10 space-y-6">
-                        <div class="border-b border-[#282834] pb-4">
-                            <h3 class="text-white text-base font-extrabold flex items-center gap-2">
-                                <i class="fa-solid fa-keyboard text-sky-400"></i>
-                                Keyboard Shortcuts (គ្រាប់ចុចកាត់)
-                            </h3>
-                            <p class="text-[11px] text-[#788294] mt-0.5">បញ្ជាការកាត់ត និងចាក់វីដេអូបានលឿនជាងមុន</p>
+                        <!-- Top Header with Preset Selector -->
+                        <div class="border-b border-[#282834] pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div>
+                                <h3 class="text-white text-base font-extrabold flex items-center gap-2">
+                                    <i class="fa-solid fa-keyboard text-[#3b82f6]"></i>
+                                    Keyboard Shortcuts Center (មជ្ឈមណ្ឌលគ្រាប់ចុចកាត់ & បញ្ជាផ្ទាល់)
+                                </h3>
+                                <p class="text-[11px] text-[#788294] mt-0.5">បញ្ជាការកាត់ត ស្ទូឌីយោ AI និងចាក់វីដេអូបានរហ័ស ដូច CapCut Pro & Premiere Pro</p>
+                            </div>
+                            <div class="flex items-center gap-2.5">
+                                <span class="text-[10px] bg-blue-500/15 text-blue-400 border border-blue-500/30 px-3 py-1 rounded-full font-bold font-mono">
+                                    <i class="fa-solid fa-bolt text-[9px] mr-1"></i> <span id="shortcutTotalCount">16</span> Shortcuts សកម្ម
+                                </span>
+                                <select id="shortcutPresetSelect" onchange="switchShortcutsPreset(this.value)" class="bg-[#14141e] border border-[#2e3044] hover:border-[#3b82f6] text-slate-200 text-xs font-bold rounded-xl px-3 py-1.5 outline-none cursor-pointer transition-colors shadow-sm">
+                                    <option value="capcut" selected>ស្ទាយ CapCut PC (លំនាំដើម)</option>
+                                    <option value="premiere">ស្ទាយ Adobe Premiere Pro</option>
+                                    <option value="finalcut">ស្ទាយ Final Cut Pro</option>
+                                </select>
+                            </div>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-[12px]">
-                            <div class="p-3 rounded-xl bg-[#181822] border border-[#2b2b36] flex items-center justify-between">
-                                <span class="text-slate-300 font-medium">ចាក់ / ផ្អាក (Play / Pause)</span>
-                                <kbd class="px-2.5 py-1 bg-[#22222e] border border-[#3b3b4a] rounded text-[11px] font-mono text-[#00e5cc] font-bold">Space</kbd>
+                        <!-- LIVE INTERACTIVE KEYBOARD TESTER BOX -->
+                        <div class="p-4 rounded-2xl bg-gradient-to-r from-[#141624] via-[#10121c] to-[#151726] border border-[#2f354d] shadow-[0_4px_25px_rgba(0,0,0,0.5)] relative overflow-hidden group">
+                            <div class="absolute -top-12 -right-12 w-40 h-40 bg-blue-500/10 rounded-full blur-2xl pointer-events-none group-hover:bg-blue-500/20 transition-all duration-700"></div>
+                            
+                            <div class="flex items-center justify-between mb-3 relative z-10">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981] animate-ping"></span>
+                                    <span class="text-[12px] font-extrabold text-white flex items-center gap-2">
+                                        <i class="fa-solid fa-gamepad text-blue-400"></i>
+                                        សាកល្បងចុចគ្រាប់ចុចលើក្ដារចុចផ្ទាល់ (Live Key Press Tester)
+                                    </span>
+                                </div>
+                                <span class="text-[10px] text-slate-400 bg-white/5 px-2.5 py-0.5 rounded-md border border-white/10 font-mono">
+                                    <i class="fa-regular fa-lightbulb text-amber-400 mr-1"></i> ចុចគ្រាប់ចុចណាមួយលើ Keyboard
+                                </span>
                             </div>
-                            <div class="p-3 rounded-xl bg-[#181822] border border-[#2b2b36] flex items-center justify-between">
-                                <span class="text-slate-300 font-medium">កាត់តឈុតត្រង់ Playhead (Split)</span>
-                                <kbd class="px-2.5 py-1 bg-[#22222e] border border-[#3b3b4a] rounded text-[11px] font-mono text-[#00e5cc] font-bold">S</kbd>
+
+                            <div class="p-3.5 rounded-xl bg-[#090a10]/90 border border-[#232738] flex flex-col sm:flex-row sm:items-center justify-between gap-3 relative z-10">
+                                <div class="flex items-center gap-4">
+                                    <div id="liveTesterKeyBadge" class="min-w-[70px] h-12 px-3.5 rounded-xl bg-gradient-to-b from-[#25283c] to-[#151722] border-2 border-blue-400 text-blue-300 font-mono font-black text-sm flex items-center justify-center shadow-[0_0_15px_rgba(59,130,246,0.35)] transition-all">
+                                        Space
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <span id="liveTesterActionTitle" class="text-[13px] font-extrabold text-white">
+                                                ចាក់ / ផ្អាក Timeline Playback (Play / Pause)
+                                            </span>
+                                            <span id="liveTesterStatusPill" class="text-[9.5px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.2 rounded font-bold uppercase tracking-wide">
+                                                Triggered
+                                            </span>
+                                        </div>
+                                        <p id="liveTesterActionDesc" class="text-[11px] text-slate-400 mt-0.5">
+                                            បញ្ជាឱ្យចាក់ ឬផ្អាកវីដេអូនៅលើ Timeline & ផ្ទាំង Visual Stage
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <button type="button" onclick="testShortcutAction('space')" class="px-3.5 py-1.5 rounded-lg bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 border border-blue-500/40 text-[11px] font-bold transition-all flex items-center gap-1.5 cursor-pointer">
+                                        <i class="fa-solid fa-play text-[10px]"></i> តេស្ត Play / Pause
+                                    </button>
+                                    <button type="button" onclick="testShortcutAction('split')" class="px-3.5 py-1.5 rounded-lg bg-[#00e5cc]/15 hover:bg-[#00e5cc]/30 text-[#00e5cc] border border-[#00e5cc]/40 text-[11px] font-bold transition-all flex items-center gap-1.5 cursor-pointer">
+                                        <i class="fa-solid fa-scissors text-[10px]"></i> តេស្ត Split
+                                    </button>
+                                </div>
                             </div>
-                            <div class="p-3 rounded-xl bg-[#181822] border border-[#2b2b36] flex items-center justify-between">
-                                <span class="text-slate-300 font-medium">លុបឈុតដែលជ្រើសរើស (Delete)</span>
-                                <kbd class="px-2.5 py-1 bg-[#22222e] border border-[#3b3b4a] rounded text-[11px] font-mono text-rose-400 font-bold">Del</kbd>
+                        </div>
+
+                        <!-- FILTER TABS & INSTANT SEARCH -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <!-- Category Filter Pills -->
+                            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0" id="shortcutCategoryFilterGroup">
+                                <button type="button" onclick="filterShortcutsCategory('all')" id="scFilter-all" class="px-3 py-1.5 rounded-xl bg-blue-600 text-white text-xs font-bold transition-all cursor-pointer shadow-sm">
+                                    ទាំងអស់ (All)
+                                </button>
+                                <button type="button" onclick="filterShortcutsCategory('timeline')" id="scFilter-timeline" class="px-3 py-1.5 rounded-xl bg-[#161722] hover:bg-[#202232] text-slate-300 hover:text-white border border-[#282938] text-xs font-semibold transition-all cursor-pointer">
+                                    🎬 Timeline & វីដេអូ
+                                </button>
+                                <button type="button" onclick="filterShortcutsCategory('ai')" id="scFilter-ai" class="px-3 py-1.5 rounded-xl bg-[#161722] hover:bg-[#202232] text-slate-300 hover:text-white border border-[#282938] text-xs font-semibold transition-all cursor-pointer">
+                                    🤖 AI Studio & TTS
+                                </button>
+                                <button type="button" onclick="filterShortcutsCategory('system')" id="scFilter-system" class="px-3 py-1.5 rounded-xl bg-[#161722] hover:bg-[#202232] text-slate-300 hover:text-white border border-[#282938] text-xs font-semibold transition-all cursor-pointer">
+                                    ⚡ គម្រោង & ប្រព័ន្ធ
+                                </button>
                             </div>
-                            <div class="p-3 rounded-xl bg-[#181822] border border-[#2b2b36] flex items-center justify-between">
-                                <span class="text-slate-300 font-medium">ត្រឡប់ក្រោយ (Undo)</span>
-                                <kbd class="px-2.5 py-1 bg-[#22222e] border border-[#3b3b4a] rounded text-[11px] font-mono text-slate-200 font-bold">Ctrl + Z</kbd>
+
+                            <!-- Live Search Bar -->
+                            <div class="relative min-w-[220px]">
+                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                <input type="text" id="shortcutSearchInput" oninput="searchShortcuts(this.value)" placeholder="ស្វែងរកគ្រាប់ចុច (Space, S, Save...)" class="w-full pl-8 pr-3 py-1.5 rounded-xl bg-[#12131b] border border-[#2b2d3d] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-400 transition-colors">
                             </div>
-                            <div class="p-3 rounded-xl bg-[#181822] border border-[#2b2b36] flex items-center justify-between">
-                                <span class="text-slate-300 font-medium">ទៅមុខ (Redo)</span>
-                                <kbd class="px-2.5 py-1 bg-[#22222e] border border-[#3b3b4a] rounded text-[11px] font-mono text-slate-200 font-bold">Ctrl + Y</kbd>
+                        </div>
+
+                        <!-- 16 RICH SHORTCUT CARDS GRID -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="shortcutsCardsContainer">
+
+                            <!-- 1. Play / Pause -->
+                            <div class="shortcut-card p-3.5 rounded-2xl bg-[#161722] border border-[#282938] hover:border-blue-500/50 flex items-center justify-between gap-3 transition-all group" data-category="timeline" data-search="play pause ចាក់ ផ្អាក space">
+                                <div class="flex items-center gap-3 overflow-hidden">
+                                    <div class="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-400 group-hover:bg-blue-500/20 group-hover:scale-105 flex items-center justify-center shrink-0 transition-all border border-blue-500/20">
+                                        <i class="fa-solid fa-play text-xs"></i>
+                                    </div>
+                                    <div class="truncate">
+                                        <div class="text-[12.5px] font-bold text-white group-hover:text-blue-300 transition-colors flex items-center gap-2">
+                                            ចាក់ / ផ្អាក (Play / Pause)
+                                            <span class="text-[9px] bg-blue-500/10 text-blue-300 px-1.5 py-0.2 rounded font-mono font-bold">TIMELINE</span>
+                                        </div>
+                                        <div class="text-[10px] text-slate-400 truncate mt-0.5">ចាក់ ឬបញ្ឈប់ការ Preview វីដេអូលើ Stage</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <kbd class="px-3 py-1 bg-gradient-to-b from-[#262838] to-[#181924] border border-[#3b3e54] rounded-lg text-xs font-mono font-black text-blue-300 shadow-[0_2px_4px_rgba(0,0,0,0.5)]">Space</kbd>
+                                    <button type="button" onclick="testShortcutAction('space')" class="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center text-[10px] transition-colors cursor-pointer" title="តេស្តចុច">
+                                        <i class="fa-solid fa-bolt"></i>
+                                    </button>
+                                </div>
                             </div>
-                            <div class="p-3 rounded-xl bg-[#181822] border border-[#2b2b36] flex items-center justify-between">
-                                <span class="text-slate-300 font-medium">បិទ/បើកសំឡេង (Mute Track)</span>
-                                <kbd class="px-2.5 py-1 bg-[#22222e] border border-[#3b3b4a] rounded text-[11px] font-mono text-slate-200 font-bold">M</kbd>
+
+                            <!-- 2. Split Clip at Playhead -->
+                            <div class="shortcut-card p-3.5 rounded-2xl bg-[#161722] border border-[#282938] hover:border-[#00e5cc]/50 flex items-center justify-between gap-3 transition-all group" data-category="timeline" data-search="split cut កាត់ បំបែក s c">
+                                <div class="flex items-center gap-3 overflow-hidden">
+                                    <div class="w-9 h-9 rounded-xl bg-[#00e5cc]/10 text-[#00e5cc] group-hover:bg-[#00e5cc]/20 group-hover:scale-105 flex items-center justify-center shrink-0 transition-all border border-[#00e5cc]/20">
+                                        <i class="fa-solid fa-scissors text-xs"></i>
+                                    </div>
+                                    <div class="truncate">
+                                        <div class="text-[12.5px] font-bold text-white group-hover:text-[#00e5cc] transition-colors flex items-center gap-2">
+                                            កាត់តឈុតត្រង់បន្ទាត់ (Split Clip)
+                                            <span class="text-[9px] bg-[#00e5cc]/10 text-[#00e5cc] px-1.5 py-0.2 rounded font-mono font-bold">TIMELINE</span>
+                                        </div>
+                                        <div class="text-[10px] text-slate-400 truncate mt-0.5">កាត់បំបែកវីដេអូ ឬសំឡេងត្រង់ Playhead ភ្លាមៗ</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <kbd id="kbSplitKey" class="px-3 py-1 bg-gradient-to-b from-[#262838] to-[#181924] border border-[#3b3e54] rounded-lg text-xs font-mono font-black text-[#00e5cc] shadow-[0_2px_4px_rgba(0,0,0,0.5)]">S</kbd>
+                                    <button type="button" onclick="testShortcutAction('split')" class="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center text-[10px] transition-colors cursor-pointer" title="តេស្តចុច">
+                                        <i class="fa-solid fa-bolt"></i>
+                                    </button>
+                                </div>
                             </div>
+
+                            <!-- 3. Delete Selected Clip -->
+                            <div class="shortcut-card p-3.5 rounded-2xl bg-[#161722] border border-[#282938] hover:border-rose-500/50 flex items-center justify-between gap-3 transition-all group" data-category="timeline" data-search="delete remove លុប del backspace">
+                                <div class="flex items-center gap-3 overflow-hidden">
+                                    <div class="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-400 group-hover:bg-rose-500/20 group-hover:scale-105 flex items-center justify-center shrink-0 transition-all border border-rose-500/20">
+                                        <i class="fa-solid fa-trash-can text-xs"></i>
+                                    </div>
+                                    <div class="truncate">
+                                        <div class="text-[12.5px] font-bold text-white group-hover:text-rose-300 transition-colors flex items-center gap-2">
+                                            លុបឈុតដែលជ្រើស (Delete Clip)
+                                            <span class="text-[9px] bg-rose-500/10 text-rose-300 px-1.5 py-0.2 rounded font-mono font-bold">TIMELINE</span>
+                                        </div>
+                                        <div class="text-[10px] text-slate-400 truncate mt-0.5">លុប Clip កំពុង Select ចេញពី Timeline</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <kbd class="px-3 py-1 bg-gradient-to-b from-[#262838] to-[#181924] border border-[#3b3e54] rounded-lg text-xs font-mono font-black text-rose-400 shadow-[0_2px_4px_rgba(0,0,0,0.5)]">Del / ⌫</kbd>
+                                    <button type="button" onclick="testShortcutAction('delete')" class="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center text-[10px] transition-colors cursor-pointer" title="តេស្តចុច">
+                                        <i class="fa-solid fa-bolt"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 4. Quick Save Project -->
+                            <div class="shortcut-card p-3.5 rounded-2xl bg-[#161722] border border-[#282938] hover:border-emerald-500/50 flex items-center justify-between gap-3 transition-all group" data-category="system" data-search="save រក្សាទុក ctrl s project">
+                                <div class="flex items-center gap-3 overflow-hidden">
+                                    <div class="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-500/20 group-hover:scale-105 flex items-center justify-center shrink-0 transition-all border border-emerald-500/20">
+                                        <i class="fa-solid fa-floppy-disk text-xs"></i>
+                                    </div>
+                                    <div class="truncate">
+                                        <div class="text-[12.5px] font-bold text-white group-hover:text-emerald-300 transition-colors flex items-center gap-2">
+                                            រក្សាទុកគម្រោងរហ័ស (Quick Save)
+                                            <span class="text-[9px] bg-emerald-500/10 text-emerald-300 px-1.5 py-0.2 rounded font-mono font-bold">PROJECT</span>
+                                        </div>
+                                        <div class="text-[10px] text-slate-400 truncate mt-0.5">រក្សាទុក Timeline & Script ចូល Storage ភ្លាមៗ</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <div class="flex items-center gap-1">
+                                        <kbd class="px-2 py-1 bg-gradient-to-b from-[#262838] to-[#181924] border border-[#3b3e54] rounded-lg text-xs font-mono font-black text-slate-200">Ctrl</kbd>
+                                        <span class="text-slate-500 font-bold">+</span>
+                                        <kbd class="px-2 py-1 bg-gradient-to-b from-[#262838] to-[#181924] border border-[#3b3e54] rounded-lg text-xs font-mono font-black text-emerald-400">S</kbd>
+                                    </div>
+                                    <button type="button" onclick="testShortcutAction('save')" class="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center text-[10px] transition-colors cursor-pointer" title="តេស្តចុច">
+                                        <i class="fa-solid fa-bolt"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 5. Generate AI Story / Script -->
+                            <div class="shortcut-card p-3.5 rounded-2xl bg-[#161722] border border-[#282938] hover:border-purple-500/50 flex items-center justify-between gap-3 transition-all group" data-category="ai" data-search="generate ai story សម្រាយ តែង ctrl enter">
+                                <div class="flex items-center gap-3 overflow-hidden">
+                                    <div class="w-9 h-9 rounded-xl bg-purple-500/10 text-purple-400 group-hover:bg-purple-500/20 group-hover:scale-105 flex items-center justify-center shrink-0 transition-all border border-purple-500/20">
+                                        <i class="fa-solid fa-wand-magic-sparkles text-xs"></i>
+                                    </div>
+                                    <div class="truncate">
+                                        <div class="text-[12.5px] font-bold text-white group-hover:text-purple-300 transition-colors flex items-center gap-2">
+                                            បង្កើតសាច់រឿង AI (Generate)
+                                            <span class="text-[9px] bg-purple-500/10 text-purple-300 px-1.5 py-0.2 rounded font-mono font-bold">AI STUDIO</span>
+                                        </div>
+                                        <div class="text-[10px] text-slate-400 truncate mt-0.5">បញ្ជាម៉ាស៊ីន AI ឱ្យបង្កើតអត្ថបទសម្រាយរឿងភ្លាមៗ</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <div class="flex items-center gap-1">
+                                        <kbd class="px-2 py-1 bg-gradient-to-b from-[#262838] to-[#181924] border border-[#3b3e54] rounded-lg text-xs font-mono font-black text-slate-200">Ctrl</kbd>
+                                        <span class="text-slate-500 font-bold">+</span>
+                                        <kbd class="px-2 py-1 bg-gradient-to-b from-[#262838] to-[#181924] border border-[#3b3e54] rounded-lg text-xs font-mono font-black text-purple-400">↵</kbd>
+                                    </div>
+                                    <button type="button" onclick="testShortcutAction('generate')" class="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center text-[10px] transition-colors cursor-pointer" title="តេស្តចុច">
+                                        <i class="fa-solid fa-bolt"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 6. Play AI Voiceover Preview -->
+                            <div class="shortcut-card p-3.5 rounded-2xl bg-[#161722] border border-[#282938] hover:border-rose-500/50 flex items-center justify-between gap-3 transition-all group" data-category="ai" data-search="voice tts សំឡេង preview alt p">
+                                <div class="flex items-center gap-3 overflow-hidden">
+                                    <div class="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-400 group-hover:bg-rose-500/20 group-hover:scale-105 flex items-center justify-center shrink-0 transition-all border border-rose-500/20">
+                                        <i class="fa-solid fa-microphone-lines text-xs"></i>
+                                    </div>
+                                    <div class="truncate">
+                                        <div class="text-[12.5px] font-bold text-white group-hover:text-rose-300 transition-colors flex items-center gap-2">
+                                            សាកល្បងសំឡេង AI (Voice TTS)
+                                            <span class="text-[9px] bg-rose-500/10 text-rose-300 px-1.5 py-0.2 rounded font-mono font-bold">AI STUDIO</span>
+                                        </div>
+                                        <div class="text-[10px] text-slate-400 truncate mt-0.5">បង្កើត និងចាក់ស្តាប់សំឡេងអានសាច់រឿងភាសាខ្មែរ</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <div class="flex items-center gap-1">
+                                        <kbd class="px-2 py-1 bg-gradient-to-b from-[#262838] to-[#181924] border border-[#3b3e54] rounded-lg text-xs font-mono font-black text-slate-200">Alt</kbd>
+                                        <span class="text-slate-500 font-bold">+</span>
+                                        <kbd class="px-2 py-1 bg-gradient-to-b from-[#262838] to-[#181924] border border-[#3b3e54] rounded-lg text-xs font-mono font-black text-rose-400">P</kbd>
+                                    </div>
+                                    <button type="button" onclick="testShortcutAction('voice')" class="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center text-[10px] transition-colors cursor-pointer" title="តេស្តចុច">
+                                        <i class="fa-solid fa-bolt"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 7. Open AI BGM Studio -->
+                            <div class="shortcut-card p-3.5 rounded-2xl bg-[#161722] border border-[#282938] hover:border-amber-500/50 flex items-center justify-between gap-3 transition-all group" data-category="ai" data-search="bgm music ភ្លេង ស្រង់ភ្លេង instrumental alt b">
+                                <div class="flex items-center gap-3 overflow-hidden">
+                                    <div class="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-400 group-hover:bg-amber-500/20 group-hover:scale-105 flex items-center justify-center shrink-0 transition-all border border-amber-500/20">
+                                        <i class="fa-solid fa-music text-xs"></i>
+                                    </div>
+                                    <div class="truncate">
+                                        <div class="text-[12.5px] font-bold text-white group-hover:text-amber-300 transition-colors flex items-center gap-2">
+                                            ស្រង់ភ្លេងកំដរ BGM Studio
+                                            <span class="text-[9px] bg-amber-500/10 text-amber-300 px-1.5 py-0.2 rounded font-mono font-bold">TOOLS</span>
+                                        </div>
+                                        <div class="text-[10px] text-slate-400 truncate mt-0.5">បើកផ្ទាំង BGM Isolator & Vocal Remover</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <div class="flex items-center gap-1">
+                                        <kbd class="px-2 py-1 bg-gradient-to-b from-[#262838] to-[#181924] border border-[#3b3e54] rounded-lg text-xs font-mono font-black text-slate-200">Alt</kbd>
+                                        <span class="text-slate-500 font-bold">+</span>
+                                        <kbd class="px-2 py-1 bg-gradient-to-b from-[#262838] to-[#181924] border border-[#3b3e54] rounded-lg text-xs font-mono font-black text-amber-400">B</kbd>
+                                    </div>
+                                    <button type="button" onclick="testShortcutAction('bgm')" class="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center text-[10px] transition-colors cursor-pointer" title="តេស្តចុច">
+                                        <i class="fa-solid fa-bolt"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 8. Mute / Unmute Track -->
+                            <div class="shortcut-card p-3.5 rounded-2xl bg-[#161722] border border-[#282938] hover:border-indigo-500/50 flex items-center justify-between gap-3 transition-all group" data-category="timeline" data-search="mute unmute បិទសំឡេង m">
+                                <div class="flex items-center gap-3 overflow-hidden">
+                                    <div class="w-9 h-9 rounded-xl bg-indigo-500/10 text-indigo-400 group-hover:bg-indigo-500/20 group-hover:scale-105 flex items-center justify-center shrink-0 transition-all border border-indigo-500/20">
+                                        <i class="fa-solid fa-volume-xmark text-xs"></i>
+                                    </div>
+                                    <div class="truncate">
+                                        <div class="text-[12.5px] font-bold text-white group-hover:text-indigo-300 transition-colors flex items-center gap-2">
+                                            បិទ/បើកសំឡេង (Mute Track)
+                                            <span class="text-[9px] bg-indigo-500/10 text-indigo-300 px-1.5 py-0.2 rounded font-mono font-bold">TIMELINE</span>
+                                        </div>
+                                        <div class="text-[10px] text-slate-400 truncate mt-0.5">បិទ ឬបើកសំឡេងទាំងអស់នៅលើ Timeline</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <kbd class="px-3 py-1 bg-gradient-to-b from-[#262838] to-[#181924] border border-[#3b3e54] rounded-lg text-xs font-mono font-black text-indigo-300 shadow-[0_2px_4px_rgba(0,0,0,0.5)]">M</kbd>
+                                    <button type="button" onclick="testShortcutAction('mute')" class="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center text-[10px] transition-colors cursor-pointer" title="តេស្តចុច">
+                                        <i class="fa-solid fa-bolt"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 9. Step Clip Previous / Next (Left / Right Arrow) -->
+                            <div class="shortcut-card p-3.5 rounded-2xl bg-[#161722] border border-[#282938] hover:border-sky-500/50 flex items-center justify-between gap-3 transition-all group" data-category="timeline" data-search="step frame arrow ឈុត ព្រួញ left right">
+                                <div class="flex items-center gap-3 overflow-hidden">
+                                    <div class="w-9 h-9 rounded-xl bg-sky-500/10 text-sky-400 group-hover:bg-sky-500/20 group-hover:scale-105 flex items-center justify-center shrink-0 transition-all border border-sky-500/20">
+                                        <i class="fa-solid fa-arrows-left-right text-xs"></i>
+                                    </div>
+                                    <div class="truncate">
+                                        <div class="text-[12.5px] font-bold text-white group-hover:text-sky-300 transition-colors flex items-center gap-2">
+                                            រំកិល Playhead ឈុតមុន/បន្ទាប់
+                                            <span class="text-[9px] bg-sky-500/10 text-sky-300 px-1.5 py-0.2 rounded font-mono font-bold">TIMELINE</span>
+                                        </div>
+                                        <div class="text-[10px] text-slate-400 truncate mt-0.5">លោតទៅឈុតមុន ឬឈុតបន្ទាប់នៅលើ Timeline</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <div class="flex items-center gap-1">
+                                        <kbd class="px-2 py-1 bg-gradient-to-b from-[#262838] to-[#181924] border border-[#3b3e54] rounded-lg text-xs font-mono font-black text-sky-300">←</kbd>
+                                        <kbd class="px-2 py-1 bg-gradient-to-b from-[#262838] to-[#181924] border border-[#3b3e54] rounded-lg text-xs font-mono font-black text-sky-300">→</kbd>
+                                    </div>
+                                    <button type="button" onclick="testShortcutAction('step')" class="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center text-[10px] transition-colors cursor-pointer" title="តេស្តចុច">
+                                        <i class="fa-solid fa-bolt"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 10. Undo History -->
+                            <div class="shortcut-card p-3.5 rounded-2xl bg-[#161722] border border-[#282938] hover:border-slate-400/50 flex items-center justify-between gap-3 transition-all group" data-category="system" data-search="undo ថយក្រោយ ctrl z">
+                                <div class="flex items-center gap-3 overflow-hidden">
+                                    <div class="w-9 h-9 rounded-xl bg-white/5 text-slate-300 group-hover:bg-white/10 group-hover:scale-105 flex items-center justify-center shrink-0 transition-all border border-white/10">
+                                        <i class="fa-solid fa-rotate-left text-xs"></i>
+                                    </div>
+                                    <div class="truncate">
+                                        <div class="text-[12.5px] font-bold text-white group-hover:text-slate-200 transition-colors flex items-center gap-2">
+                                            ត្រឡប់ក្រោយ (Undo History)
+                                            <span class="text-[9px] bg-white/10 text-slate-300 px-1.5 py-0.2 rounded font-mono font-bold">SYSTEM</span>
+                                        </div>
+                                        <div class="text-[10px] text-slate-400 truncate mt-0.5">ត្រឡប់សកម្មភាពកាត់ត ឬកែប្រែ Script មុន</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <div class="flex items-center gap-1">
+                                        <kbd class="px-2 py-1 bg-gradient-to-b from-[#262838] to-[#181924] border border-[#3b3e54] rounded-lg text-xs font-mono font-black text-slate-200">Ctrl</kbd>
+                                        <span class="text-slate-500 font-bold">+</span>
+                                        <kbd class="px-2 py-1 bg-gradient-to-b from-[#262838] to-[#181924] border border-[#3b3e54] rounded-lg text-xs font-mono font-black text-slate-200">Z</kbd>
+                                    </div>
+                                    <button type="button" onclick="testShortcutAction('undo')" class="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center text-[10px] transition-colors cursor-pointer" title="តេស្តចុច">
+                                        <i class="fa-solid fa-bolt"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 11. Redo History -->
+                            <div class="shortcut-card p-3.5 rounded-2xl bg-[#161722] border border-[#282938] hover:border-slate-400/50 flex items-center justify-between gap-3 transition-all group" data-category="system" data-search="redo ទៅមុខ ctrl y ctrl shift z">
+                                <div class="flex items-center gap-3 overflow-hidden">
+                                    <div class="w-9 h-9 rounded-xl bg-white/5 text-slate-300 group-hover:bg-white/10 group-hover:scale-105 flex items-center justify-center shrink-0 transition-all border border-white/10">
+                                        <i class="fa-solid fa-rotate-right text-xs"></i>
+                                    </div>
+                                    <div class="truncate">
+                                        <div class="text-[12.5px] font-bold text-white group-hover:text-slate-200 transition-colors flex items-center gap-2">
+                                            ទៅមុខវិញ (Redo History)
+                                            <span class="text-[9px] bg-white/10 text-slate-300 px-1.5 py-0.2 rounded font-mono font-bold">SYSTEM</span>
+                                        </div>
+                                        <div class="text-[10px] text-slate-400 truncate mt-0.5">ធ្វើឡើងវិញនូវសកម្មភាពដែលបាន Undo</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <div class="flex items-center gap-1">
+                                        <kbd class="px-2 py-1 bg-gradient-to-b from-[#262838] to-[#181924] border border-[#3b3e54] rounded-lg text-xs font-mono font-black text-slate-200">Ctrl</kbd>
+                                        <span class="text-slate-500 font-bold">+</span>
+                                        <kbd class="px-2 py-1 bg-gradient-to-b from-[#262838] to-[#181924] border border-[#3b3e54] rounded-lg text-xs font-mono font-black text-slate-200">Y</kbd>
+                                    </div>
+                                    <button type="button" onclick="testShortcutAction('redo')" class="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center text-[10px] transition-colors cursor-pointer" title="តេស្តចុច">
+                                        <i class="fa-solid fa-bolt"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 12. Fullscreen Stage (F) -->
+                            <div class="shortcut-card p-3.5 rounded-2xl bg-[#161722] border border-[#282938] hover:border-teal-500/50 flex items-center justify-between gap-3 transition-all group" data-category="timeline" data-search="fullscreen theater ពេញអេក្រង់ f">
+                                <div class="flex items-center gap-3 overflow-hidden">
+                                    <div class="w-9 h-9 rounded-xl bg-teal-500/10 text-teal-400 group-hover:bg-teal-500/20 group-hover:scale-105 flex items-center justify-center shrink-0 transition-all border border-teal-500/20">
+                                        <i class="fa-solid fa-expand text-xs"></i>
+                                    </div>
+                                    <div class="truncate">
+                                        <div class="text-[12.5px] font-bold text-white group-hover:text-teal-300 transition-colors flex items-center gap-2">
+                                            ពេញអេក្រង់ (Fullscreen Stage)
+                                            <span class="text-[9px] bg-teal-500/10 text-teal-300 px-1.5 py-0.2 rounded font-mono font-bold">STAGE</span>
+                                        </div>
+                                        <div class="text-[10px] text-slate-400 truncate mt-0.5">បើកផ្ទាំងវីដេអូទំហំធំពេញផ្ទៃសម្រាប់ទស្សនា</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <kbd class="px-3 py-1 bg-gradient-to-b from-[#262838] to-[#181924] border border-[#3b3e54] rounded-lg text-xs font-mono font-black text-teal-300 shadow-[0_2px_4px_rgba(0,0,0,0.5)]">F</kbd>
+                                    <button type="button" onclick="testShortcutAction('fullscreen')" class="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center text-[10px] transition-colors cursor-pointer" title="តេស្តចុច">
+                                        <i class="fa-solid fa-bolt"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 13. Jump to Start / End (Home / End) -->
+                            <div class="shortcut-card p-3.5 rounded-2xl bg-[#161722] border border-[#282938] hover:border-cyan-500/50 flex items-center justify-between gap-3 transition-all group" data-category="timeline" data-search="home end jump ដើម ចុង timeline">
+                                <div class="flex items-center gap-3 overflow-hidden">
+                                    <div class="w-9 h-9 rounded-xl bg-cyan-500/10 text-cyan-400 group-hover:bg-cyan-500/20 group-hover:scale-105 flex items-center justify-center shrink-0 transition-all border border-cyan-500/20">
+                                        <i class="fa-solid fa-backward-step text-xs"></i>
+                                    </div>
+                                    <div class="truncate">
+                                        <div class="text-[12.5px] font-bold text-white group-hover:text-cyan-300 transition-colors flex items-center gap-2">
+                                            ទៅដើម / ទៅចុង Timeline
+                                            <span class="text-[9px] bg-cyan-500/10 text-cyan-300 px-1.5 py-0.2 rounded font-mono font-bold">TIMELINE</span>
+                                        </div>
+                                        <div class="text-[10px] text-slate-400 truncate mt-0.5">រំកិល Playhead ទៅដើមដំបូង ឬចុងបញ្ចប់</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <div class="flex items-center gap-1">
+                                        <kbd class="px-2 py-1 bg-gradient-to-b from-[#262838] to-[#181924] border border-[#3b3e54] rounded-lg text-xs font-mono font-black text-cyan-300">Home</kbd>
+                                        <kbd class="px-2 py-1 bg-gradient-to-b from-[#262838] to-[#181924] border border-[#3b3e54] rounded-lg text-xs font-mono font-black text-cyan-300">End</kbd>
+                                    </div>
+                                    <button type="button" onclick="testShortcutAction('home')" class="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center text-[10px] transition-colors cursor-pointer" title="តេស្តចុច">
+                                        <i class="fa-solid fa-bolt"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 14. Close Modal / Popup (Esc) -->
+                            <div class="shortcut-card p-3.5 rounded-2xl bg-[#161722] border border-[#282938] hover:border-slate-400/50 flex items-center justify-between gap-3 transition-all group" data-category="system" data-search="esc escape close បិទ modal">
+                                <div class="flex items-center gap-3 overflow-hidden">
+                                    <div class="w-9 h-9 rounded-xl bg-white/5 text-slate-300 group-hover:bg-white/10 group-hover:scale-105 flex items-center justify-center shrink-0 transition-all border border-white/10">
+                                        <i class="fa-solid fa-xmark text-xs"></i>
+                                    </div>
+                                    <div class="truncate">
+                                        <div class="text-[12.5px] font-bold text-white group-hover:text-slate-200 transition-colors flex items-center gap-2">
+                                            បិទផ្ទាំង (Close Settings / Modal)
+                                            <span class="text-[9px] bg-white/10 text-slate-300 px-1.5 py-0.2 rounded font-mono font-bold">SYSTEM</span>
+                                        </div>
+                                        <div class="text-[10px] text-slate-400 truncate mt-0.5">បិទផ្ទាំង Settings ឬ Popup ផ្សេងៗភ្លាមៗ</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <kbd class="px-3 py-1 bg-gradient-to-b from-[#262838] to-[#181924] border border-[#3b3e54] rounded-lg text-xs font-mono font-black text-slate-300 shadow-[0_2px_4px_rgba(0,0,0,0.5)]">Esc</kbd>
+                                    <button type="button" onclick="testShortcutAction('escape')" class="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center text-[10px] transition-colors cursor-pointer" title="តេស្តចុច">
+                                        <i class="fa-solid fa-bolt"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 15. Open Shortcuts Help (?) -->
+                            <div class="shortcut-card p-3.5 rounded-2xl bg-[#161722] border border-[#282938] hover:border-yellow-500/50 flex items-center justify-between gap-3 transition-all group" data-category="system" data-search="help shortcuts សួរ ? ctrl /">
+                                <div class="flex items-center gap-3 overflow-hidden">
+                                    <div class="w-9 h-9 rounded-xl bg-yellow-500/10 text-yellow-400 group-hover:bg-yellow-500/20 group-hover:scale-105 flex items-center justify-center shrink-0 transition-all border border-yellow-500/20">
+                                        <i class="fa-solid fa-circle-question text-xs"></i>
+                                    </div>
+                                    <div class="truncate">
+                                        <div class="text-[12.5px] font-bold text-white group-hover:text-yellow-300 transition-colors flex items-center gap-2">
+                                            បើកតារាង Shortcuts នេះភ្លាមៗ
+                                            <span class="text-[9px] bg-yellow-500/10 text-yellow-300 px-1.5 py-0.2 rounded font-mono font-bold">HELP</span>
+                                        </div>
+                                        <div class="text-[10px] text-slate-400 truncate mt-0.5">ចុចមើលគ្រាប់ចុចកាត់គ្រប់ពេលវេលាក្នុង App</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <div class="flex items-center gap-1">
+                                        <kbd class="px-2 py-1 bg-gradient-to-b from-[#262838] to-[#181924] border border-[#3b3e54] rounded-lg text-xs font-mono font-black text-slate-200">Ctrl</kbd>
+                                        <span class="text-slate-500 font-bold">+</span>
+                                        <kbd class="px-2 py-1 bg-gradient-to-b from-[#262838] to-[#181924] border border-[#3b3e54] rounded-lg text-xs font-mono font-black text-yellow-400">/</kbd>
+                                    </div>
+                                    <button type="button" onclick="testShortcutAction('help')" class="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center text-[10px] transition-colors cursor-pointer" title="តេស្តចុច">
+                                        <i class="fa-solid fa-bolt"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 16. Quick Switch Stage / Script Editor -->
+                            <div class="shortcut-card p-3.5 rounded-2xl bg-[#161722] border border-[#282938] hover:border-pink-500/50 flex items-center justify-between gap-3 transition-all group" data-category="system" data-search="switch editor stage ប្តូរផ្ទាំង alt s">
+                                <div class="flex items-center gap-3 overflow-hidden">
+                                    <div class="w-9 h-9 rounded-xl bg-pink-500/10 text-pink-400 group-hover:bg-pink-500/20 group-hover:scale-105 flex items-center justify-center shrink-0 transition-all border border-pink-500/20">
+                                        <i class="fa-solid fa-code-compare text-xs"></i>
+                                    </div>
+                                    <div class="truncate">
+                                        <div class="text-[12.5px] font-bold text-white group-hover:text-pink-300 transition-colors flex items-center gap-2">
+                                            ប្តូរផ្ទាំង Stage ↔ Script Editor
+                                            <span class="text-[9px] bg-pink-500/10 text-pink-300 px-1.5 py-0.2 rounded font-mono font-bold">STAGE</span>
+                                        </div>
+                                        <div class="text-[10px] text-slate-400 truncate mt-0.5">ប្តូររវាងមើលវីដេអូ និងកែសម្រួលអត្ថបទស្គ្រីប</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <div class="flex items-center gap-1">
+                                        <kbd class="px-2 py-1 bg-gradient-to-b from-[#262838] to-[#181924] border border-[#3b3e54] rounded-lg text-xs font-mono font-black text-slate-200">Alt</kbd>
+                                        <span class="text-slate-500 font-bold">+</span>
+                                        <kbd class="px-2 py-1 bg-gradient-to-b from-[#262838] to-[#181924] border border-[#3b3e54] rounded-lg text-xs font-mono font-black text-pink-400">E</kbd>
+                                    </div>
+                                    <button type="button" onclick="testShortcutAction('editor')" class="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center text-[10px] transition-colors cursor-pointer" title="តេស្តចុច">
+                                        <i class="fa-solid fa-bolt"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- FOOTER ACTION BUTTONS -->
+                        <div class="pt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-[#232330]">
+                            <div class="flex items-center gap-2">
+                                <button type="button" onclick="copyShortcutsCheatSheet()" class="px-4 py-2 rounded-xl bg-[#1d1d26] hover:bg-[#252532] text-slate-200 hover:text-white text-xs font-semibold border border-[#303040] transition-colors flex items-center gap-2 cursor-pointer shadow-sm">
+                                    <i class="fa-regular fa-copy text-blue-400"></i>
+                                    ចម្លងតារាងគ្រាប់ចុច (Copy Cheat Sheet)
+                                </button>
+                                <button type="button" onclick="resetShortcutsDefaults()" class="px-4 py-2 rounded-xl bg-[#1d1d26] hover:bg-[#252532] text-slate-300 hover:text-white text-xs font-semibold border border-[#303040] transition-colors flex items-center gap-2 cursor-pointer">
+                                    <i class="fa-solid fa-rotate-left text-slate-400"></i>
+                                    កំណត់ឡើងវិញ (Reset)
+                                </button>
+                            </div>
+                            <button type="button" onclick="saveShortcutsSettingsManual()" class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-extrabold shadow-[0_0_15px_rgba(59,130,246,0.4)] transition-all flex items-center gap-2 cursor-pointer">
+                                <i class="fa-solid fa-check text-xs"></i>
+                                រក្សាទុកការកំណត់ Shortcuts (Save)
+                            </button>
                         </div>
                     </div>
 

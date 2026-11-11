@@ -2440,6 +2440,9 @@ const apiKey = "";
             if (typeof initAutoToolsSettings === 'function') {
                 initAutoToolsSettings();
             }
+            if (typeof initShortcutsSettings === 'function') {
+                initShortcutsSettings();
+            }
         });
 
         function formatCapCutTimecode(totalSeconds) {
@@ -4207,24 +4210,425 @@ const apiKey = "";
             toastTimeout = setTimeout(() => box.classList.add('translate-y-20', 'opacity-0'), 3000);
         }
 
-        // Timeline Keyboard Shortcuts
-        document.addEventListener('keydown', (e) => {
-            // Prevent shortcuts when typing in inputs/textareas
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        // ==================== SHORTCUTS & KEYBOARD ENGINE ====================
+        let isGlobalShortcutsBound = false;
+        let isAllTracksMuted = false;
 
-            // Delete or Backspace to delete selected clip
-            if (e.key === 'Delete' || e.key === 'Backspace') {
-                if (activeTimelineElement || timelineSegments.length > 0) {
-                    e.preventDefault();
-                    deleteSelectedClip();
-                }
-            } 
-            // Ctrl + B to Split active clip
-            else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
-                e.preventDefault();
-                splitActiveTimelineClip();
+        function updateLiveTesterUI(keyText, title, desc) {
+            const badge = document.getElementById('liveTesterKeyBadge');
+            const titleEl = document.getElementById('liveTesterActionTitle');
+            const descEl = document.getElementById('liveTesterActionDesc');
+            const pillEl = document.getElementById('liveTesterStatusPill');
+
+            if (badge) {
+                badge.textContent = keyText;
+                badge.classList.add('scale-110', 'border-emerald-400', 'text-emerald-300', 'shadow-[0_0_20px_#10b981]');
+                setTimeout(() => {
+                    badge.classList.remove('scale-110', 'border-emerald-400', 'text-emerald-300', 'shadow-[0_0_20px_#10b981]');
+                }, 350);
             }
-        });
+            if (titleEl && title) titleEl.textContent = title;
+            if (descEl && desc) descEl.textContent = desc;
+            if (pillEl) {
+                pillEl.textContent = 'Triggered ⚡';
+                pillEl.className = 'text-[9.5px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.2 rounded font-bold uppercase tracking-wide animate-pulse';
+            }
+        }
+
+        function toggleMuteAllTracks() {
+            isAllTracksMuted = !isAllTracksMuted;
+            const videoPreview = document.getElementById('uploadedVideoPreview');
+            const bgmPlayer = document.getElementById('bgmAudioPlayer');
+            const ttsPlayer = document.getElementById('aiAudioPlayer');
+
+            if (videoPreview) videoPreview.muted = isAllTracksMuted;
+            if (bgmPlayer) bgmPlayer.muted = isAllTracksMuted;
+            if (ttsPlayer) ttsPlayer.muted = isAllTracksMuted;
+
+            updateLiveTesterUI('M', isAllTracksMuted ? 'បានបិទសំឡេងទាំងអស់ (Muted)' : 'បានបើកសំឡេងទាំងអស់ (Unmuted)', 'ផ្លាស់ប្តូរកម្រិតសំឡេង Mute លើគ្រប់ Tracks ទាំងអស់');
+            showToast(isAllTracksMuted ? '🔇 បានបិទសំឡេងទាំងអស់ (Tracks Muted)!' : '🔊 បានបើកសំឡេងឡើងវិញ (Tracks Unmuted)!', 'info');
+        }
+
+        function toggleTheaterFullscreen() {
+            const stage = document.getElementById('centerVisualStage');
+            if (!stage) return;
+
+            if (!document.fullscreenElement) {
+                if (stage.requestFullscreen) {
+                    stage.requestFullscreen();
+                } else if (stage.webkitRequestFullscreen) {
+                    stage.webkitRequestFullscreen();
+                }
+                updateLiveTesterUI('F', 'ពេញអេក្រង់ (Fullscreen Stage)', 'បានពង្រីកផ្ទាំងវីដេអូទំហំធំពេញអេក្រង់');
+                showToast('📺 បានបើក Stage ពេញអេក្រង់ (ចុច Esc ឬ F ដើម្បីបិទ)', 'info');
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+                updateLiveTesterUI('F', 'ចេញពីពេញអេក្រង់ (Exit Fullscreen)', 'បានបង្រួមផ្ទាំងវីដេអូមកទំហំធម្មតា');
+            }
+        }
+
+        function saveProjectWorkspaceNow() {
+            const title = document.getElementById('recapTitle')?.value || document.getElementById('genProjectTitle')?.value || 'Untitled Project';
+            const script = currentOutputText || document.getElementById('outputTextarea')?.value || '';
+            
+            localStorage.setItem('khmer_studio_last_title', title);
+            localStorage.setItem('khmer_studio_last_script', script);
+            localStorage.setItem('khmer_studio_last_saved_time', new Date().toLocaleTimeString('km-KH'));
+
+            updateLiveTesterUI('Ctrl + S', 'រក្សាទុកគម្រោងរហ័ស (Quick Saved)', 'បានរក្សាទុកចំណងជើង និងអត្ថបទស្គ្រីបចូល Storage ជោគជ័យ');
+            showToast(`💾 បានរក្សាទុកគម្រោង "${title.slice(0, 25)}" ជោគជ័យ!`, 'success');
+        }
+
+        function switchShortcutsPreset(preset) {
+            localStorage.setItem('khmer_studio_shortcuts_preset', preset);
+            const kbSplitKey = document.getElementById('kbSplitKey');
+
+            if (preset === 'premiere') {
+                if (kbSplitKey) kbSplitKey.textContent = 'C (Razor)';
+                showToast('បានប្តូរស្ទាយគ្រាប់ចុចទៅជា Adobe Premiere Pro (C: Razor Cut, Space: Play)', 'info');
+            } else if (preset === 'finalcut') {
+                if (kbSplitKey) kbSplitKey.textContent = 'B (Blade)';
+                showToast('បានប្តូរស្ទាយគ្រាប់ចុចទៅជា Apple Final Cut Pro (B: Blade Cut, Space: Play)', 'info');
+            } else {
+                if (kbSplitKey) kbSplitKey.textContent = 'S';
+                showToast('បានប្តូរស្ទាយគ្រាប់ចុចទៅជា CapCut PC ស្តង់ដារ (S: Split, Del: Delete, Space: Play)', 'info');
+            }
+        }
+
+        function filterShortcutsCategory(cat) {
+            // Update buttons styling
+            const filterBtns = ['all', 'timeline', 'ai', 'system'];
+            filterBtns.forEach(c => {
+                const btn = document.getElementById(`scFilter-${c}`);
+                if (btn) {
+                    if (c === cat) {
+                        btn.className = 'px-3 py-1.5 rounded-xl bg-blue-600 text-white text-xs font-bold transition-all cursor-pointer shadow-sm';
+                    } else {
+                        btn.className = 'px-3 py-1.5 rounded-xl bg-[#161722] hover:bg-[#202232] text-slate-300 hover:text-white border border-[#282938] text-xs font-semibold transition-all cursor-pointer';
+                    }
+                }
+            });
+
+            // Filter cards
+            const cards = document.querySelectorAll('.shortcut-card');
+            let visibleCount = 0;
+            cards.forEach(card => {
+                const cardCat = card.dataset.category;
+                if (cat === 'all' || cardCat === cat) {
+                    card.classList.remove('hidden');
+                    visibleCount++;
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+
+            const countEl = document.getElementById('shortcutTotalCount');
+            if (countEl) countEl.textContent = visibleCount;
+        }
+
+        function searchShortcuts(query) {
+            const q = (query || '').toLowerCase().trim();
+            const cards = document.querySelectorAll('.shortcut-card');
+            let visibleCount = 0;
+
+            cards.forEach(card => {
+                const searchData = (card.dataset.search || '').toLowerCase();
+                const cardText = card.textContent.toLowerCase();
+                if (!q || searchData.includes(q) || cardText.includes(q)) {
+                    card.classList.remove('hidden');
+                    visibleCount++;
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+
+            const countEl = document.getElementById('shortcutTotalCount');
+            if (countEl) countEl.textContent = visibleCount;
+        }
+
+        function testShortcutAction(actionKey) {
+            const preset = localStorage.getItem('khmer_studio_shortcuts_preset') || 'capcut';
+
+            switch (actionKey) {
+                case 'space':
+                    toggleTimelinePlayback();
+                    updateLiveTesterUI('Space', 'ចាក់ / ផ្អាក Timeline Playback (Play / Pause)', 'បញ្ជាឱ្យចាក់ ឬផ្អាកវីដេអូនៅលើ Timeline & Stage');
+                    break;
+                case 'split':
+                    splitActiveTimelineClip();
+                    const splitLabel = preset === 'premiere' ? 'C' : (preset === 'finalcut' ? 'B' : 'S');
+                    updateLiveTesterUI(splitLabel, 'កាត់តឈុតត្រង់បន្ទាត់ (Split Clip)', 'បានកាត់បំបែកឈុតវីដេអូ ឬសំឡេងត្រង់បន្ទាត់ Playhead');
+                    break;
+                case 'delete':
+                    deleteSelectedClip();
+                    updateLiveTesterUI('Del', 'លុបឈុតដែលជ្រើសរើស (Delete Clip)', 'បានលុបឈុតចេញពី Timeline');
+                    break;
+                case 'save':
+                    saveProjectWorkspaceNow();
+                    break;
+                case 'generate':
+                    updateLiveTesterUI('Ctrl + Enter', 'បង្កើតសាច់រឿង AI (Generate AI Story)', 'បានបញ្ជាម៉ាស៊ីន AI ឱ្យបង្កើតអត្ថបទសម្រាយរឿង');
+                    handleGenerate();
+                    break;
+                case 'voice':
+                    updateLiveTesterUI('Alt + P', 'សាកល្បងសំឡេង AI (Voice TTS)', 'កំពុងចាក់សំឡេងសាកល្បងរបស់តួអង្គ AI');
+                    generateAndPlayTTS();
+                    break;
+                case 'bgm':
+                    updateLiveTesterUI('Alt + B', 'ស្រង់ភ្លេងកំដរ BGM Studio', 'បើកផ្ទាំង AI BGM & Instrumental Isolator');
+                    toggleApiModal('tools');
+                    break;
+                case 'mute':
+                    toggleMuteAllTracks();
+                    break;
+                case 'step':
+                    stepTimelineClip(1);
+                    updateLiveTesterUI('→', 'រំកិល Playhead ឈុតបន្ទាប់ (Step Clip)', 'បានរំកិល Playhead ទៅឈុតបន្ទាប់');
+                    break;
+                case 'undo':
+                    updateLiveTesterUI('Ctrl + Z', 'ត្រឡប់ក្រោយ (Undo History)', 'បានត្រឡប់សកម្មភាពមុន');
+                    showToast('បានត្រឡប់ក្រោយ (Undo)', 'info');
+                    break;
+                case 'redo':
+                    updateLiveTesterUI('Ctrl + Y', 'ទៅមុខវិញ (Redo History)', 'បានធ្វើឡើងវិញនូវសកម្មភាព');
+                    showToast('បានទៅមុខវិញ (Redo)', 'info');
+                    break;
+                case 'fullscreen':
+                    toggleTheaterFullscreen();
+                    break;
+                case 'home':
+                    if (typeof selectTimelineSegment === 'function' && timelineSegments && timelineSegments.length > 0) {
+                        selectTimelineSegment(0);
+                    }
+                    updateLiveTesterUI('Home', 'ទៅដើម Timeline (Jump to Start)', 'បានរំកិល Playhead ទៅដើមដំបូងនៃ Timeline');
+                    showToast('បានរំកិលទៅដើម Timeline', 'info');
+                    break;
+                case 'escape':
+                    updateLiveTesterUI('Esc', 'បិទផ្ទាំង (Close Modal / Settings)', 'បានបិទផ្ទាំង Popup និង Settings');
+                    toggleApiModal();
+                    break;
+                case 'help':
+                    updateLiveTesterUI('Ctrl + /', 'តារាង Keyboard Shortcuts', 'បើកមើលតារាងគ្រាប់ចុចកាត់');
+                    toggleApiModal('shortcuts');
+                    break;
+                case 'editor':
+                    const nextMode = (centerStageMode === 'stage') ? 'editor' : 'stage';
+                    setCenterStageMode(nextMode);
+                    updateLiveTesterUI('Alt + E', `ប្តូរផ្ទាំងទៅជា ${nextMode === 'stage' ? 'Visual Stage' : 'Script Editor'}`, 'ផ្លាស់ប្តូរទិដ្ឋភាពអេក្រង់');
+                    showToast(`បានប្តូរទៅកាន់ ${nextMode === 'stage' ? 'Stage' : 'Script Editor'}`, 'info');
+                    break;
+            }
+        }
+
+        async function copyShortcutsCheatSheet() {
+            const cheatSheetText = `⚡ SORA VOICE AI STUDIO - KEYBOARD SHORTCUTS CHEAT SHEET
+======================================================
+[🎬 Timeline & ការកាត់តវីដេអូ]
+• Space          : ចាក់ / ផ្អាក (Play / Pause)
+• S (ឬ C / B)    : កាត់តឈុតត្រង់បន្ទាត់ (Split Clip at Playhead)
+• Del / ⌫        : លុបឈុតដែលជ្រើសរើស (Delete Clip)
+• M              : បិទ / បើកសំឡេងទាំងអស់ (Mute / Unmute Tracks)
+• ← / →          : រំកិល Playhead ឈុតមុន / ឈុតបន្ទាប់
+• Home / End     : ទៅដើមដំបូង / ទៅចុងបញ្ចប់ Timeline
+• F              : បើកវីដេអូពេញអេក្រង់ (Fullscreen Stage)
+
+[🤖 AI Studio & Voice]
+• Ctrl + Enter   : បង្កើតសាច់រឿង AI ភ្លាមៗ (Generate Story)
+• Alt + P        : សាកល្បងចាក់សំឡេង AI (Play AI Voice TTS)
+• Alt + B        : បើក AI BGM Isolator (ស្រង់យកតែភ្លេងកំដរ)
+
+[⚡ គម្រោង & ប្រព័ន្ធ]
+• Ctrl + S       : រក្សាទុកគម្រោងរហ័ស (Quick Save Project)
+• Ctrl + Z       : ត្រឡប់ក្រោយ (Undo)
+• Ctrl + Y       : ទៅមុខវិញ (Redo)
+• Alt + E        : ប្តូរផ្ទាំង Stage ↔ Script Editor
+• Esc            : បិទផ្ទាំង Settings / Modal
+• Ctrl + / (ឬ ?) : បើកផ្ទាំង Keyboard Shortcuts នេះ
+======================================================
+Khmer AI Story Studio v3.5 PRO - Designed for Creators`;
+
+            try {
+                await navigator.clipboard.writeText(cheatSheetText);
+                showToast('📋 បានចម្លងតារាង Keyboard Shortcuts ចូល Clipboard ជោគជ័យ!', 'success');
+            } catch (e) {
+                showToast('មិនអាច Copy បានទេ សូមអនុញ្ញាតសិទ្ធិ Clipboard', 'warning');
+            }
+        }
+
+        function resetShortcutsDefaults() {
+            switchShortcutsPreset('capcut');
+            const presetSelect = document.getElementById('shortcutPresetSelect');
+            if (presetSelect) presetSelect.value = 'capcut';
+            filterShortcutsCategory('all');
+            const searchInput = document.getElementById('shortcutSearchInput');
+            if (searchInput) searchInput.value = '';
+            showToast('បានកំណត់ Keyboard Shortcuts ទៅលំនាំដើម CapCut PC រួចរាល់!', 'success');
+        }
+
+        function saveShortcutsSettingsManual() {
+            const preset = document.getElementById('shortcutPresetSelect')?.value || 'capcut';
+            localStorage.setItem('khmer_studio_shortcuts_preset', preset);
+            toggleApiModal();
+            showToast(`បានរក្សាទុកការកំណត់គ្រាប់ចុចកាត់ (ស្ទាយ ${preset.toUpperCase()}) ជោគជ័យ!`, 'success');
+        }
+
+        function handleGlobalKeydown(e) {
+            // Check if user is typing in form inputs
+            const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+            const isTyping = activeTag === 'input' || activeTag === 'textarea' || document.activeElement?.isContentEditable;
+
+            const isCtrlOrCmd = e.ctrlKey || e.metaKey;
+            const preset = localStorage.getItem('khmer_studio_shortcuts_preset') || 'capcut';
+
+            // Global Key 1: Ctrl + S (Save Project - allowed even when typing in textarea)
+            if (isCtrlOrCmd && (e.key === 's' || e.key === 'S')) {
+                e.preventDefault();
+                saveProjectWorkspaceNow();
+                return;
+            }
+
+            // Global Key 2: Ctrl + Enter (Generate AI Story - allowed when typing)
+            if (isCtrlOrCmd && e.key === 'Enter') {
+                e.preventDefault();
+                testShortcutAction('generate');
+                return;
+            }
+
+            // Global Key 3: Escape (Close any modal)
+            if (e.key === 'Escape') {
+                const apiModal = document.getElementById('apiModal');
+                const storeModal = document.getElementById('storeModal');
+                const historyModal = document.getElementById('historyModal');
+                if (apiModal && !apiModal.classList.contains('hidden')) {
+                    toggleApiModal();
+                    return;
+                }
+                if (storeModal && !storeModal.classList.contains('hidden')) {
+                    toggleStoreModal();
+                    return;
+                }
+                if (historyModal && !historyModal.classList.contains('hidden')) {
+                    toggleHistoryModal();
+                    return;
+                }
+                if (document.fullscreenElement) {
+                    toggleTheaterFullscreen();
+                    return;
+                }
+            }
+
+            // Global Key 4: Ctrl + / or ? (Shortcuts Help)
+            if ((isCtrlOrCmd && e.key === '/') || e.key === '?') {
+                e.preventDefault();
+                toggleApiModal('shortcuts');
+                return;
+            }
+
+            // Global Key 5: Alt + P (Voice TTS)
+            if (e.altKey && (e.key === 'p' || e.key === 'P')) {
+                e.preventDefault();
+                testShortcutAction('voice');
+                return;
+            }
+
+            // Global Key 6: Alt + B (BGM Studio)
+            if (e.altKey && (e.key === 'b' || e.key === 'B')) {
+                e.preventDefault();
+                testShortcutAction('bgm');
+                return;
+            }
+
+            // Global Key 7: Alt + E (Switch Stage / Editor)
+            if (e.altKey && (e.key === 'e' || e.key === 'E')) {
+                e.preventDefault();
+                testShortcutAction('editor');
+                return;
+            }
+
+            // Do not intercept standard typing for single letters or spacebar if inside input/textarea
+            if (isTyping) return;
+
+            // Timeline Key 8: Space (Play / Pause)
+            if (e.code === 'Space') {
+                e.preventDefault();
+                testShortcutAction('space');
+                return;
+            }
+
+            // Timeline Key 9: Split Clip
+            // CapCut: S, Premiere: C, Final Cut: B
+            const splitKeyChar = preset === 'premiere' ? 'c' : (preset === 'finalcut' ? 'b' : 's');
+            if (e.key.toLowerCase() === splitKeyChar && !isCtrlOrCmd && !e.altKey) {
+                e.preventDefault();
+                testShortcutAction('split');
+                return;
+            }
+
+            // Timeline Key 10: Delete / Backspace
+            if (e.key === 'Delete' || e.key === 'Backspace') {
+                e.preventDefault();
+                testShortcutAction('delete');
+                return;
+            }
+
+            // Timeline Key 11: M (Mute All Tracks)
+            if (e.key === 'm' || e.key === 'M') {
+                e.preventDefault();
+                testShortcutAction('mute');
+                return;
+            }
+
+            // Timeline Key 12: Arrows
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                stepTimelineClip(-1);
+                updateLiveTesterUI('←', 'រំកិលទៅឈុតមុន (Previous Clip)', 'បានរំកិល Playhead ទៅឈុតខាងឆ្វេង');
+                return;
+            }
+            if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                stepTimelineClip(1);
+                updateLiveTesterUI('→', 'រំកិលទៅឈុតបន្ទាប់ (Next Clip)', 'បានរំកិល Playhead ទៅឈុតខាងស្តាំ');
+                return;
+            }
+
+            // Timeline Key 13: Home / End
+            if (e.key === 'Home') {
+                e.preventDefault();
+                testShortcutAction('home');
+                return;
+            }
+            if (e.key === 'End') {
+                e.preventDefault();
+                if (typeof selectTimelineSegment === 'function' && timelineSegments && timelineSegments.length > 0) {
+                    selectTimelineSegment(timelineSegments.length - 1);
+                }
+                updateLiveTesterUI('End', 'ទៅចុង Timeline (Jump to End)', 'បានរំកិល Playhead ទៅឈុតចុងក្រោយ');
+                showToast('បានរំកិលទៅចុងបញ្ចប់ Timeline', 'info');
+                return;
+            }
+
+            // Timeline Key 14: F (Fullscreen)
+            if ((e.key === 'f' || e.key === 'F') && !isCtrlOrCmd) {
+                e.preventDefault();
+                toggleTheaterFullscreen();
+                return;
+            }
+        }
+
+        function initShortcutsSettings() {
+            const savedPreset = localStorage.getItem('khmer_studio_shortcuts_preset') || 'capcut';
+            const presetSelect = document.getElementById('shortcutPresetSelect');
+            if (presetSelect) presetSelect.value = savedPreset;
+            switchShortcutsPreset(savedPreset);
+
+            if (!isGlobalShortcutsBound) {
+                window.addEventListener('keydown', handleGlobalKeydown);
+                isGlobalShortcutsBound = true;
+            }
+        }
 
         // --- AI FLOW MODAL LOGIC ---
         function openAiFlowModal() {
