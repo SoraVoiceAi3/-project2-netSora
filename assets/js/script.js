@@ -2631,7 +2631,8 @@ const apiKey = "";
                 audioPlayer.currentTime = 0;
             }
             if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-            document.getElementById('ttsStopBtn').classList.add('hidden');
+            const stopBtn = document.getElementById('ttsStopBtn');
+            if (stopBtn) stopBtn.classList.add('hidden');
         }
 
         function copyOutputToClipboard() {
