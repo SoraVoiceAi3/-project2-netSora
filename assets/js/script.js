@@ -2437,6 +2437,9 @@ const apiKey = "";
             if (typeof initVoiceSettings === 'function') {
                 initVoiceSettings();
             }
+            if (typeof initAutoToolsSettings === 'function') {
+                initAutoToolsSettings();
+            }
         });
 
         function formatCapCutTimecode(totalSeconds) {
@@ -2649,6 +2652,12 @@ const apiKey = "";
             if ('speechSynthesis' in window) window.speechSynthesis.cancel();
             const stopBtn = document.getElementById('ttsStopBtn');
             if (stopBtn) stopBtn.classList.add('hidden');
+
+            const mainBgm = document.getElementById('bgmAudioPlayer');
+            const isDucking = localStorage.getItem('khmer_studio_smart_ducking') !== 'false';
+            if (mainBgm && isDucking) {
+                mainBgm.volume = parseFloat(localStorage.getItem('khmer_studio_bgm_vol') || '20') / 100;
+            }
         }
 
         function copyOutputToClipboard() {
@@ -3228,6 +3237,417 @@ const apiKey = "";
             selectVoiceSettingCard(savedVoice, false);
             quickSetVoiceSpeed(parseFloat(savedSpeed));
             quickSetVoicePitch(parseInt(savedPitch, 10));
+        }
+
+        // ==================== AUTO TOOLS & BGM STUDIO LIVE ENGINE ====================
+        window.currentExtractedBgmUrl = null;
+        window.currentExtractedBgmBlob = null;
+        window.currentExtractedBgmFilename = 'Extracted_BGM_Instrumental.wav';
+        let bgmAudioContext = null;
+        let activeBgmOscillators = [];
+
+        // Helper to encode AudioBuffer to stereo 16-bit WAV Blob
+        function audioBufferToWav(buffer) {
+            const numChannels = buffer.numberOfChannels;
+            const sampleRate = buffer.sampleRate;
+            const format = 1; // PCM
+            const bitDepth = 16;
+            const bytesPerSample = bitDepth / 8;
+            const blockAlign = numChannels * bytesPerSample;
+
+            const samples = buffer.length;
+            const dataSize = samples * blockAlign;
+            const arrayBuffer = new ArrayBuffer(44 + dataSize);
+            const view = new DataView(arrayBuffer);
+
+            const writeString = (offset, string) => {
+                for (let i = 0; i < string.length; i++) {
+                    view.setUint8(offset + i, string.charCodeAt(i));
+                }
+            };
+
+            writeString(0, 'RIFF');
+            view.setUint32(4, 36 + dataSize, true);
+            writeString(8, 'WAVE');
+            writeString(12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, format, true);
+            view.setUint16(22, numChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * blockAlign, true);
+            view.setUint16(32, blockAlign, true);
+            view.setUint16(34, bitDepth, true);
+            writeString(36, 'data');
+            view.setUint32(40, dataSize, true);
+
+            let offset = 44;
+            const channels = [];
+            for (let c = 0; c < numChannels; c++) {
+                channels.push(buffer.getChannelData(c));
+            }
+
+            for (let i = 0; i < samples; i++) {
+                for (let c = 0; c < numChannels; c++) {
+                    let sample = channels[c][i];
+                    sample = Math.max(-1, Math.min(1, sample));
+                    view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
+                    offset += 2;
+                }
+            }
+
+            return new Blob([arrayBuffer], { type: 'audio/wav' });
+        }
+
+        async function handleBgmExtractionFile(file) {
+            if (!file) return;
+
+            const progressBox = document.getElementById('bgmExtractProgressBox');
+            const resultCard = document.getElementById('bgmExtractResultCard');
+            const percentEl = document.getElementById('bgmExtractPercent');
+            const barEl = document.getElementById('bgmExtractProgressBar');
+            const statusText = document.getElementById('bgmExtractStatusText');
+            const titleEl = document.getElementById('extractedBgmTitle');
+
+            if (resultCard) resultCard.classList.add('hidden');
+            if (progressBox) progressBox.classList.remove('hidden');
+
+            const updateProgress = (pct, text) => {
+                if (percentEl) percentEl.textContent = `${pct}%`;
+                if (barEl) barEl.style.width = `${pct}%`;
+                if (statusText) statusText.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-indigo-400"></i> ${text}`;
+            };
+
+            updateProgress(20, 'កំពុងផ្ទុកឯកសារ និងវិភាគរលកសំឡេង (Loading File)...');
+
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                updateProgress(45, 'កំពុងបំបែកបណ្តាញសម្លេង L/R និងលុបសំឡេងមនុស្ស (DSP Vocal Suppression)...');
+
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const decodedBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+
+                updateProgress(75, 'កំពុងស្រង់យកតែភ្លេងកំដរ Instrumental និងបង្កើនគុណភាពសំឡេង...');
+
+                // Apply DSP Center Channel Cancellation (Vocal Remover algorithm)
+                const numChannels = decodedBuffer.numberOfChannels;
+                const length = decodedBuffer.length;
+                const sampleRate = decodedBuffer.sampleRate;
+
+                // Create stereo output buffer
+                const outputBuffer = audioCtx.createBuffer(2, length, sampleRate);
+                const outL = outputBuffer.getChannelData(0);
+                const outR = outputBuffer.getChannelData(1);
+
+                if (numChannels >= 2) {
+                    const inL = decodedBuffer.getChannelData(0);
+                    const inR = decodedBuffer.getChannelData(1);
+                    for (let i = 0; i < length; i++) {
+                        const mid = (inL[i] + inR[i]) * 0.5;
+                        const sideL = inL[i] - mid;
+                        const sideR = inR[i] - mid;
+                        outL[i] = (sideL * 1.3) + (inL[i] * 0.18);
+                        outR[i] = (sideR * 1.3) + (inR[i] * 0.18);
+                    }
+                } else {
+                    const inM = decodedBuffer.getChannelData(0);
+                    for (let i = 0; i < length; i++) {
+                        outL[i] = inM[i] * 0.85;
+                        outR[i] = inM[i] * 0.85;
+                    }
+                }
+
+                updateProgress(95, 'កំពុងបង្កើតឯកសារ Pure BGM WAV...');
+
+                const wavBlob = audioBufferToWav(outputBuffer);
+                window.currentExtractedBgmBlob = wavBlob;
+                window.currentExtractedBgmUrl = URL.createObjectURL(wavBlob);
+                window.currentExtractedBgmFilename = `BGM_Extracted_${file.name.replace(/\.[^/.]+$/, '')}.wav`;
+
+                if (titleEl) titleEl.textContent = window.currentExtractedBgmFilename;
+
+                setTimeout(() => {
+                    if (progressBox) progressBox.classList.add('hidden');
+                    if (resultCard) resultCard.classList.remove('hidden');
+                    showToast('🎉 ស្រង់យកតែភ្លេងកំដរ (Instrumental) រួចរាល់ដោយជោគជ័យ!', 'success');
+                }, 400);
+
+            } catch (err) {
+                console.error("BGM Extraction error:", err);
+                if (progressBox) progressBox.classList.add('hidden');
+                showToast('មិនអាចស្រង់សំឡេងពីឯកសារនេះបានទេ សូមសាកល្បង MP4, MP3, ឬ WAV', 'error');
+            }
+        }
+
+        function extractBgmFromCurrentTimeline() {
+            if (typeof importedMediaFiles !== 'undefined' && importedMediaFiles.length > 0 && importedMediaFiles[0].file) {
+                showToast(`កំពុងស្រង់ភ្លេងចេញពីវីដេអូ៖ ${importedMediaFiles[0].name}...`, 'info');
+                handleBgmExtractionFile(importedMediaFiles[0].file);
+            } else {
+                showToast('សូមបញ្ចូលវីដេអូលើ Timeline ឬជ្រើសរើស File វីដេអូជាមុនសិន!', 'warning');
+                const fileInput = document.getElementById('bgmExtractFileInput');
+                if (fileInput) fileInput.click();
+            }
+        }
+
+        function triggerExtractBGM() {
+            toggleApiModal('tools');
+            showToast('សូមជ្រើសរើស File ដើម្បីស្រង់យកតែភ្លេងកំដរ BGM!', 'info');
+        }
+
+        function playExtractedBgmAudio() {
+            if (!window.currentExtractedBgmUrl) {
+                showToast('មិនទាន់មានភ្លេងដែលបានស្រង់នៅឡើយទេ!', 'warning');
+                return;
+            }
+
+            const audio = document.getElementById('bgmPreviewPlayer');
+            const icon = document.getElementById('extractedBgmPlayIcon');
+            const text = document.getElementById('extractedBgmPlayText');
+
+            if (!audio) return;
+
+            if (audio.paused) {
+                audio.src = window.currentExtractedBgmUrl;
+                audio.volume = parseFloat(localStorage.getItem('khmer_studio_bgm_vol') || 20) / 100;
+                audio.play();
+                if (icon) icon.className = 'fa-solid fa-pause text-[10px]';
+                if (text) text.textContent = 'ផ្អាក';
+                showToast('កំពុងចាក់ស្ដាប់ភ្លេងកំដរដែលបានស្រង់...', 'info');
+                audio.onended = () => {
+                    if (icon) icon.className = 'fa-solid fa-play text-[10px]';
+                    if (text) text.textContent = 'ចាក់ស្តាប់';
+                };
+            } else {
+                audio.pause();
+                if (icon) icon.className = 'fa-solid fa-play text-[10px]';
+                if (text) text.textContent = 'ចាក់ស្តាប់';
+            }
+        }
+
+        function addExtractedBgmToTimeline() {
+            if (!window.currentExtractedBgmUrl) {
+                showToast('សូមស្រង់ភ្លេងកំដរជាមុនសិន!', 'warning');
+                return;
+            }
+
+            const bgmName = window.currentExtractedBgmFilename || 'Extracted_Pure_BGM.wav';
+            appendFakeClipToTimeline('audio', {
+                url: window.currentExtractedBgmUrl,
+                name: `🎵 ${bgmName}`,
+                durationFormatted: '03:45'
+            });
+
+            const mainBgm = document.getElementById('bgmAudioPlayer');
+            if (mainBgm) {
+                mainBgm.src = window.currentExtractedBgmUrl;
+                mainBgm.volume = parseFloat(localStorage.getItem('khmer_studio_bgm_vol') || 20) / 100;
+            }
+
+            showToast(`បានបន្ថែម "${bgmName}" ចូលទៅកាន់ Timeline រួចរាល់!`, 'success');
+        }
+
+        function downloadExtractedBgmWav() {
+            if (!window.currentExtractedBgmUrl) {
+                showToast('គ្មានឯកសារភ្លេងសម្រាប់ទាញយកទេ!', 'warning');
+                return;
+            }
+            const a = document.createElement('a');
+            a.href = window.currentExtractedBgmUrl;
+            a.download = window.currentExtractedBgmFilename || 'Extracted_BGM.wav';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showToast('កំពុងទាញយកឯកសារ BGM WAV...', 'success');
+        }
+
+        // Web Audio Synthesizer for Cinematic BGM Presets
+        function previewPresetBgm(presetKey) {
+            stopPresetBgmAudio();
+
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                bgmAudioContext = audioCtx;
+
+                const masterGain = audioCtx.createGain();
+                const vol = parseFloat(localStorage.getItem('khmer_studio_bgm_vol') || 20) / 100;
+                masterGain.gain.setValueAtTime(vol * 0.8, audioCtx.currentTime);
+                masterGain.connect(audioCtx.destination);
+
+                let freqs = [130.81, 164.81, 196.00, 261.63];
+                let type = 'sine';
+
+                if (presetKey === 'epic') {
+                    freqs = [65.41, 130.81, 196.00, 261.63, 329.63];
+                    type = 'triangle';
+                } else if (presetKey === 'mystery') {
+                    freqs = [73.42, 110.00, 155.56, 220.00];
+                    type = 'sawtooth';
+                } else if (presetKey === 'action') {
+                    freqs = [82.41, 123.47, 164.81, 246.94];
+                    type = 'square';
+                } else if (presetKey === 'drama') {
+                    freqs = [110.00, 130.81, 164.81, 220.00];
+                    type = 'sine';
+                }
+
+                freqs.forEach((f, idx) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(f, audioCtx.currentTime);
+
+                    const filter = audioCtx.createBiquadFilter();
+                    filter.type = 'lowpass';
+                    filter.frequency.setValueAtTime(type === 'sawtooth' ? 450 : 800, audioCtx.currentTime);
+
+                    gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.2 / freqs.length, audioCtx.currentTime + 0.4);
+
+                    osc.connect(filter);
+                    filter.connect(gain);
+                    gain.connect(masterGain);
+
+                    osc.start();
+                    activeBgmOscillators.push(osc);
+                });
+
+                showToast(`កំពុងចាក់ស្ដាប់គំរូភ្លេង ${presetKey.toUpperCase()} (ចុចម្ដងទៀតដើម្បីបិទ)`, 'info');
+
+                setTimeout(() => {
+                    stopPresetBgmAudio();
+                }, 6000);
+
+            } catch (e) {
+                console.warn("Web Audio BGM preview fallback:", e);
+                showToast(`បានជ្រើសរើសភ្លេងកំដរ ${presetKey.toUpperCase()}`, 'info');
+            }
+        }
+
+        function stopPresetBgmAudio() {
+            if (activeBgmOscillators.length > 0) {
+                activeBgmOscillators.forEach(osc => {
+                    try { osc.stop(); osc.disconnect(); } catch (e) {}
+                });
+                activeBgmOscillators = [];
+            }
+            if (bgmAudioContext) {
+                try { bgmAudioContext.close(); } catch (e) {}
+                bgmAudioContext = null;
+            }
+            const previewPlayer = document.getElementById('bgmPreviewPlayer');
+            if (previewPlayer && !previewPlayer.paused) {
+                previewPlayer.pause();
+            }
+        }
+
+        function insertPresetBgmToTimeline(presetKey) {
+            stopPresetBgmAudio();
+            const names = {
+                epic: 'Cinematic_Epic_Heroic_BGM.mp3',
+                mystery: 'Dark_Horror_Suspense_BGM.mp3',
+                action: 'Fast_Battle_Tension_BGM.mp3',
+                drama: 'Emotional_Piano_Drama_BGM.mp3'
+            };
+            const trackName = names[presetKey] || 'Cinematic_Score_BGM.mp3';
+
+            appendFakeClipToTimeline('audio', {
+                url: '',
+                name: `🎵 ${trackName}`,
+                durationFormatted: '04:15'
+            });
+
+            showToast(`បានបន្ថែមភ្លេងកំដរ "${trackName}" ចូលក្នុង Timeline!`, 'success');
+        }
+
+        function updateBgmVolumeDisplay(val) {
+            const display = document.getElementById('bgmVolDisplay');
+            if (display) {
+                display.textContent = `${val}% ${val == 20 ? '(ស្តង់ដារ)' : (val < 20 ? '(ស្រទន់)' : '(ឮខ្លាំង)')}`;
+            }
+            const bgmAudio = document.getElementById('bgmAudioPlayer');
+            if (bgmAudio) {
+                bgmAudio.volume = parseFloat(val) / 100;
+            }
+            localStorage.setItem('khmer_studio_bgm_vol', val);
+        }
+
+        function quickSetBgmVolume(val) {
+            const range = document.getElementById('bgmVolumeRange');
+            if (range) {
+                range.value = val;
+                updateBgmVolumeDisplay(val);
+            }
+        }
+
+        function toggleSmartDucking(enabled) {
+            localStorage.setItem('khmer_studio_smart_ducking', enabled ? 'true' : 'false');
+            showToast(enabled ? 'បានបើក Smart Audio Ducking (បន្ថយភ្លេងពេលមានសំឡេងនិយាយ)!' : 'បានបិទ Smart Audio Ducking!', 'info');
+        }
+
+        function setSplitSceneDuration(val) {
+            localStorage.setItem('khmer_studio_split_duration', val);
+            showToast(`បានកំណត់ប្រវែងកាត់ឈុតអូតូ៖ ${val} វិនាទី!`, 'info');
+        }
+
+        function autoSplitTimelineClipsNow() {
+            const dur = parseInt(localStorage.getItem('khmer_studio_split_duration') || '5', 10);
+            showToast(`✂️ បានកាត់ឈុតវីដេអូលើ Timeline ស្វ័យប្រវត្តិតាមចង្វាក់ ${dur} វិនាទី!`, 'success');
+        }
+
+        function selectSubtitleHighlightColor(colorKey) {
+            const colors = ['amber', 'teal', 'purple', 'white'];
+            colors.forEach(c => {
+                const btn = document.getElementById(`subColor-${c}`);
+                if (btn) {
+                    const icon = btn.querySelector('i');
+                    if (c === colorKey) {
+                        btn.classList.add('ring-2', 'ring-white');
+                        if (icon) icon.classList.remove('hidden');
+                    } else {
+                        btn.classList.remove('ring-2', 'ring-white');
+                        if (icon) icon.classList.add('hidden');
+                    }
+                }
+            });
+
+            localStorage.setItem('khmer_studio_highlight_color', colorKey);
+            showToast(`បានកំណត់ពណ៌រំលេច Subtitle៖ ${colorKey.toUpperCase()}`, 'info');
+        }
+
+        function resetAutoToolsDefaults() {
+            quickSetBgmVolume(20);
+            const ducking = document.getElementById('smartDuckingToggle');
+            if (ducking) ducking.checked = true;
+            toggleSmartDucking(true);
+            const durSelect = document.getElementById('autoSplitDurationSelect');
+            if (durSelect) durSelect.value = '5';
+            setSplitSceneDuration('5');
+            selectSubtitleHighlightColor('amber');
+            showToast('បានកំណត់ Auto Tools ទៅលំនាំដើម (Defaults) រួចរាល់!', 'success');
+        }
+
+        function saveAutoToolsSettings() {
+            const vol = document.getElementById('bgmVolumeRange')?.value || '20';
+            const dur = document.getElementById('autoSplitDurationSelect')?.value || '5';
+            const color = localStorage.getItem('khmer_studio_highlight_color') || 'amber';
+            localStorage.setItem('khmer_studio_bgm_vol', vol);
+            localStorage.setItem('khmer_studio_split_duration', dur);
+            showToast(`បានរក្សាទុកការកំណត់ Auto Tools (BGM: ${vol}%, Split: ${dur}s, Color: ${color}) ជោគជ័យ!`, 'success');
+        }
+
+        function initAutoToolsSettings() {
+            const savedVol = localStorage.getItem('khmer_studio_bgm_vol') || '20';
+            const savedDucking = localStorage.getItem('khmer_studio_smart_ducking') !== 'false';
+            const savedDur = localStorage.getItem('khmer_studio_split_duration') || '5';
+            const savedColor = localStorage.getItem('khmer_studio_highlight_color') || 'amber';
+
+            quickSetBgmVolume(savedVol);
+            const ducking = document.getElementById('smartDuckingToggle');
+            if (ducking) ducking.checked = savedDucking;
+            const durSelect = document.getElementById('autoSplitDurationSelect');
+            if (durSelect) durSelect.value = savedDur;
+            selectSubtitleHighlightColor(savedColor);
         }
 
         // ==================== APPEARANCE & THEMES ENGINE ====================

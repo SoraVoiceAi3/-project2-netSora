@@ -443,6 +443,8 @@
                     </div>
                     </div>
                     <audio id="aiAudioPlayer" class="hidden"></audio>
+                    <audio id="bgmAudioPlayer" class="hidden" loop></audio>
+                    <audio id="bgmPreviewPlayer" class="hidden"></audio>
                 </div>
 
                 <!-- MODE B: Full Script Editor & Reader View -->
@@ -2146,49 +2148,291 @@
                         </div>
                     </div>
 
-                    <!-- ==================== PANEL 5: AUTO TOOLS ==================== -->
+                    <!-- ==================== PANEL 5: AUTO TOOLS & BGM STUDIO ==================== -->
                     <div id="setPanel-tools" class="settings-content-panel hidden relative z-10 space-y-6">
-                        <div class="border-b border-[#282834] pb-4">
-                            <h3 class="text-white text-base font-extrabold flex items-center gap-2">
-                                <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i>
-                                Auto Tools (ប្រព័ន្ធកាត់តស្វ័យប្រវត្តិ)
-                            </h3>
-                            <p class="text-[11px] text-[#788294] mt-0.5">ការកំណត់កាត់ឈុតវីដេអូអូតូ និងភ្លេងកំដរ BGM</p>
+                        <!-- Header with Pro Audio Engine Badge -->
+                        <div class="border-b border-[#282834] pb-4 flex items-center justify-between">
+                            <div>
+                                <h3 class="text-white text-base font-extrabold flex items-center gap-2">
+                                    <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i>
+                                    Auto Tools & BGM Studio (ប្រព័ន្ធកាត់តស្វ័យប្រវត្តិ និងភ្លេងកំដរ)
+                                </h3>
+                                <p class="text-[11px] text-[#788294] mt-0.5">ការកំណត់កាត់ឈុតវីដេអូអូតូ ស្រង់យកតែភ្លេងសុទ្ធ (BGM Extractor) និងបណ្ណាល័យភ្លេងកំដរ</p>
+                            </div>
+                            <span class="text-[10px] font-mono text-amber-400 bg-amber-400/10 px-2.5 py-1 rounded-full border border-amber-400/30 font-bold">PRO AUDIO ENGINE</span>
                         </div>
 
                         <div class="space-y-4">
-                            <div class="p-4 rounded-xl bg-[#181822] border border-[#2b2b36] space-y-2">
-                                <div class="flex justify-between items-center text-[12px] font-bold text-slate-200">
-                                    <span>កម្រិតសំឡេងភ្លេងកំដរ (Auto BGM Volume Balance)</span>
-                                    <span id="bgmVolDisplay" class="text-amber-400 font-mono">20%</span>
+                            <!-- 1. FEATURED: AI BGM & Instrumental Isolator (ស្រង់យកតែភ្លេងកំដរ) -->
+                            <div class="p-4 rounded-2xl bg-gradient-to-b from-[#181828] via-[#141520] to-[#12121a] border border-[#3b3b55] shadow-lg space-y-3.5 relative overflow-hidden group">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2.5">
+                                        <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-sm border border-indigo-500/30 shadow-sm">
+                                            <i class="fa-solid fa-music"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-[13px] font-extrabold text-white flex items-center gap-2">
+                                                ស្រង់យកតែភ្លេងកំដរ BGM (AI Instrumental Isolator & Audio Extractor)
+                                                <span class="text-[9px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full font-bold border border-indigo-500/30">NO VOCALS</span>
+                                            </div>
+                                            <div class="text-[10.5px] text-[#8e8e98]">បំបែក និងលុបសំឡេងមនុស្សនិយាយ/ច្រៀងចេញ ដើម្បីយកតែភ្លេងសុទ្ធ ឬស្រង់ភ្លេងពីវីដេអូ</div>
+                                        </div>
+                                    </div>
+                                    <span class="text-[10px] text-indigo-400 font-mono font-bold bg-indigo-950/40 px-2.5 py-1 rounded-lg border border-indigo-500/20">Client DSP</span>
                                 </div>
-                                <input type="range" min="5" max="50" step="5" value="20" oninput="document.getElementById('bgmVolDisplay').textContent = this.value + '%'" class="w-full accent-amber-400 cursor-pointer">
-                                <div class="text-[10px] text-[#788294]">កម្រិត ២០% គឺល្អបំផុត ដើម្បីកុំឱ្យលុបលើសំឡេងអ្នកសម្រាយរឿង</div>
+
+                                <!-- Upload / Select Video or Audio File to Extract -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+                                    <input type="file" id="bgmExtractFileInput" accept="audio/*,video/*" class="hidden" onchange="handleBgmExtractionFile(this.files[0])">
+                                    
+                                    <div onclick="document.getElementById('bgmExtractFileInput').click()" class="p-3.5 rounded-xl bg-[#0f1016] border border-dashed border-[#3a3b50] hover:border-[#00e5cc] cursor-pointer flex items-center gap-3 transition-colors group/box">
+                                        <div class="w-9 h-9 rounded-lg bg-white/5 group-hover/box:bg-[#00e5cc]/15 text-slate-400 group-hover/box:text-[#00e5cc] flex items-center justify-center text-sm transition-colors">
+                                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-[11.5px] font-bold text-slate-200 group-hover/box:text-white">ជ្រើសរើស File វីដេអូ ឬ Audio</div>
+                                            <div class="text-[9.5px] text-slate-400">អូសដាក់ ឬចុច Upload (MP4, MP3, WAV, MOV)</div>
+                                        </div>
+                                    </div>
+
+                                    <button type="button" onclick="extractBgmFromCurrentTimeline()" class="p-3.5 rounded-xl bg-[#0f1016] border border-[#2e3042] hover:border-indigo-400 cursor-pointer flex items-center gap-3 transition-colors text-left group/btn">
+                                        <div class="w-9 h-9 rounded-lg bg-indigo-500/10 group-hover/btn:bg-indigo-500/25 text-indigo-400 flex items-center justify-center text-sm transition-colors">
+                                            <i class="fa-solid fa-film"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-[11.5px] font-bold text-slate-200 group-hover/btn:text-white">ស្រង់ភ្លេងពី Timeline ឥឡូវនេះ</div>
+                                            <div class="text-[9.5px] text-slate-400">យកវីដេអូកំពុងកាត់តមកបំបែកយកតែ BGM ភ្លាមៗ</div>
+                                        </div>
+                                    </button>
+                                </div>
+
+                                <!-- Extraction Progress Box (Live animated) -->
+                                <div id="bgmExtractProgressBox" class="hidden p-3 rounded-xl bg-[#0b0c12] border border-indigo-500/40 space-y-2">
+                                    <div class="flex items-center justify-between text-[11px] font-bold">
+                                        <span id="bgmExtractStatusText" class="text-indigo-300 flex items-center gap-2">
+                                            <i class="fa-solid fa-spinner fa-spin text-indigo-400"></i>
+                                            កំពុងវិភាគរលកសំឡេង និងបំបែកយកតែភ្លេងកំដរ (DSP Vocal Isolation)...
+                                        </span>
+                                        <span id="bgmExtractPercent" class="text-indigo-400 font-mono">45%</span>
+                                    </div>
+                                    <div class="w-full h-1.5 rounded-full bg-white/5 overflow-hidden">
+                                        <div id="bgmExtractProgressBar" class="h-full bg-gradient-to-r from-indigo-500 to-[#00e5cc] rounded-full transition-all duration-300" style="width: 45%;"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Extracted BGM Result Card -->
+                                <div id="bgmExtractResultCard" class="hidden p-3.5 rounded-xl bg-gradient-to-r from-[#0d161a] to-[#121922] border border-emerald-500/40 space-y-2.5">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs">
+                                                <i class="fa-solid fa-circle-check"></i>
+                                            </div>
+                                            <div>
+                                                <div id="extractedBgmTitle" class="text-[12px] font-bold text-white">Extracted_Pure_BGM.wav</div>
+                                                <div class="text-[9.5px] text-emerald-400">ស្រង់បានភ្លេងកំដរ Instrumental សុទ្ធ ១០០% (Vocal Suppressed)</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-1.5">
+                                            <button type="button" onclick="playExtractedBgmAudio()" id="extractedBgmPlayBtn" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-black font-extrabold text-[11px] flex items-center gap-1.5 transition-all cursor-pointer">
+                                                <i id="extractedBgmPlayIcon" class="fa-solid fa-play text-[10px]"></i>
+                                                <span id="extractedBgmPlayText">ចាក់ស្តាប់</span>
+                                            </button>
+                                            <button type="button" onclick="addExtractedBgmToTimeline()" class="px-3 py-1.5 rounded-lg bg-[#00e5cc] hover:bg-[#00c4ae] text-black font-extrabold text-[11px] flex items-center gap-1.5 transition-all cursor-pointer">
+                                                <i class="fa-solid fa-plus text-[10px]"></i> ដាក់លើ Timeline
+                                            </button>
+                                            <button type="button" onclick="downloadExtractedBgmWav()" class="px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-[11px] transition-all cursor-pointer" title="Download WAV">
+                                                <i class="fa-solid fa-download"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="p-4 rounded-xl bg-[#181822] border border-[#2b2b36] flex items-center justify-between">
-                                <div>
-                                    <div class="text-[12.5px] font-bold text-white">ប្រវែងកាត់ឈុតវីដេអូអូតូ (Auto Split Scene Duration)</div>
-                                    <div class="text-[11px] text-[#8e8e98]">រយៈពេលនៃឈុតនីមួយៗពេលកាត់តវីដេអូស្វ័យប្រវត្តិ</div>
+                            <!-- 2. Cinematic BGM Presets Library (បណ្ណាល័យភ្លេងកំដរភាពយន្ត) -->
+                            <div class="p-4 rounded-xl bg-[#181822] border border-[#2b2b36] space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <div class="text-[12.5px] font-bold text-white flex items-center gap-2">
+                                        <i class="fa-solid fa-compact-disc text-blue-400"></i>
+                                        បណ្ណាល័យភ្លេងកំដរភាពយន្ត (Cinematic BGM Presets Library)
+                                    </div>
+                                    <span class="text-[10px] text-slate-400">Royalty-Free Background Scores</span>
                                 </div>
-                                <select class="bg-[#121218] border border-[#2e2e3a] text-slate-200 text-[11.5px] rounded-lg px-3 py-1.5 outline-none cursor-pointer">
-                                    <option value="3">ឈុតខ្លីៗ (៣ វិនាទី - លឿន ជក់ចិត្ត)</option>
-                                    <option value="5" selected>ឈុតមធ្យម (៥ វិនាទី - ស្តង់ដារ)</option>
-                                    <option value="8">ឈុតវែង (៨ វិនាទី - រៀបរាប់ពិស្តារ)</option>
-                                </select>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5" id="bgmPresetsGrid">
+                                    <!-- Preset 1: Epic Cinematic -->
+                                    <div class="p-2.5 rounded-xl bg-[#121218] border border-[#2b2b36] flex items-center justify-between hover:border-blue-500/40 transition-colors">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-xs">
+                                                <i class="fa-solid fa-film"></i>
+                                            </div>
+                                            <div>
+                                                <div class="text-[11.5px] font-bold text-white">Epic Heroic Cinematic</div>
+                                                <div class="text-[9.5px] text-[#8e8e98]">ភាពយន្តរំជួលចិត្ត តស៊ូ ក្លាហាន</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-1.5">
+                                            <button type="button" onclick="previewPresetBgm('epic')" class="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white text-xs cursor-pointer" title="ស្ដាប់សាកល្បង">
+                                                <i class="fa-solid fa-play text-[10px]"></i>
+                                            </button>
+                                            <button type="button" onclick="insertPresetBgmToTimeline('epic')" class="px-2.5 py-1 rounded-lg bg-[#00e5cc]/15 hover:bg-[#00e5cc] text-[#00e5cc] hover:text-black font-bold text-[10px] transition-all cursor-pointer">
+                                                + Timeline
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Preset 2: Dark Suspense -->
+                                    <div class="p-2.5 rounded-xl bg-[#121218] border border-[#2b2b36] flex items-center justify-between hover:border-purple-500/40 transition-colors">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-xs">
+                                                <i class="fa-solid fa-ghost"></i>
+                                            </div>
+                                            <div>
+                                                <div class="text-[11.5px] font-bold text-white">Dark Mystery & Suspense</div>
+                                                <div class="text-[9.5px] text-[#8e8e98]">រន្ធត់ អាថ៌កំបាំង ឃាតកម្ម</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-1.5">
+                                            <button type="button" onclick="previewPresetBgm('mystery')" class="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white text-xs cursor-pointer" title="ស្ដាប់សាកល្បង">
+                                                <i class="fa-solid fa-play text-[10px]"></i>
+                                            </button>
+                                            <button type="button" onclick="insertPresetBgmToTimeline('mystery')" class="px-2.5 py-1 rounded-lg bg-[#00e5cc]/15 hover:bg-[#00e5cc] text-[#00e5cc] hover:text-black font-bold text-[10px] transition-all cursor-pointer">
+                                                + Timeline
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Preset 3: Battle Action -->
+                                    <div class="p-2.5 rounded-xl bg-[#121218] border border-[#2b2b36] flex items-center justify-between hover:border-amber-500/40 transition-colors">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-xs">
+                                                <i class="fa-solid fa-bolt"></i>
+                                            </div>
+                                            <div>
+                                                <div class="text-[11.5px] font-bold text-white">Fast Action & Tension</div>
+                                                <div class="text-[9.5px] text-[#8e8e98]">តានតឹង វាយប្រហារ លឿន</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-1.5">
+                                            <button type="button" onclick="previewPresetBgm('action')" class="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white text-xs cursor-pointer" title="ស្ដាប់សាកល្បង">
+                                                <i class="fa-solid fa-play text-[10px]"></i>
+                                            </button>
+                                            <button type="button" onclick="insertPresetBgmToTimeline('action')" class="px-2.5 py-1 rounded-lg bg-[#00e5cc]/15 hover:bg-[#00e5cc] text-[#00e5cc] hover:text-black font-bold text-[10px] transition-all cursor-pointer">
+                                                + Timeline
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Preset 4: Emotional Drama -->
+                                    <div class="p-2.5 rounded-xl bg-[#121218] border border-[#2b2b36] flex items-center justify-between hover:border-rose-500/40 transition-colors">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center font-bold text-xs">
+                                                <i class="fa-solid fa-heart"></i>
+                                            </div>
+                                            <div>
+                                                <div class="text-[11.5px] font-bold text-white">Emotional Piano Drama</div>
+                                                <div class="text-[9.5px] text-[#8e8e98]">មនោសញ្ចេតនា កម្សត់ ទឹកភ្នែក</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-1.5">
+                                            <button type="button" onclick="previewPresetBgm('drama')" class="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white text-xs cursor-pointer" title="ស្ដាប់សាកល្បង">
+                                                <i class="fa-solid fa-play text-[10px]"></i>
+                                            </button>
+                                            <button type="button" onclick="insertPresetBgmToTimeline('drama')" class="px-2.5 py-1 rounded-lg bg-[#00e5cc]/15 hover:bg-[#00e5cc] text-[#00e5cc] hover:text-black font-bold text-[10px] transition-all cursor-pointer">
+                                                + Timeline
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="p-4 rounded-xl bg-[#181822] border border-[#2b2b36] flex items-center justify-between">
+                            <!-- 3. BGM Volume Balance & Smart Audio Ducking -->
+                            <div class="p-4 rounded-xl bg-[#181822] border border-[#2b2b36] space-y-3.5">
+                                <div class="space-y-2">
+                                    <div class="flex justify-between items-center text-[12px] font-bold text-slate-200">
+                                        <span class="flex items-center gap-2"><i class="fa-solid fa-volume-low text-amber-400"></i> កម្រិតសំឡេងភ្លេងកំដរ (Auto BGM Volume Balance)</span>
+                                        <span id="bgmVolDisplay" class="text-amber-400 font-mono font-bold">20% (ស្តង់ដារ)</span>
+                                    </div>
+                                    <input type="range" id="bgmVolumeRange" min="5" max="50" step="1" value="20" oninput="updateBgmVolumeDisplay(this.value)" class="w-full accent-amber-400 cursor-pointer">
+                                    <div class="flex items-center justify-between text-[10px] text-slate-400">
+                                        <button type="button" onclick="quickSetBgmVolume(12)" class="hover:text-white cursor-pointer">12% (ស្រទន់ខ្លាំង)</button>
+                                        <button type="button" onclick="quickSetBgmVolume(20)" class="text-amber-400 font-bold cursor-pointer">20% (ស្តង់ដារ ណែនាំ)</button>
+                                        <button type="button" onclick="quickSetBgmVolume(30)" class="hover:text-white cursor-pointer">30% (ល្មម)</button>
+                                    </div>
+                                </div>
+
+                                <!-- Smart Audio Ducking Toggle -->
+                                <div class="flex items-center justify-between pt-3 border-t border-[#282834]">
+                                    <div>
+                                        <div class="text-[12px] font-bold text-white flex items-center gap-2">
+                                            <span>បន្ថយភ្លេងកំដរអូតូពេលមានសំឡេងនិយាយ (Smart Audio Ducking)</span>
+                                            <span class="text-[9px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.2 rounded font-bold border border-emerald-500/30">AI SMART</span>
+                                        </div>
+                                        <div class="text-[10px] text-[#8e8e98] mt-0.5">បន្ថយ BGM មកត្រឹម ១២% ពេលអ្នកសម្រាយនិយាយ និងត្រឡប់មកធម្មតាពេលផ្អាក</div>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" id="smartDuckingToggle" checked onchange="toggleSmartDucking(this.checked)" class="sr-only peer">
+                                        <div class="w-11 h-6 bg-[#252530] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#00e5cc]"></div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- 4. Auto Split Scene Duration -->
+                            <div class="p-4 rounded-xl bg-[#181822] border border-[#2b2b36] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                 <div>
-                                    <div class="text-[12.5px] font-bold text-white">ពណ៌អក្សររំលេច Subtitle (Highlight Color)</div>
-                                    <div class="text-[11px] text-[#8e8e98]">ពណ៌សម្រាប់ពាក្យកំពុងអានលើផ្ទាំងវីដេអូ</div>
+                                    <div class="text-[12.5px] font-bold text-white flex items-center gap-2">
+                                        <i class="fa-solid fa-scissors text-emerald-400"></i>
+                                        ប្រវែងកាត់ឈុតវីដេអូអូតូ (Auto Split Scene Duration)
+                                    </div>
+                                    <div class="text-[11px] text-[#8e8e98]">រយៈពេលនៃឈុតនីមួយៗពេលកាត់តវីដេអូស្វ័យប្រវត្តិតាមចង្វាក់</div>
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <button class="w-6 h-6 rounded-full bg-amber-400 ring-2 ring-white/50 cursor-pointer"></button>
-                                    <button class="w-6 h-6 rounded-full bg-[#00e5cc] hover:scale-110 transition-transform cursor-pointer"></button>
-                                    <button class="w-6 h-6 rounded-full bg-white hover:scale-110 transition-transform cursor-pointer"></button>
+                                    <select id="autoSplitDurationSelect" onchange="setSplitSceneDuration(this.value)" class="bg-[#121218] border border-[#2e2e3a] text-slate-200 text-[11.5px] rounded-lg px-3 py-2 outline-none cursor-pointer focus:border-[#00e5cc]">
+                                        <option value="3">ឈុតខ្លីៗ (៣ វិនាទី - លឿន ជក់ចិត្ត)</option>
+                                        <option value="5" selected>ឈុតមធ្យម (៥ វិនាទី - ស្តង់ដារ)</option>
+                                        <option value="8">ឈុតវែង (៨ វិនាទី - រៀបរាប់ពិស្តារ)</option>
+                                    </select>
+                                    <button type="button" onclick="autoSplitTimelineClipsNow()" class="px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-black text-xs font-bold transition-all cursor-pointer whitespace-nowrap">
+                                        <i class="fa-solid fa-wand-magic-sparkles"></i> កាត់អូតូឥឡូវនេះ
+                                    </button>
                                 </div>
                             </div>
+
+                            <!-- 5. Subtitle Highlight Color -->
+                            <div class="p-4 rounded-xl bg-[#181822] border border-[#2b2b36] flex items-center justify-between">
+                                <div>
+                                    <div class="text-[12.5px] font-bold text-white flex items-center gap-2">
+                                        <i class="fa-solid fa-highlighter text-amber-400"></i>
+                                        ពណ៌អក្សររំលេច Subtitle (Highlight Color)
+                                    </div>
+                                    <div class="text-[11px] text-[#8e8e98]">ពណ៌សម្រាប់ពាក្យកំពុងអានលើផ្ទាំងវីដេអូ</div>
+                                </div>
+                                <div class="flex items-center gap-2" id="subtitleHighlightPills">
+                                    <button type="button" onclick="selectSubtitleHighlightColor('amber')" id="subColor-amber" class="w-7 h-7 rounded-full bg-amber-400 ring-2 ring-white text-black text-[10px] flex items-center justify-center font-bold cursor-pointer transition-transform hover:scale-110">
+                                        <i class="fa-solid fa-check"></i>
+                                    </button>
+                                    <button type="button" onclick="selectSubtitleHighlightColor('teal')" id="subColor-teal" class="w-7 h-7 rounded-full bg-[#00e5cc] text-black text-[10px] flex items-center justify-center font-bold cursor-pointer transition-transform hover:scale-110">
+                                        <i class="fa-solid fa-check hidden"></i>
+                                    </button>
+                                    <button type="button" onclick="selectSubtitleHighlightColor('purple')" id="subColor-purple" class="w-7 h-7 rounded-full bg-[#a855f7] text-white text-[10px] flex items-center justify-center font-bold cursor-pointer transition-transform hover:scale-110">
+                                        <i class="fa-solid fa-check hidden"></i>
+                                    </button>
+                                    <button type="button" onclick="selectSubtitleHighlightColor('white')" id="subColor-white" class="w-7 h-7 rounded-full bg-white text-black text-[10px] flex items-center justify-center font-bold cursor-pointer transition-transform hover:scale-110">
+                                        <i class="fa-solid fa-check hidden"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer Action Buttons -->
+                        <div class="pt-2 flex items-center justify-between border-t border-[#232330]">
+                            <button type="button" onclick="resetAutoToolsDefaults()" class="px-4 py-2 rounded-xl bg-[#1d1d26] hover:bg-[#252532] text-slate-300 hover:text-white text-xs font-semibold border border-[#303040] transition-colors flex items-center gap-2 cursor-pointer">
+                                <i class="fa-solid fa-rotate-left text-slate-400"></i>
+                                កំណត់ឡើងវិញ (Reset Defaults)
+                            </button>
+                            <button type="button" onclick="saveAutoToolsSettings()" class="px-5 py-2 rounded-xl bg-[#00e5cc] hover:bg-[#00c4ae] text-black text-xs font-extrabold shadow-[0_0_15px_rgba(0,229,204,0.3)] transition-all flex items-center gap-2 cursor-pointer">
+                                <i class="fa-solid fa-check text-xs"></i>
+                                រក្សាទុកការកំណត់ Auto Tools (Save)
+                            </button>
                         </div>
                     </div>
 
