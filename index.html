@@ -1568,90 +1568,222 @@
                         </div>
                     </div>
 
-                    <!-- ==================== PANEL 2: VOICE ENGINE ==================== -->
+                    <!-- ==================== PANEL 2: VOICE ENGINE STUDIO ==================== -->
                     <div id="setPanel-voice" class="settings-content-panel hidden relative z-10 space-y-6">
+                        <!-- Header with Pro Badge & Live Audio Status -->
                         <div class="flex items-center justify-between border-b border-[#282834] pb-4">
                             <div>
                                 <h3 class="text-white text-base font-extrabold flex items-center gap-2">
                                     <i class="fa-solid fa-microphone-lines text-rose-500"></i>
                                     Voice Engine Studio (ប្រព័ន្ធសំឡេង AI)
-                                    <span class="text-[9px] bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded font-extrabold border border-rose-500/40">PRO VOICE</span>
+                                    <span class="text-[9.5px] bg-rose-500/15 text-rose-300 px-2.5 py-0.5 rounded-full font-extrabold border border-rose-500/30">PRO KHMER TTS</span>
                                 </h3>
                                 <p class="text-[11px] text-[#788294] mt-0.5">កំណត់តួអង្គសំឡេងនិយាយសម្រាយរឿង និងរៀបចំកម្រិតល្បឿន និងអារម្មណ៍</p>
                             </div>
-                            <button onclick="testVoicePreviewAudio()" class="px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-[11px] flex items-center gap-1.5 shadow-md shadow-rose-600/30 cursor-pointer">
-                                <i class="fa-solid fa-play text-[10px]"></i> សាកល្បងស្តាប់សំឡេង
-                            </button>
+                            <div class="flex items-center gap-2">
+                                <button type="button" onclick="testVoicePreviewAudio()" id="voiceEngineTopPlayBtn" class="px-4 py-2 rounded-xl bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white font-extrabold text-[12px] flex items-center gap-2 shadow-lg shadow-rose-600/30 transition-all cursor-pointer">
+                                    <i id="voiceEngineTopPlayIcon" class="fa-solid fa-play text-[11px]"></i>
+                                    <span id="voiceEngineTopPlayText">សាកល្បងស្តាប់សំឡេង</span>
+                                </button>
+                            </div>
                         </div>
 
-                        <!-- Voice Model Cards -->
+                        <!-- 4 Character Voice Cards Grid -->
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-300 mb-2">ជ្រើសរើសតួអង្គសំឡេង AI (Voice Characters)</label>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="settingsVoiceCards">
-                                <div onclick="selectVoiceSettingCard(this, 'Kore')" class="voice-card active p-3 rounded-xl bg-[#20202b] border-2 border-[#00e5cc] flex items-center justify-between cursor-pointer transition-all hover:bg-[#252535]">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">K</div>
-                                        <div>
-                                            <div class="text-[12px] font-bold text-white flex items-center gap-1.5">Kore <span class="text-[9px] bg-[#00e5cc]/20 text-[#00e5cc] px-1.5 py-0.2 rounded font-bold">Default</span></div>
-                                            <div class="text-[10px] text-[#8e8e98]">សំឡេងប្រុសមាំ ម៉ឺងម៉ាត់ (សម្រាប់សម្រាយរឿង)</div>
+                            <div class="flex items-center justify-between mb-3">
+                                <label class="text-[11.5px] font-bold text-slate-200 flex items-center gap-2">
+                                    <i class="fa-solid fa-users text-[#00e5cc]"></i>
+                                    ជ្រើសរើសតួអង្គសំឡេង AI (Voice Characters)
+                                </label>
+                                <span class="text-[10px] text-slate-400">ចុចលើកាត ឬប៊ូតុង ▶ ដើម្បីស្ដាប់សាកល្បង</span>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5" id="settingsVoiceCards">
+                                <!-- Voice 1: Kore (Male - Hero / Recap) -->
+                                <div id="voiceCard-Kore" onclick="selectVoiceSettingCard('Kore')" class="voice-card active relative p-3.5 rounded-2xl bg-[#1c1c28] border-2 border-[#00e5cc] shadow-[0_0_15px_rgba(0,229,204,0.2)] cursor-pointer transition-all hover:bg-[#222232] group">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-teal-500 via-emerald-600 to-teal-800 flex items-center justify-center text-white font-black text-base shadow-md relative">
+                                                K
+                                                <span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-blue-600 text-[9px] flex items-center justify-center text-white border border-[#1c1c28]">
+                                                    <i class="fa-solid fa-mars"></i>
+                                                </span>
+                                            </div>
+                                            <div>
+                                                <div class="text-[13px] font-extrabold text-white flex items-center gap-2">
+                                                    Kore
+                                                    <span class="text-[9.5px] bg-[#00e5cc]/15 text-[#00e5cc] px-2 py-0.5 rounded-full font-bold border border-[#00e5cc]/30">Hero Default</span>
+                                                </div>
+                                                <div class="text-[10.5px] text-[#9ca3af] mt-0.5">សំឡេងប្រុសមាំ ម៉ឺងម៉ាត់ (សម្រាប់សម្រាយរឿង)</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <button type="button" onclick="event.stopPropagation(); playVoiceSampleDemo('Kore')" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-[#00e5cc] text-slate-300 hover:text-black flex items-center justify-center transition-all cursor-pointer" title="ស្តាប់សំឡេង Kore">
+                                                <i class="fa-solid fa-volume-high text-xs"></i>
+                                            </button>
+                                            <span id="voiceCheck-Kore" class="w-6 h-6 rounded-full bg-[#00e5cc] text-black text-xs flex items-center justify-center font-bold">
+                                                <i class="fa-solid fa-check"></i>
+                                            </span>
                                         </div>
                                     </div>
-                                    <i class="fa-solid fa-circle-check text-[#00e5cc] text-sm"></i>
                                 </div>
-                                <div onclick="selectVoiceSettingCard(this, 'Phoebe')" class="voice-card p-3 rounded-xl bg-[#181822] border border-[#2b2b36] flex items-center justify-between cursor-pointer transition-all hover:bg-[#252535]">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">P</div>
-                                        <div>
-                                            <div class="text-[12px] font-bold text-white">Phoebe</div>
-                                            <div class="text-[10px] text-[#8e8e98]">សំឡេងស្រីស្រទន់ រៀបរាប់ពីរោះរលូន</div>
+
+                                <!-- Voice 2: Phoebe (Female - Storyteller / Gentle) -->
+                                <div id="voiceCard-Phoebe" onclick="selectVoiceSettingCard('Phoebe')" class="voice-card relative p-3.5 rounded-2xl bg-[#161620] border border-[#2b2b36] cursor-pointer transition-all hover:bg-[#222232] group">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-pink-500 via-rose-600 to-pink-800 flex items-center justify-center text-white font-black text-base shadow-md relative">
+                                                P
+                                                <span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-pink-600 text-[9px] flex items-center justify-center text-white border border-[#161620]">
+                                                    <i class="fa-solid fa-venus"></i>
+                                                </span>
+                                            </div>
+                                            <div>
+                                                <div class="text-[13px] font-extrabold text-white flex items-center gap-2">
+                                                    Phoebe
+                                                    <span class="text-[9.5px] bg-pink-500/15 text-pink-300 px-2 py-0.5 rounded-full font-bold border border-pink-500/30">Gentle Voice</span>
+                                                </div>
+                                                <div class="text-[10.5px] text-[#9ca3af] mt-0.5">សំឡេងស្រីស្រទន់ រៀបរាប់ពីរោះរលូន</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <button type="button" onclick="event.stopPropagation(); playVoiceSampleDemo('Phoebe')" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-[#00e5cc] text-slate-300 hover:text-black flex items-center justify-center transition-all cursor-pointer" title="ស្តាប់សំឡេង Phoebe">
+                                                <i class="fa-solid fa-volume-high text-xs"></i>
+                                            </button>
+                                            <span id="voiceCheck-Phoebe" class="hidden w-6 h-6 rounded-full bg-[#00e5cc] text-black text-xs flex items-center justify-center font-bold">
+                                                <i class="fa-solid fa-check"></i>
+                                            </span>
                                         </div>
                                     </div>
-                                    <i class="fa-solid fa-circle text-slate-600 text-sm"></i>
                                 </div>
-                                <div onclick="selectVoiceSettingCard(this, 'Aoede')" class="voice-card p-3 rounded-xl bg-[#181822] border border-[#2b2b36] flex items-center justify-between cursor-pointer transition-all hover:bg-[#252535]">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">A</div>
-                                        <div>
-                                            <div class="text-[12px] font-bold text-white">Aoede</div>
-                                            <div class="text-[10px] text-[#8e8e98]">សំឡេងរំជួលចិត្ត ជក់ចិត្តដិតអារម្មណ៍</div>
+
+                                <!-- Voice 3: Aoede (Female - Drama / Emotion) -->
+                                <div id="voiceCard-Aoede" onclick="selectVoiceSettingCard('Aoede')" class="voice-card relative p-3.5 rounded-2xl bg-[#161620] border border-[#2b2b36] cursor-pointer transition-all hover:bg-[#222232] group">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-purple-500 via-indigo-600 to-purple-800 flex items-center justify-center text-white font-black text-base shadow-md relative">
+                                                A
+                                                <span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-purple-600 text-[9px] flex items-center justify-center text-white border border-[#161620]">
+                                                    <i class="fa-solid fa-venus"></i>
+                                                </span>
+                                            </div>
+                                            <div>
+                                                <div class="text-[13px] font-extrabold text-white flex items-center gap-2">
+                                                    Aoede
+                                                    <span class="text-[9.5px] bg-purple-500/15 text-purple-300 px-2 py-0.5 rounded-full font-bold border border-purple-500/30">Drama Emotion</span>
+                                                </div>
+                                                <div class="text-[10.5px] text-[#9ca3af] mt-0.5">សំឡេងរំជួលចិត្ត ជក់ចិត្តដិតអារម្មណ៍</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <button type="button" onclick="event.stopPropagation(); playVoiceSampleDemo('Aoede')" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-[#00e5cc] text-slate-300 hover:text-black flex items-center justify-center transition-all cursor-pointer" title="ស្តាប់សំឡេង Aoede">
+                                                <i class="fa-solid fa-volume-high text-xs"></i>
+                                            </button>
+                                            <span id="voiceCheck-Aoede" class="hidden w-6 h-6 rounded-full bg-[#00e5cc] text-black text-xs flex items-center justify-center font-bold">
+                                                <i class="fa-solid fa-check"></i>
+                                            </span>
                                         </div>
                                     </div>
-                                    <i class="fa-solid fa-circle text-slate-600 text-sm"></i>
                                 </div>
-                                <div onclick="selectVoiceSettingCard(this, 'Fenrir')" class="voice-card p-3 rounded-xl bg-[#181822] border border-[#2b2b36] flex items-center justify-between cursor-pointer transition-all hover:bg-[#252535]">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">F</div>
-                                        <div>
-                                            <div class="text-[12px] font-bold text-white">Fenrir</div>
-                                            <div class="text-[10px] text-[#8e8e98]">សំឡេងធ្ងន់ អាថ៌កំបាំង រន្ធត់</div>
+
+                                <!-- Voice 4: Fenrir (Male - Mystery / Thriller) -->
+                                <div id="voiceCard-Fenrir" onclick="selectVoiceSettingCard('Fenrir')" class="voice-card relative p-3.5 rounded-2xl bg-[#161620] border border-[#2b2b36] cursor-pointer transition-all hover:bg-[#222232] group">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500 via-orange-600 to-amber-800 flex items-center justify-center text-white font-black text-base shadow-md relative">
+                                                F
+                                                <span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-amber-600 text-[9px] flex items-center justify-center text-white border border-[#161620]">
+                                                    <i class="fa-solid fa-mars"></i>
+                                                </span>
+                                            </div>
+                                            <div>
+                                                <div class="text-[13px] font-extrabold text-white flex items-center gap-2">
+                                                    Fenrir
+                                                    <span class="text-[9.5px] bg-amber-500/15 text-amber-300 px-2 py-0.5 rounded-full font-bold border border-amber-500/30">Mystery Thriller</span>
+                                                </div>
+                                                <div class="text-[10.5px] text-[#9ca3af] mt-0.5">សំឡេងធ្ងន់ អាថ៌កំបាំង រន្ធត់</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <button type="button" onclick="event.stopPropagation(); playVoiceSampleDemo('Fenrir')" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-[#00e5cc] text-slate-300 hover:text-black flex items-center justify-center transition-all cursor-pointer" title="ស្តាប់សំឡេង Fenrir">
+                                                <i class="fa-solid fa-volume-high text-xs"></i>
+                                            </button>
+                                            <span id="voiceCheck-Fenrir" class="hidden w-6 h-6 rounded-full bg-[#00e5cc] text-black text-xs flex items-center justify-center font-bold">
+                                                <i class="fa-solid fa-check"></i>
+                                            </span>
                                         </div>
                                     </div>
-                                    <i class="fa-solid fa-circle text-slate-600 text-sm"></i>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Speed & Pitch Sliders -->
+                        <!-- Live Interactive Voice Tester Box -->
+                        <div class="p-4 rounded-2xl bg-[#14141c] border border-[#282836] space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[11.5px] font-bold text-slate-200 flex items-center gap-2">
+                                    <i class="fa-solid fa-waveform-lines text-[#00e5cc]"></i>
+                                    សាកល្បងនិយាយអត្ថបទផ្ទាល់ (Live Voice Tester)
+                                </span>
+                                <span id="activeVoiceTesterBadge" class="text-[10px] font-bold font-mono px-2 py-0.5 rounded bg-[#00e5cc]/15 text-[#00e5cc] border border-[#00e5cc]/30">Active: Kore</span>
+                            </div>
+
+                            <div class="relative">
+                                <textarea id="voiceTestSampleInput" rows="2" class="w-full bg-[#0f0f14] border border-[#282834] rounded-xl p-3 text-[12px] text-white focus:outline-none focus:border-[#00e5cc] transition-colors resize-none leading-relaxed" placeholder="វាយអត្ថបទសាកល្បងនិយាយ...">ជំរាបសួរ! នេះជាសំឡេងសាកល្បងរបស់ខ្ញុំ នៅក្នុង Khmer AI Story Studio សម្រាប់សម្រាយរឿង។</textarea>
+                            </div>
+
+                            <!-- Preset Sentence Chips -->
+                            <div class="flex flex-wrap items-center gap-1.5 pt-1">
+                                <span class="text-[10px] text-slate-400 font-semibold mr-1">ឃ្លាគំរូ:</span>
+                                <button type="button" onclick="setVoiceTestPhrase('recap')" class="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 text-[10.5px] transition-colors cursor-pointer">
+                                    🎬 សម្រាយរឿង
+                                </button>
+                                <button type="button" onclick="setVoiceTestPhrase('mystery')" class="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 text-[10.5px] transition-colors cursor-pointer">
+                                    👻 រឿងរន្ធត់
+                                </button>
+                                <button type="button" onclick="setVoiceTestPhrase('drama')" class="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 text-[10.5px] transition-colors cursor-pointer">
+                                    💖 ស្នេហារ៉ូមែនទិក
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Speed & Pitch Sliders with Pills -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-[#181822] p-4 rounded-xl border border-[#2b2b36]">
-                            <div class="space-y-2">
-                                <div class="flex justify-between items-center text-[11px] font-bold">
-                                    <span class="text-slate-300">ល្បឿននិយាយ (Speed Rate)</span>
-                                    <span id="voiceSpeedDisplay" class="text-[#00e5cc] font-mono">1.0x</span>
+                            <div class="space-y-2.5">
+                                <div class="flex justify-between items-center text-[11.5px] font-bold">
+                                    <span class="text-slate-300 flex items-center gap-1.5"><i class="fa-solid fa-gauge text-blue-400"></i> ល្បឿននិយាយ (Speed Rate)</span>
+                                    <span id="voiceSpeedDisplay" class="text-[#00e5cc] font-mono font-bold">1.0x (ស្តង់ដារ)</span>
                                 </div>
-                                <input type="range" id="voiceSpeedRange" min="0.7" max="1.5" step="0.05" value="1.0" oninput="document.getElementById('voiceSpeedDisplay').textContent = this.value + 'x'" class="w-full accent-[#00e5cc] cursor-pointer">
+                                <input type="range" id="voiceSpeedRange" min="0.75" max="1.4" step="0.05" value="1.0" oninput="updateVoiceSpeedLabel(this.value)" class="w-full accent-[#00e5cc] cursor-pointer">
+                                <div class="flex items-center justify-between text-[10px] text-slate-400">
+                                    <button type="button" onclick="quickSetVoiceSpeed(0.85)" class="hover:text-white cursor-pointer">0.85x (យឺត)</button>
+                                    <button type="button" onclick="quickSetVoiceSpeed(1.0)" class="text-[#00e5cc] font-bold cursor-pointer">1.0x (ណែនាំ)</button>
+                                    <button type="button" onclick="quickSetVoiceSpeed(1.2)" class="hover:text-white cursor-pointer">1.2x (លឿន)</button>
+                                </div>
                             </div>
-                            <div class="space-y-2">
-                                <div class="flex justify-between items-center text-[11px] font-bold">
-                                    <span class="text-slate-300">កម្រិតសូរសៀង (Pitch)</span>
-                                    <span id="voicePitchDisplay" class="text-[#00e5cc] font-mono">ធម្មជាតិ (0)</span>
+
+                            <div class="space-y-2.5">
+                                <div class="flex justify-between items-center text-[11.5px] font-bold">
+                                    <span class="text-slate-300 flex items-center gap-1.5"><i class="fa-solid fa-sliders text-amber-400"></i> កម្រិតសូរសៀង (Pitch)</span>
+                                    <span id="voicePitchDisplay" class="text-[#00e5cc] font-mono font-bold">ធម្មជាតិ (0)</span>
                                 </div>
-                                <input type="range" id="voicePitchRange" min="-4" max="4" step="1" value="0" oninput="document.getElementById('voicePitchDisplay').textContent = (this.value > 0 ? '+' : '') + this.value" class="w-full accent-[#00e5cc] cursor-pointer">
+                                <input type="range" id="voicePitchRange" min="-3" max="3" step="1" value="0" oninput="updateVoicePitchLabel(this.value)" class="w-full accent-[#00e5cc] cursor-pointer">
+                                <div class="flex items-center justify-between text-[10px] text-slate-400">
+                                    <button type="button" onclick="quickSetVoicePitch(-2)" class="hover:text-white cursor-pointer">-2 (ធ្ងន់/មាំ)</button>
+                                    <button type="button" onclick="quickSetVoicePitch(0)" class="text-[#00e5cc] font-bold cursor-pointer">0 (ធម្មជាតិ)</button>
+                                    <button type="button" onclick="quickSetVoicePitch(2)" class="hover:text-white cursor-pointer">+2 (ស្រទន់/ស្រួយ)</button>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="flex justify-end pt-2">
-                            <button onclick="saveVoiceSettings()" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#00e5cc] to-[#00b3a0] text-black font-extrabold text-[12px] shadow-md hover:brightness-110 cursor-pointer">
-                                រក្សាទុកការកំណត់សំឡេង
+                        <!-- Footer Save Button -->
+                        <div class="flex items-center justify-between pt-2 border-t border-[#232330]">
+                            <button type="button" onclick="resetVoiceSettingsDefaults()" class="px-4 py-2 rounded-xl bg-[#1d1d26] hover:bg-[#252532] text-slate-300 hover:text-white text-xs font-semibold border border-[#303040] transition-colors flex items-center gap-2 cursor-pointer">
+                                <i class="fa-solid fa-rotate-left text-slate-400"></i>
+                                កំណត់ឡើងវិញ (Reset)
+                            </button>
+                            <button type="button" onclick="saveVoiceSettings()" class="px-6 py-2.5 rounded-xl bg-[#00e5cc] hover:bg-[#00c4ae] text-black font-extrabold text-[12px] shadow-[0_0_15px_rgba(0,229,204,0.3)] transition-all flex items-center gap-2 cursor-pointer">
+                                <i class="fa-solid fa-check font-black"></i>
+                                រក្សាទុកការកំណត់សំឡេង (Save Voice)
                             </button>
                         </div>
                     </div>

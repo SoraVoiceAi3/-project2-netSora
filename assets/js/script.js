@@ -2434,6 +2434,9 @@ const apiKey = "";
             if (typeof initAppearanceSettings === 'function') {
                 initAppearanceSettings();
             }
+            if (typeof initVoiceSettings === 'function') {
+                initVoiceSettings();
+            }
         });
 
         function formatCapCutTimecode(totalSeconds) {
@@ -3082,16 +3085,34 @@ const apiKey = "";
             }
         }
 
-        function selectVoiceSettingCard(el, voiceName) {
-            document.querySelectorAll('#settingsVoiceCards .voice-card').forEach(card => {
-                card.className = 'voice-card p-3 rounded-xl bg-[#181822] border border-[#2b2b36] flex items-center justify-between cursor-pointer transition-all hover:bg-[#252535]';
-                const icon = card.querySelector('i');
-                if (icon) icon.className = 'fa-solid fa-circle text-slate-600 text-sm';
+        // ==================== VOICE ENGINE STUDIO LIVE LOGIC ====================
+        const VOICE_DEMO_TEXTS = {
+            'Kore': 'ជំរាបសួរ! ខ្ញុំឈ្មោះ Kore ជាសំឡេងប្រុសមាំ ម៉ឺងម៉ាត់ ដ៏ស័ក្តិសមបំផុតសម្រាប់ការសម្រាយសាច់រឿងភាពយន្ត និងរឿងនិទាន។',
+            'Phoebe': 'ជំរាបសួរ! ខ្ញុំឈ្មោះ Phoebe ជាសំឡេងស្រីស្រទន់ ស្រស់ថ្លា សម្រាប់និទានរឿងមនោសញ្ចេតនា និងរៀបរាប់ដំណើររឿង។',
+            'Aoede': 'ជំរាបសួរ! ខ្ញុំឈ្មោះ Aoede ជាសំឡេងរំជួលចិត្ត ជក់ចិត្តដិតអារម្មណ៍ សម្រាប់ឈុតឆាកតានតឹង រំភើប និងទាក់ទាញ។',
+            'Fenrir': 'ជំរាបសួរ! ខ្ញុំឈ្មោះ Fenrir ជាសំឡេងធ្ងន់ អាថ៌កំបាំង សម្រាប់រឿងរន្ធត់ រឿងខ្មោចព្រាយ និងរឿងស៊ើបអង្កេត។'
+        };
+
+        function selectVoiceSettingCard(voiceName, showNotification = true) {
+            const voices = ['Kore', 'Phoebe', 'Aoede', 'Fenrir'];
+            voices.forEach(v => {
+                const card = document.getElementById(`voiceCard-${v}`);
+                const check = document.getElementById(`voiceCheck-${v}`);
+                if (card) {
+                    if (v === voiceName) {
+                        card.className = 'voice-card active relative p-3.5 rounded-2xl bg-[#1c1c28] border-2 border-[#00e5cc] shadow-[0_0_15px_rgba(0,229,204,0.2)] cursor-pointer transition-all hover:bg-[#222232] group';
+                        if (check) check.classList.remove('hidden');
+                    } else {
+                        card.className = 'voice-card relative p-3.5 rounded-2xl bg-[#161620] border border-[#2b2b36] cursor-pointer transition-all hover:bg-[#222232] group';
+                        if (check) check.classList.add('hidden');
+                    }
+                }
             });
 
-            el.className = 'voice-card active p-3 rounded-xl bg-[#20202b] border-2 border-[#00e5cc] flex items-center justify-between cursor-pointer transition-all hover:bg-[#252535]';
-            const activeIcon = el.querySelector('i');
-            if (activeIcon) activeIcon.className = 'fa-solid fa-circle-check text-[#00e5cc] text-sm';
+            const activeTesterBadge = document.getElementById('activeVoiceTesterBadge');
+            if (activeTesterBadge) {
+                activeTesterBadge.textContent = `Active: ${voiceName}`;
+            }
 
             localStorage.setItem('khmer_studio_voice', voiceName);
             const narrateSelect = document.getElementById('narrateVoice');
@@ -3099,24 +3120,114 @@ const apiKey = "";
             const ttsSelect = document.getElementById('ttsVoiceSelect');
             if (ttsSelect) ttsSelect.value = voiceName;
 
-            showToast(`បានជ្រើសរើសសំឡេង៖ ${voiceName}`, 'info');
+            if (showNotification) {
+                showToast(`បានជ្រើសរើសសំឡេង AI៖ ${voiceName}`, 'info');
+            }
+        }
+
+        function playVoiceSampleDemo(voiceName) {
+            selectVoiceSettingCard(voiceName, false);
+            const sample = VOICE_DEMO_TEXTS[voiceName] || VOICE_DEMO_TEXTS['Kore'];
+            showToast(`កំពុងចាក់សំឡេងសាកល្បង ${voiceName}...`, 'info');
+            generateAndPlayTTS(sample);
         }
 
         function testVoicePreviewAudio() {
             const voice = localStorage.getItem('khmer_studio_voice') || 'Kore';
-            const speed = parseFloat(document.getElementById('voiceSpeedRange')?.value || 1.0);
-            const sampleText = `ជំរាបសួរ! នេះជាសំឡេងសាកល្បងរបស់តួអង្គ ${voice} នៅក្នុងប្រព័ន្ធ Sora Voice AI Studio សម្រាប់សម្រាយរឿង។`;
-            
+            const input = document.getElementById('voiceTestSampleInput');
+            const sampleText = (input && input.value.trim()) 
+                ? input.value.trim() 
+                : (VOICE_DEMO_TEXTS[voice] || VOICE_DEMO_TEXTS['Kore']);
+
+            const btn = document.getElementById('voiceEngineTopPlayBtn');
+            const icon = document.getElementById('voiceEngineTopPlayIcon');
+            const text = document.getElementById('voiceEngineTopPlayText');
+
+            if (icon) icon.className = 'fa-solid fa-spinner fa-spin text-[11px]';
+            if (text) text.textContent = 'កំពុងបញ្ចេញសំឡេង...';
+
             showToast(`កំពុងចាក់សាកល្បងសំឡេង ${voice}...`, 'info');
-            generateAndPlayTTS(sampleText);
+            generateAndPlayTTS(sampleText).finally(() => {
+                if (icon) icon.className = 'fa-solid fa-play text-[11px]';
+                if (text) text.textContent = 'សាកល្បងស្តាប់សំឡេង';
+            });
+        }
+
+        function setVoiceTestPhrase(type) {
+            const input = document.getElementById('voiceTestSampleInput');
+            if (!input) return;
+            if (type === 'recap') {
+                input.value = 'សូមស្វាគមន៍មកកាន់ការសម្រាយរឿងពិសេស! ថ្ងៃនេះយើងនឹងនាំអ្នកទៅតាមដានខ្សែភាពយន្តដ៏ជក់ចិត្តដិតអារម្មណ៍ ដែលធានាថានឹងធ្វើឱ្យអ្នកមើលជក់ចិត្តតាំងពីដើមដល់ចប់។';
+            } else if (type === 'mystery') {
+                input.value = 'នៅក្នុងរាត្រីដ៏សែនស្ងាត់ជ្រងំ សំឡេងជើងដើរដ៏ចម្លែកមួយ បានបន្លឺឡើងពីជាន់ខាងលើ ខណៈដែលគ្មានមនុស្សណាម្នាក់រស់នៅក្នុងផ្ទះនោះឡើយ...';
+            } else if (type === 'drama') {
+                input.value = 'ទោះបីជាពេលវេលាកន្លងផុតទៅយូរប៉ុណ្ណា ឬឧបសគ្គធំធេងយ៉ាងណាក៏ដោយ ក៏ក្ដីស្រលាញ់ និងការលះបង់មួយនេះ មិនដែលរសាយចេញពីបេះដូងឡើយ។';
+            }
+            showToast('បានប្ដូរឃ្លាគំរូសាកល្បង!', 'info');
+        }
+
+        function updateVoiceSpeedLabel(val) {
+            const display = document.getElementById('voiceSpeedDisplay');
+            if (display) {
+                const num = parseFloat(val).toFixed(2);
+                const tag = num == 1.0 ? 'ស្តង់ដារ' : (num < 1.0 ? 'យឺត' : 'លឿន');
+                display.textContent = `${num}x (${tag})`;
+            }
+        }
+
+        function quickSetVoiceSpeed(val) {
+            const range = document.getElementById('voiceSpeedRange');
+            if (range) {
+                range.value = val;
+                updateVoiceSpeedLabel(val);
+            }
+        }
+
+        function updateVoicePitchLabel(val) {
+            const display = document.getElementById('voicePitchDisplay');
+            if (display) {
+                const intVal = parseInt(val, 10);
+                if (intVal === 0) display.textContent = 'ធម្មជាតិ (0)';
+                else if (intVal > 0) display.textContent = `+${intVal} (ស្រួយ/ស្រទន់)`;
+                else display.textContent = `${intVal} (ធ្ងន់/មាំ)`;
+            }
+        }
+
+        function quickSetVoicePitch(val) {
+            const range = document.getElementById('voicePitchRange');
+            if (range) {
+                range.value = val;
+                updateVoicePitchLabel(val);
+            }
+        }
+
+        function resetVoiceSettingsDefaults() {
+            selectVoiceSettingCard('Kore', false);
+            quickSetVoiceSpeed(1.0);
+            quickSetVoicePitch(0);
+            localStorage.setItem('khmer_studio_voice', 'Kore');
+            localStorage.setItem('khmer_studio_voice_speed', '1.0');
+            localStorage.setItem('khmer_studio_voice_pitch', '0');
+            showToast('បានកំណត់សំឡេងទៅលំនាំដើម (Default: Kore) រួចរាល់!', 'success');
         }
 
         function saveVoiceSettings() {
             const speed = document.getElementById('voiceSpeedRange')?.value || '1.0';
             const pitch = document.getElementById('voicePitchRange')?.value || '0';
+            const voice = localStorage.getItem('khmer_studio_voice') || 'Kore';
             localStorage.setItem('khmer_studio_voice_speed', speed);
             localStorage.setItem('khmer_studio_voice_pitch', pitch);
-            showToast('បានរក្សាទុកការកំណត់ Voice Engine ជោគជ័យ!', 'success');
+            showToast(`បានរក្សាទុកការកំណត់ Voice Engine (${voice}, Speed: ${speed}x, Pitch: ${pitch}) ជោគជ័យ!`, 'success');
+        }
+
+        function initVoiceSettings() {
+            const savedVoice = localStorage.getItem('khmer_studio_voice') || 'Kore';
+            const savedSpeed = localStorage.getItem('khmer_studio_voice_speed') || '1.0';
+            const savedPitch = localStorage.getItem('khmer_studio_voice_pitch') || '0';
+
+            selectVoiceSettingCard(savedVoice, false);
+            quickSetVoiceSpeed(parseFloat(savedSpeed));
+            quickSetVoicePitch(parseInt(savedPitch, 10));
         }
 
         // ==================== APPEARANCE & THEMES ENGINE ====================
@@ -3222,17 +3333,23 @@ const apiKey = "";
                 .theme-accent-text {
                     color: ${theme.accent} !important;
                 }
-                [class*="bg-[#00e5cc]"],
                 .bg-\\[\\#00e5cc\\],
                 .bg-cc-teal,
                 .theme-accent-bg {
                     background-color: ${theme.accent} !important;
                 }
-                [class*="border-[#00e5cc]"],
+                /* Semi-transparent background tints */
+                [class*="bg-[#00e5cc]/"] {
+                    background-color: rgba(${theme.accentRgb}, 0.15) !important;
+                }
                 .border-\\[\\#00e5cc\\],
                 .border-cc-teal,
                 .theme-accent-border {
                     border-color: ${theme.accent} !important;
+                }
+                /* Semi-transparent border tints */
+                [class*="border-[#00e5cc]/"] {
+                    border-color: rgba(${theme.accentRgb}, 0.35) !important;
                 }
                 [class*="hover:bg-[#00e5cc]"]:hover,
                 .hover\\:bg-\\[\\#00e5cc\\]:hover {
