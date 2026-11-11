@@ -563,12 +563,15 @@
                     </div>
 
                     <!-- Direct Google Gemini Connection Status Pill -->
-                    <div id="recapGoogleStatusBox" onclick="toggleApiModal()" class="cursor-pointer px-3 py-2 rounded-xl border flex items-center justify-between transition-all bg-[#14151b] border-amber-500/30 hover:border-amber-400 group shadow-sm">
+                    <div id="recapGoogleStatusBox" onclick="toggleApiModal()" class="cursor-pointer px-3 py-2 rounded-xl border flex items-center justify-between transition-all bg-[#14151b] border-amber-500/30 hover:border-amber-400 group shadow-sm" title="ចុចទីនេះដើម្បីភ្ជាប់ Google Gemini API Key">
                         <div class="flex items-center gap-2">
-                            <i class="fa-brands fa-google text-[#4285F4] text-xs"></i>
+                            <i id="recapGoogleStatusIcon" class="fa-brands fa-google text-[#4285F4] text-xs"></i>
                             <span id="recapGoogleStatusText" class="text-[11px] text-amber-300 font-bold">Google AI: មិនទាន់ភ្ជាប់ (Connect)</span>
                         </div>
-                        <span id="recapGoogleStatusBtn" class="text-[10px] text-blue-400 font-bold group-hover:underline">កំណត់ Key</span>
+                        <span id="recapGoogleStatusBtn" class="text-[10px] text-blue-400 font-bold group-hover:underline flex items-center gap-1">
+                            <span>ភ្ជាប់ Key</span>
+                            <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                        </span>
                     </div>
 
                     <div class="space-y-1.5">
@@ -655,12 +658,15 @@
                 <!-- FORM 2: បកប្រែរឿង (TRANSLATE STORY & SRT) -->
                 <div id="toolForm-translate" class="space-y-3.5 hidden pt-1">
                     <!-- Direct Google Gemini Connection Status Pill for Translation -->
-                    <div id="transGoogleStatusBox" onclick="toggleApiModal()" class="cursor-pointer px-3 py-2 rounded-xl border flex items-center justify-between transition-all bg-[#14151b] border-amber-500/30 hover:border-amber-400 group shadow-sm mb-2">
+                    <div id="transGoogleStatusBox" onclick="toggleApiModal()" class="cursor-pointer px-3 py-2 rounded-xl border flex items-center justify-between transition-all bg-[#14151b] border-amber-500/30 hover:border-amber-400 group shadow-sm mb-2" title="ចុចទីនេះដើម្បីភ្ជាប់ Google Gemini API Key">
                         <div class="flex items-center gap-2">
-                            <i class="fa-brands fa-google text-[#4285F4] text-xs"></i>
+                            <i id="transGoogleStatusIcon" class="fa-brands fa-google text-[#4285F4] text-xs"></i>
                             <span id="transGoogleStatusText" class="text-[11px] text-amber-300 font-bold">Google AI: មិនទាន់ភ្ជាប់ (Connect)</span>
                         </div>
-                        <span id="transGoogleStatusBtn" class="text-[10px] text-blue-400 font-bold group-hover:underline">កំណត់ Key</span>
+                        <span id="transGoogleStatusBtn" class="text-[10px] text-blue-400 font-bold group-hover:underline flex items-center gap-1">
+                            <span>ភ្ជាប់ Key</span>
+                            <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                        </span>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">

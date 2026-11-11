@@ -2836,19 +2836,22 @@ const apiKey = "";
             const recapBox = document.getElementById('recapGoogleStatusBox');
             const recapText = document.getElementById('recapGoogleStatusText');
             const recapBtn = document.getElementById('recapGoogleStatusBtn');
+            const recapIcon = document.getElementById('recapGoogleStatusIcon');
             if (recapBox && recapText && recapBtn) {
                 if (isConnected) {
                     recapBox.className = 'cursor-pointer px-3 py-2 rounded-xl border flex items-center justify-between transition-all bg-emerald-950/20 border-emerald-500/40 hover:border-emerald-400 group shadow-sm';
                     recapText.className = 'text-[11px] text-emerald-400 font-bold';
-                    recapText.innerHTML = '<i class="fa-solid fa-circle-check mr-1 text-emerald-400"></i> Google AI: ភ្ជាប់ជោគជ័យ (Connected 🟢)';
-                    recapBtn.className = 'text-[10px] text-emerald-300 font-bold group-hover:underline';
-                    recapBtn.textContent = 'កែប្រែ Key';
+                    recapText.textContent = 'Google AI: ភ្ជាប់ជោគជ័យ (Connected 🟢)';
+                    if (recapIcon) recapIcon.className = 'fa-solid fa-circle-check text-emerald-400 text-xs';
+                    recapBtn.className = 'text-[10px] text-emerald-300 font-bold group-hover:underline flex items-center gap-1';
+                    recapBtn.innerHTML = '<span>កែប្រែ Key</span><i class="fa-solid fa-pen-to-square text-[9px]"></i>';
                 } else {
                     recapBox.className = 'cursor-pointer px-3 py-2 rounded-xl border flex items-center justify-between transition-all bg-[#14151b] border-amber-500/30 hover:border-amber-400 group shadow-sm';
                     recapText.className = 'text-[11px] text-amber-300 font-bold';
-                    recapText.innerHTML = '<i class="fa-brands fa-google mr-1 text-[#4285F4]"></i> Google AI: មិនទាន់ភ្ជាប់ (Connect)';
-                    recapBtn.className = 'text-[10px] text-blue-400 font-bold group-hover:underline';
-                    recapBtn.textContent = 'ភ្ជាប់ Key';
+                    recapText.textContent = 'Google AI: មិនទាន់ភ្ជាប់ (Connect)';
+                    if (recapIcon) recapIcon.className = 'fa-brands fa-google text-[#4285F4] text-xs';
+                    recapBtn.className = 'text-[10px] text-blue-400 font-bold group-hover:underline flex items-center gap-1';
+                    recapBtn.innerHTML = '<span>ភ្ជាប់ Key</span><i class="fa-solid fa-arrow-right text-[9px]"></i>';
                 }
             }
 
@@ -2856,19 +2859,22 @@ const apiKey = "";
             const transBox = document.getElementById('transGoogleStatusBox');
             const transText = document.getElementById('transGoogleStatusText');
             const transBtn = document.getElementById('transGoogleStatusBtn');
+            const transIcon = document.getElementById('transGoogleStatusIcon');
             if (transBox && transText && transBtn) {
                 if (isConnected) {
                     transBox.className = 'cursor-pointer px-3 py-2 rounded-xl border flex items-center justify-between transition-all bg-emerald-950/20 border-emerald-500/40 hover:border-emerald-400 group shadow-sm mb-2';
                     transText.className = 'text-[11px] text-emerald-400 font-bold';
-                    transText.innerHTML = '<i class="fa-solid fa-circle-check mr-1 text-emerald-400"></i> Google AI: ភ្ជាប់ជោគជ័យ (Connected 🟢)';
-                    transBtn.className = 'text-[10px] text-emerald-300 font-bold group-hover:underline';
-                    transBtn.textContent = 'កែប្រែ Key';
+                    transText.textContent = 'Google AI: ភ្ជាប់ជោគជ័យ (Connected 🟢)';
+                    if (transIcon) transIcon.className = 'fa-solid fa-circle-check text-emerald-400 text-xs';
+                    transBtn.className = 'text-[10px] text-emerald-300 font-bold group-hover:underline flex items-center gap-1';
+                    transBtn.innerHTML = '<span>កែប្រែ Key</span><i class="fa-solid fa-pen-to-square text-[9px]"></i>';
                 } else {
                     transBox.className = 'cursor-pointer px-3 py-2 rounded-xl border flex items-center justify-between transition-all bg-[#14151b] border-amber-500/30 hover:border-amber-400 group shadow-sm mb-2';
                     transText.className = 'text-[11px] text-amber-300 font-bold';
-                    transText.innerHTML = '<i class="fa-brands fa-google mr-1 text-[#4285F4]"></i> Google AI: មិនទាន់ភ្ជាប់ (Connect)';
-                    transBtn.className = 'text-[10px] text-blue-400 font-bold group-hover:underline';
-                    transBtn.textContent = 'ភ្ជាប់ Key';
+                    transText.textContent = 'Google AI: មិនទាន់ភ្ជាប់ (Connect)';
+                    if (transIcon) transIcon.className = 'fa-brands fa-google text-[#4285F4] text-xs';
+                    transBtn.className = 'text-[10px] text-blue-400 font-bold group-hover:underline flex items-center gap-1';
+                    transBtn.innerHTML = '<span>ភ្ជាប់ Key</span><i class="fa-solid fa-arrow-right text-[9px]"></i>';
                 }
             }
         }
