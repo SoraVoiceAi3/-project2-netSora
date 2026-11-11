@@ -1,0 +1,1631 @@
+<!DOCTYPE html>
+<html lang="km" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khmer AI Story Studio - CapCut Desktop Edition (សម្រាយរឿង បកប្រែ និងនិទានរឿង)</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Kantumruy Pro, Battambang, JetBrains Mono & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Kantumruy Pro"', '"Inter"', 'sans-serif'],
+                        story: ['"Battambang"', '"Kantumruy Pro"', 'serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        cc: {
+                            bg: '#0e0e10',
+                            panel: '#18181c',
+                            card: '#222228',
+                            hover: '#2c2c34',
+                            border: '#2b2b33',
+                            teal: '#00e5cc',
+                            tealDark: '#00b3a0',
+                            text: '#e4e4e7',
+                            muted: '#8e8e98'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/slider.css">
+</head>
+<body class="h-screen w-screen overflow-hidden flex flex-col bg-cc-bg text-cc-text select-none">
+
+    <!-- Beautiful Top Branding Header -->
+    <div class="h-16 relative bg-[#09090c] border-b border-white/5 px-6 flex items-center justify-between shrink-0 z-40 overflow-hidden">
+
+        <!-- Left Branding -->
+        <div class="flex items-center gap-4 relative">
+            <!-- Premium Clean Logo Box -->
+            <div class="w-[46px] h-[46px] rounded-[14px] bg-[#1a2027] flex items-center justify-center shadow-sm">
+                <i class="fa-solid fa-microphone text-[#10b981] text-[20px]"></i>
+            </div>
+            
+            <div class="flex flex-col justify-center gap-0.5">
+                <div class="flex items-center gap-2.5">
+                    <h1 class="text-white font-extrabold text-[22px] tracking-tight leading-none select-none">Storyteller</h1>
+                    <div class="px-2 py-0.5 rounded-[6px] bg-[#c7d2fe]/10 border border-[#c7d2fe]/20 flex items-center justify-center mt-0.5">
+                        <span class="text-[9px] font-black text-[#818cf8] tracking-widest uppercase">PRO</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1.5 mt-0.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#10b981]"></span>
+                    <span class="text-[11px] text-[#6b7280] font-bold tracking-wide">Khmer Edition Workspace</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Controls Glass Pill -->
+        <div class="flex items-center bg-[#131417] rounded-full border border-[#2b2b33] p-1 shadow-sm relative">
+            <button onclick="toggleTheme()" class="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#1c1d22] hover:bg-[#25252c] transition-colors text-[13px] font-bold text-white">
+                <span>Theme</span>
+                <i id="themeIcon" class="fa-solid fa-moon text-[#a78bfa] text-[12px]"></i>
+            </button>
+            
+            <div class="w-px h-5 bg-[#2b2b33] mx-3"></div>
+            
+            <button onclick="toggleHistoryModal()" class="w-8 h-8 rounded-full hover:bg-white/5 flex items-center justify-center transition-colors" title="History / Projects">
+                <i class="fa-regular fa-folder text-[16px] text-[#3b82f6]"></i>
+            </button>
+            
+            <div class="w-1"></div>
+            
+            <button onclick="toggleApiModal()" class="w-8 h-8 rounded-full hover:bg-white/5 flex items-center justify-center transition-colors" title="API Settings">
+                <i class="fa-solid fa-gear text-[16px] text-slate-400"></i>
+            </button>
+            
+            <div class="w-px h-5 bg-[#2b2b33] mx-3"></div>
+            
+            <button onclick="toggleStoreModal()" class="w-9 h-9 rounded-full bg-gradient-to-br from-[#3b82f6] to-[#a855f7] flex items-center justify-center transition-transform hover:scale-105" title="Plugin Store & Updates">
+                <i class="fa-solid fa-user text-[15px] text-white"></i>
+            </button>
+        </div>
+    </div>
+
+    <header class="h-114 bg-[#131317] border-b border-cc-border px-2 flex items-center justify-between shrink-0 z-30">
+        <!-- Left Top Menu Icons (Exact CapCut Order) -->
+        <div class="flex items-center overflow-x-auto no-scrollbar gap-001 px-2 pb-1 pt-1 h-full">
+            <button onclick="selectTopMenu('media')" id="topTab-media" class="cc-top-tab active group">
+                <i class="fa-solid fa-folder-plus text-[15px] mb-0.5 group-hover:scale-110 transition-transform duration-300"></i>
+                <span class="text-[10px] font-medium tracking-wide">មេឌៀ</span>
+            </button>
+            <button onclick="selectTopMenu('audio')" id="topTab-audio" class="cc-top-tab group">
+                <i class="fa-solid fa-music text-[15px] mb-0.5 group-hover:scale-110 transition-transform duration-300"></i>
+                <span class="text-[10px] font-medium tracking-wide">សំឡេង</span>
+            </button>
+            <button onclick="selectTopMenu('text')" id="topTab-text" class="cc-top-tab group">
+                <i class="fa-solid fa-font text-[15px] mb-0.5 group-hover:scale-110 transition-transform duration-300"></i>
+                <span class="text-[10px] font-medium tracking-wide">អក្សរ</span>
+            </button>
+            <button onclick="selectTopMenu('stickers')" id="topTab-stickers" class="cc-top-tab group">
+                <i class="fa-regular fa-face-smile text-[15px] mb-0.5 group-hover:scale-110 transition-transform duration-300"></i>
+                <span class="text-[10px] font-medium tracking-wide">ស្ទីគ័រ</span>
+            </button>
+            <button onclick="selectTopMenu('effects')" id="topTab-effects" class="cc-top-tab group">
+                <i class="fa-solid fa-wand-sparkles text-[15px] mb-0.5 group-hover:scale-110 transition-transform duration-300"></i>
+                <span class="text-[10px] font-medium tracking-wide">អ៊ីហ្វិក</span>
+            </button>
+            <button onclick="selectTopMenu('transitions')" id="topTab-transitions" class="cc-top-tab group">
+                <i class="fa-solid fa-hourglass-half text-[15px] mb-0.5 group-hover:scale-110 transition-transform duration-300"></i>
+                <span class="text-[10px] font-medium tracking-wide">បែបផែន</span>
+            </button>
+            <button onclick="selectTopMenu('captions')" id="topTab-captions" class="cc-top-tab group">
+                <i class="fa-regular fa-closed-captioning text-[15px] mb-0.5 group-hover:scale-110 transition-transform duration-300"></i>
+                <span class="text-[10px] font-medium tracking-wide">បកប្រែ/រឿង</span>
+            </button>
+            <button onclick="selectTopMenu('filters')" id="topTab-filters" class="cc-top-tab group">
+                <i class="fa-solid fa-droplet text-[15px] mb-0.5 group-hover:scale-110 transition-transform duration-300"></i>
+                <span class="text-[10px] font-medium tracking-wide">តម្រង</span>
+            </button>
+            <button onclick="selectTopMenu('adjustment')" id="topTab-adjustment" class="cc-top-tab group">
+                <i class="fa-solid fa-sliders text-[15px] mb-0.5 group-hover:scale-110 transition-transform duration-300"></i>
+                <span class="text-[10px] font-medium tracking-wide">កែសម្រួល</span>
+            </button>
+            <button onclick="selectTopMenu('templates')" id="topTab-templates" class="cc-top-tab group">
+                <i class="fa-solid fa-layer-group text-[15px] mb-0.5 group-hover:scale-110 transition-transform duration-300"></i>
+                <span class="text-[10px] font-medium tracking-wide">គំរូរឿង</span>
+            </button>
+            <button onclick="selectTopMenu('avatar')" id="topTab-avatar" class="cc-top-tab group">
+                <i class="fa-solid fa-user-astronaut text-[15px] mb-0.5 group-hover:scale-110 transition-transform duration-300"></i>
+                <span class="text-[10px] font-medium tracking-wide">AI តួអង្គ</span>
+            </button>
+        </div>
+
+        <!-- Right Studio Controls (Undo/Redo, Sync, Teleprompter, Share, Export) -->
+        <div class="flex items-center gap-3 pr-4 shrink-0">
+            <!-- New: Cloud Sync Indicator -->
+            <div class="hidden xl:flex items-center gap-1.5 text-[11px] text-[#788294] bg-[#18181c] px-3 py-1.5 rounded-full">
+                <i class="fa-solid fa-cloud-arrow-up text-[#00e5cc]"></i>
+                <span>Auto-saved</span>
+            </div>
+
+            <!-- New: Undo / Redo Controls -->
+            <div class="flex items-center bg-[#18181c] rounded-lg p-0.5">
+                <button class="w-8 h-8 rounded-md hover:bg-[#25252c] flex items-center justify-center text-slate-300 hover:text-white transition-colors" title="Undo (Ctrl+Z)">
+                    <i class="fa-solid fa-rotate-left text-[12px]"></i>
+                </button>
+                <div class="w-px h-3 bg-[#2b2b33] mx-0.5"></div>
+                <button class="w-8 h-8 rounded-md hover:bg-[#25252c] flex items-center justify-center text-[#4a4a5a] cursor-not-allowed" title="Redo (Ctrl+Y)">
+                    <i class="fa-solid fa-rotate-right text-[12px]"></i>
+                </button>
+            </div>
+
+            <div class="w-px h-5 bg-[#2b2b33] mx-1"></div>
+
+            <button onclick="openTeleprompter()" class="px-4 py-1.5 rounded-lg bg-[#141418] hover:bg-[#18181c] border border-[#2b2b33] text-[13px] font-bold flex items-center gap-2 text-slate-200 hover:text-white transition-colors" title="បើក Teleprompter អានអត្ថបទ">
+                <i class="fa-solid fa-tv text-[#c084fc]"></i>
+                <span class="hidden md:inline">Teleprompter</span>
+            </button>
+
+            <!-- New: Share Button -->
+            <button class="px-4 py-1.5 rounded-lg bg-[#141418] hover:bg-[#18181c] border border-[#2b2b33] text-[13px] font-bold flex items-center gap-2 text-slate-200 hover:text-white transition-colors">
+                <i class="fa-solid fa-share-nodes"></i>
+                <span class="hidden sm:inline">Share</span>
+            </button>
+
+            <button onclick="downloadOutput('srt')" class="px-5 py-1.5 rounded-lg bg-[#00e5cc] hover:bg-teal-400 text-black font-extrabold text-[13px] flex items-center gap-2 transition-colors ml-1">
+                <i class="fa-solid fa-file-export"></i>
+                <span>Export</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="flex-1 grid grid-cols-12 gap-1 p-1 min-h-0 overflow-hidden">
+        
+        <!-- 1. LEFT PANEL: SUB-SIDEBAR + DROPZONE + 3 CAPCUT TOOL CARDS (Col Span 4) -->
+        <section id="leftPanel-main" class="col-span-12 lg:col-span-4 cc-panel rounded-sm flex min-h-0 overflow-hidden">
+            
+            <!-- Leftmost Sub-Navigation Column -->
+            <div class="w-44 bg-[#141418] border-r border-cc-border py-2 flex flex-col justify-between shrink-0">
+                <div class="space-y-0.5 overflow-y-auto no-scrollbar pb-4 pr-1">
+                    
+                    <div onclick="switchLeftSubTab('import')" id="subTab-import" class="cc-side-item active !bg-[#00e5cc]/10 !border-l-2 !border-[#00e5cc] !text-[#00e5cc] shadow-[inset_20px_0_20px_-20px_rgba(0,229,204,0.3)]">
+                        <i class="fa-solid fa-folder-plus text-[13px] ml-1"></i>
+                        <span class="truncate font-bold">បញ្ចូល (Import)</span>
+                    </div>
+
+                    <!-- Divider -->
+                    <div class="my-3.5 px-3 flex items-center gap-2">
+                        <div class="h-[1px] bg-gradient-to-r from-transparent via-[#3a3a46] to-transparent flex-1"></div>
+                        <span class="text-[9px] text-[#788294] font-bold tracking-widest uppercase">មុខងារ AI ពិសេស</span>
+                        <div class="h-[1px] bg-gradient-to-r from-transparent via-[#3a3a46] to-transparent flex-1"></div>
+                    </div>
+
+                    <div onclick="switchLeftSubTab('recap')" id="subTab-recap" class="cc-side-item group hover:!bg-[#25252c] transition-colors border-l-2 border-transparent">
+                        <i class="fa-solid fa-clapperboard text-[13px] text-[#788294] group-hover:text-white group-hover:scale-110 transition-all ml-1"></i>
+                        <span class="truncate font-semibold text-slate-300 group-hover:text-white transition-colors text-[12px]">១. សម្រាយរឿង</span>
+                    </div>
+                    <div onclick="switchLeftSubTab('translate')" id="subTab-translate" class="cc-side-item group hover:!bg-[#25252c] transition-colors border-l-2 border-transparent">
+                        <i class="fa-solid fa-globe text-[13px] text-[#788294] group-hover:text-white group-hover:scale-110 transition-all ml-1"></i>
+                        <span class="truncate font-semibold text-slate-300 group-hover:text-white transition-colors text-[12px]">២. បកប្រែរឿង</span>
+                        <div class="ml-auto px-1.5 py-[1px] rounded bg-white/10 text-slate-300 font-bold text-[8px] tracking-wider">PRO</div>
+                    </div>
+                    <div onclick="switchLeftSubTab('narrate')" id="subTab-narrate" class="cc-side-item group hover:!bg-[#25252c] transition-colors border-l-2 border-transparent">
+                        <i class="fa-solid fa-microphone-lines text-[13px] text-[#788294] group-hover:text-white group-hover:scale-110 transition-all ml-1"></i>
+                        <span class="truncate font-semibold text-slate-300 group-hover:text-white transition-colors text-[12px]">៣. និទានរឿង</span>
+                    </div>
+                    <div onclick="switchLeftSubTab('create')" id="subTab-create" class="cc-side-item group hover:!bg-[#25252c] transition-colors border-l-2 border-transparent">
+                        <i class="fa-solid fa-feather-pointed text-[13px] text-[#788294] group-hover:text-white group-hover:scale-110 transition-all ml-1"></i>
+                        <span class="truncate font-semibold text-slate-300 group-hover:text-white transition-colors text-[12px]">៤. តែងរឿងថ្មី</span>
+                    </div>
+                    
+                    <!-- Divider -->
+                    <div class="my-3.5 px-3 flex items-center gap-2">
+                        <div class="h-[1px] bg-gradient-to-r from-transparent via-[#3a3a46] to-transparent flex-1"></div>
+                        <span class="text-[9px] text-[#788294] font-bold tracking-widest uppercase">ថ្មីៗ (New)</span>
+                        <div class="h-[1px] bg-gradient-to-r from-transparent via-[#3a3a46] to-transparent flex-1"></div>
+                    </div>
+
+                    <!-- New Features -->
+                    <div onclick="switchLeftSubTab('news')" id="subTab-news" class="cc-side-item group hover:!bg-[#25252c] transition-colors border-l-2 border-transparent">
+                        <i class="fa-regular fa-newspaper text-[13px] text-[#788294] group-hover:text-white group-hover:scale-110 transition-all ml-1"></i>
+                        <span class="truncate font-medium text-slate-300 group-hover:text-white transition-colors text-[12px]">អានព័ត៌មាន (News)</span>
+                    </div>
+                    <div onclick="switchLeftSubTab('podcast')" id="subTab-podcast" class="cc-side-item group hover:!bg-[#25252c] transition-colors border-l-2 border-transparent">
+                        <i class="fa-solid fa-podcast text-[13px] text-[#788294] group-hover:text-white group-hover:scale-110 transition-all ml-1"></i>
+                        <span class="truncate font-medium text-slate-300 group-hover:text-white transition-colors text-[12px]">ផតខាស (Podcast)</span>
+                    </div>
+                    <div onclick="switchLeftSubTab('ads')" id="subTab-ads" class="cc-side-item group hover:!bg-[#25252c] transition-colors border-l-2 border-transparent">
+                        <i class="fa-solid fa-bullhorn text-[13px] text-[#788294] group-hover:text-white group-hover:scale-110 transition-all ml-1"></i>
+                        <span class="truncate font-medium text-slate-300 group-hover:text-white transition-colors text-[12px]">ពាណិជ្ជកម្ម (Ads)</span>
+                    </div>
+
+                    <!-- Divider -->
+                    <div class="my-3.5 px-3 flex items-center gap-2">
+                        <div class="h-[1px] bg-gradient-to-r from-transparent via-[#3a3a46] to-transparent flex-1"></div>
+                        <span class="text-[9px] text-[#788294] font-bold tracking-widest uppercase">គំរូ</span>
+                        <div class="h-[1px] bg-gradient-to-r from-transparent via-[#3a3a46] to-transparent flex-1"></div>
+                    </div>
+
+                    <div onclick="switchLeftSubTab('presets')" id="subTab-presets" class="cc-side-item group hover:!bg-[#25252c] transition-colors border-l-2 border-transparent">
+                        <i class="fa-solid fa-bolt text-[13px] text-amber-500 group-hover:text-amber-400 group-hover:rotate-12 transition-transform ml-1"></i>
+                        <span class="truncate font-bold text-amber-500/90 group-hover:text-amber-400 transition-colors text-[12px]">គំរូរឿងស្រាប់</span>
+                    </div>
+                </div>
+
+                <!-- Bottom Quick Status -->
+                <div class="px-2.5 py-2 border-t border-cc-border text-[10px] text-cc-muted space-y-1">
+                    <div class="flex items-center justify-between">
+                        <span>ម៉ូដែល៖</span>
+                        <span class="text-cc-teal font-semibold">Gemini 3</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span>សំឡេង៖</span>
+                        <span class="text-pink-400 font-semibold">AI TTS</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Left Content Area (Media Library) -->
+            <div class="flex-1 p-3 flex flex-col min-h-0 overflow-y-auto relative bg-[#18181c]">
+                
+                <!-- Media Toolbar -->
+                <div class="flex items-center gap-2 mb-4">
+                    <button onclick="triggerMediaUpload()" class="flex items-center gap-1.5 bg-[#2a3036] hover:bg-[#323d46] text-[#e0e0e6] px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors shrink-0">
+                        <i class="fa-solid fa-circle-plus text-[#00e5cc] text-[12px]"></i> Import
+                    </button>
+                    <!-- NEW AI BATCH BUTTON -->
+                    <button onclick="handleBatchAiFlow()" class="flex items-center gap-1.5 bg-gradient-to-r from-purple-600 to-[#00e5cc] hover:from-purple-500 hover:to-[#00d0b5] text-white px-3 py-1.5 rounded-md text-[13px] font-bold shadow-lg transition-all hover:scale-105 shrink-0 whitespace-nowrap">
+                        <i class="fa-solid fa-wand-magic-sparkles text-white text-[12px] animate-pulse"></i> កាត់តរឿងទាំងមូល
+                    </button>
+                    <button class="flex items-center gap-1.5 bg-[#2a2a30] hover:bg-[#35353d] text-[#e0e0e6] px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors shrink-0">
+                        <i class="fa-solid fa-video text-[#9ca3af] text-[12px]"></i> Record
+                    </button>
+                    <div class="flex-1 flex items-center bg-[#1b1b22] border border-[#2b2b33] rounded-md px-2.5 py-1.5 min-w-0">
+                        <i class="fa-solid fa-magnifying-glass text-[#6b7280] text-[12px] mr-1.5"></i>
+                        <input type="text" placeholder="Search media" class="bg-transparent border-none outline-none text-[12px] text-white w-full placeholder-[#6b7280] min-w-0">
+                    </div>
+                    <div class="flex items-center gap-2 text-[#9ca3af] shrink-0 ml-1">
+                        <button class="hover:text-white transition-colors p-1"><i class="fa-solid fa-border-all text-[13px]"></i></button>
+                        <button class="hover:text-white transition-colors p-1"><i class="fa-solid fa-list-ul text-[13px]"></i></button>
+                        <button class="hover:text-white transition-colors p-1"><i class="fa-solid fa-filter text-[13px]"></i></button>
+                    </div>
+                </div>
+                
+                <input type="file" id="universalFileInput" accept=".srt,.txt,video/*,audio/*,image/*" class="hidden" multiple onchange="handleUniversalFileSelect(event)">
+                
+                <div class="text-[13px] font-medium text-[#e0e0e6] mb-3 px-1">All</div>
+
+                <!-- Media Library Grid -->
+                <div id="mediaLibraryGrid" class="flex-1 overflow-y-auto grid grid-cols-4 content-start gap-x-2 gap-y-6 no-scrollbar pb-4" ondragover="handleDragOver(event)" ondrop="handleMediaDrop(event)">
+                    <!-- Empty State / Dropzone Container -->
+                    <div id="mediaDropzoneBox" class="col-span-4 w-full flex-1 min-h-[250px] flex flex-col items-center justify-center mt-4">
+                        <div onclick="triggerMediaUpload()" class="flex flex-col items-center justify-center cursor-pointer hover:opacity-80 transition-opacity p-8">
+                            <div class="flex items-center gap-2.5 mb-3">
+                                <div class="w-[26px] h-[26px] rounded-full bg-[#00e5cc] flex items-center justify-center">
+                                    <i class="fa-solid fa-plus text-[#111115] text-[13px] font-black"></i>
+                                </div>
+                                <span class="text-white text-[15px] font-bold">Import</span>
+                            </div>
+                            <span class="text-[#788294] text-[12px]">Drag and drop videos, photos, and audio files here</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Smart Video Actions (Shown when video is loaded) -->
+                <div id="videoActionsPanel" class="mt-2 bg-[#18181c] border border-cc-border rounded-lg p-2.5 hidden flex-col gap-2 shrink-0">
+                    <div class="text-[10px] font-bold text-cc-muted uppercase mb-0.5">ឧបករណ៍វីដេអូវៃឆ្លាត</div>
+                    <div class="grid grid-cols-2 gap-1.5">
+                        <button onclick="triggerExtractBGM()" class="bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 rounded py-1.5 text-[11px] font-medium flex items-center justify-center gap-1.5 transition-colors">
+                            <i class="fa-solid fa-music"></i> យកតែ BGM
+                        </button>
+                        <button onclick="triggerVideoTranscription()" class="bg-[#00b3a0]/10 hover:bg-[#00b3a0]/20 text-[#00e5cc] border border-[#00b3a0]/30 rounded py-1.5 text-[11px] font-medium flex items-center justify-center gap-1.5 transition-colors">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> ទាញជាអក្សរ
+                        </button>
+                        <button onclick="triggerGenerateAudio()" class="col-span-2 bg-slate-200 hover:bg-white text-slate-800 rounded py-1.5 text-[11px] font-bold flex items-center justify-center gap-1.5 transition-colors shadow-sm">
+                            <i class="fa-solid fa-microphone-lines"></i> បម្លែងអក្សរជាសំឡេង
+                        </button>
+                    </div>
+                </div>
+
+
+            </div>
+        </section>
+
+        <!-- 1B. LEFT PANEL: SECONDARY TOOLS (For Stickers, Effects, Transitions, Filters) -->
+        <section id="leftPanel-placeholder" class="hidden col-span-12 lg:col-span-4 cc-panel rounded-sm flex min-h-0 overflow-hidden bg-[#141418]">
+            <!-- Leftmost Sub-Navigation Column -->
+            <div class="w-44 bg-[#141418] border-r border-cc-border flex flex-col shrink-0">
+                <div class="px-3 py-3 text-sm font-bold text-slate-200 mb-1 tracking-wide" id="placeholderPanelTitle">មុខងារ</div>
+                <div class="space-y-0.5 px-1" id="placeholderSubNav">
+                    <div class="cc-side-item active"><span class="truncate text-[11px]">ពេញនិយម (Pro)</span></div>
+                    <div class="cc-side-item"><span class="truncate text-[11px]">ថ្មីៗ</span></div>
+                    <div class="cc-side-item"><span class="truncate text-[11px]">វីដេអូ</span></div>
+                    <div class="cc-side-item"><span class="truncate text-[11px]">កំប្លែង</span></div>
+                    <div class="cc-side-item"><span class="truncate text-[11px]">ធម្មជាតិ</span></div>
+                    <div class="cc-side-item"><span class="truncate text-[11px]">ភាពយន្ត</span></div>
+                </div>
+            </div>
+
+            <!-- Main Content Area (Grid) -->
+            <div class="flex-1 p-2 flex flex-col min-h-0 overflow-y-auto">
+                <div class="text-[10px] text-[#788294] font-medium mb-3 mt-1 ml-1">ទាំងអស់</div>
+                <div class="grid grid-cols-3 gap-2 pb-4" id="placeholderGrid">
+                    <!-- Javascript will fill this with dummy boxes -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. CENTER PANEL: PLAYER - TIMELINE 01 (Col Span 5) -->
+        <section class="col-span-12 lg:col-span-5 cc-panel rounded-sm flex flex-col justify-between min-h-0 overflow-hidden relative">
+            
+            <!-- Subtle Background Glow -->
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyan-500/5 blur-[120px] rounded-full pointer-events-none z-0"></div>
+
+            <!-- Center Player Header -->
+            <div class="h-10 px-4 border-b border-[#2b2b33] bg-[#18181c]/80 backdrop-blur-md flex items-center justify-between text-xs shrink-0 relative z-10">
+                <div class="flex items-center gap-2.5">
+                    <span class="font-bold text-slate-200 tracking-wide">សម្រាយរឿង - ថាមឡាញ 01</span>
+                    <span id="playerActiveBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-[#00e5cc]/10 text-[#00e5cc] border border-[#00e5cc]/30 shadow-[0_0_8px_rgba(0,229,204,0.15)] font-medium">
+                        សម្រាយរឿង AI
+                    </span>
+                </div>
+
+                <!-- View Switcher inside Player (Video Stage vs Script Text Editor) -->
+                <div class="flex items-center gap-1 bg-[#0c0c10] p-1 rounded-lg border border-[#2b2b33] shadow-inner">
+                    <button onclick="setCenterStageMode('stage')" id="stageBtn-stage" class="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-[#222228] text-[#00e5cc] shadow-sm transition-colors">
+                        <i class="fa-solid fa-display mr-1.5"></i>អេក្រង់មើលរឿង
+                    </button>
+                    <button onclick="setCenterStageMode('editor')" id="stageBtn-editor" class="px-2.5 py-1 rounded-md text-[11px] font-semibold text-[#8e8e98] hover:text-white transition-colors">
+                        <i class="fa-solid fa-file-pen mr-1.5"></i>អត្ថបទរឿងពេញ
+                    </button>
+                </div>
+
+                <button onclick="copyOutputToClipboard()" class="w-7 h-7 rounded hover:bg-white/5 text-[#8e8e98] hover:text-white flex items-center justify-center transition-colors" title="ចម្លងអត្ថបទរឿងទាំងអស់">
+                    <i class="fa-solid fa-bars text-sm"></i>
+                </button>
+            </div>
+
+            <!-- Center Black Canvas / Video & Story Stage -->
+            <div class="flex-1 bg-black relative flex flex-col items-center justify-center overflow-hidden m-3 mt-2 rounded-xl border border-white/5 shadow-[0_10px_30px_rgba(0,0,0,0.5)] z-10">
+                
+                <!-- AI Loading Overlay inside Player -->
+                <div id="loadingOverlay" class="hidden absolute inset-0 z-30 bg-black/90 backdrop-blur-md flex-col items-center justify-center p-6 text-center">
+                    <div class="relative w-16 h-16 mb-4 flex items-center justify-center">
+                        <div class="absolute inset-0 rounded-full border-2 border-slate-700"></div>
+                        <div class="absolute inset-0 rounded-full border-2 border-[#00e5cc] border-t-transparent animate-spin shadow-[0_0_15px_rgba(0,229,204,0.5)]"></div>
+                        <i class="fa-solid fa-wand-magic-sparkles text-[#00e5cc] text-xl animate-pulse"></i>
+                    </div>
+                    <div id="loadingTitle" class="text-[15px] font-bold text-white mb-1.5">AI កំពុងបង្កើតអត្ថបទរឿង...</div>
+                    <p id="loadingSubtitle" class="text-xs text-[#8e8e98] max-w-[280px] leading-relaxed">សូមរង់ចាំបន្តិច ប្រព័ន្ធកំពុងសម្រួលឃ្លាឃ្លោងភាសាខ្មែរឱ្យពីរោះជក់ចិត្ត</p>
+                </div>
+
+                <!-- MODE A: Visual Player Stage -->
+                <div id="centerVisualStage" class="w-full h-full flex flex-col justify-between p-4 relative">
+                    <!-- Optional Uploaded Video/Image Preview -->
+                    <video id="uploadedVideoPreview" class="hidden absolute inset-0 w-full h-full object-contain bg-black z-0" playsinline></video>
+                    <img id="uploadedImagePreview" class="hidden absolute inset-0 w-full h-full object-contain bg-black z-0" alt="Uploaded Media">
+
+                    <!-- Top Overlay Info (Current Section & Voice Status) -->
+                    <div class="relative z-20 flex items-center justify-between">
+                        <!-- Scene Badge -->
+                        <div class="flex items-center gap-2 bg-black px-3 py-1.5 rounded-lg border border-[#2b2b33] text-[11px] shadow-sm">
+                            <div class="relative flex items-center justify-center w-1.5 h-1.5">
+                                <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#00e5cc] shadow-[0_0_8px_rgba(0,229,204,0.8)]"></span>
+                            </div>
+                            <span id="stageSectionTag" class="font-bold text-[#00e5cc] tracking-wide">[HOOK ទាក់ទាញ]</span>
+                            <span class="text-[#4a4a5a]">|</span>
+                            <span id="stageClipCounter" class="text-[#8e8e98] font-medium">ឈុតទី 1/4</span>
+                        </div>
+
+                        <!-- Voice & Play Controls -->
+                        <div class="flex items-center gap-2">
+                            <div class="relative group">
+                                <select id="ttsVoiceSelect" class="appearance-none bg-black border border-[#2b2b33] rounded-lg pl-8 pr-8 py-1.5 text-[11px] font-medium text-slate-200 focus:outline-none focus:border-[#00e5cc] transition-colors shadow-sm cursor-pointer hover:bg-[#0c0c10]">
+                                    <option value="Kore">Kore (ច្បាស់/ម៉ឺងម៉ាត់)</option>
+                                    <option value="Aoede">Aoede (និទានរឿងស្រទន់)</option>
+                                    <option value="Charon">Charon (អាថ៌កំបាំង/រន្ធត់)</option>
+                                    <option value="Puck">Puck (សម្រាយរឿងរហ័ស)</option>
+                                </select>
+                                <i class="fa-solid fa-microphone-lines absolute left-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 pointer-events-none"></i>
+                                <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-[9px] text-slate-400 pointer-events-none group-hover:text-white transition-colors"></i>
+                            </div>
+                            
+                            <button id="ttsPlayBtn" onclick="generateAndPlayTTS()" class="px-3 py-1.5 rounded-lg bg-[#00e5cc] hover:bg-[#00f2d8] text-black font-bold text-[11px] flex items-center gap-1.5 shadow-[0_0_15px_rgba(0,229,204,0.2)] hover:shadow-[0_0_20px_rgba(0,229,204,0.4)] transition-all cursor-pointer">
+                                <i id="ttsPlayIcon" class="fa-solid fa-volume-high"></i>
+                                <span id="ttsPlayLabel">ស្ដាប់សំឡេង AI</span>
+                            </button>
+                            <button id="ttsStopBtn" onclick="stopAllAudio()" class="hidden px-2.5 py-1.5 rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/20 hover:bg-rose-500 hover:text-white text-[11px] transition-colors">
+                                <i class="fa-solid fa-stop"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Center Scene Visualizer / Active Story Paragraph -->
+                    <div id="subtitleWrapper" class="relative z-10 my-auto max-w-xl mx-auto text-center px-6 py-5 rounded-2xl bg-black border border-[#2b2b33] shadow-xl hidden transition-all duration-500">
+                        <div id="stageSoundCue" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded border border-[#2b2b33] text-[10px] font-bold text-[#8e8e98] mb-3 tracking-widest uppercase bg-[#0c0c10]"></div>
+                        <p id="stageActiveSubtitle" class="font-story text-lg sm:text-xl text-white leading-relaxed drop-shadow-sm font-medium text-balance"></p>
+                    </div>
+
+                    <!-- Bottom Overlay Quick Script Actions -->
+                    <div class="relative z-20 flex items-center justify-between text-[11px]">
+                        <div class="flex items-center gap-2.5 bg-black px-3 py-1.5 rounded-lg border border-[#2b2b33] shadow-sm font-mono">
+                            <span id="metricWords" class="text-white font-medium">0 ពាក្យ</span>
+                            <span class="text-[#4a4a5a]">|</span>
+                            <span id="metricTime" class="text-[#00e5cc] font-medium">~ 0 វិនាទី</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="copyOutputToClipboard()" class="px-3 py-1.5 rounded-lg bg-black hover:bg-[#0c0c10] border border-[#2b2b33] text-white flex items-center gap-1.5 transition-colors shadow-sm">
+                                <i class="fa-regular fa-copy text-[#8e8e98]"></i>
+                                <span class="font-medium">ចម្លងអត្ថបទ</span>
+                            </button>
+                            <button onclick="downloadOutput('txt')" class="px-3 py-1.5 rounded-lg bg-black hover:bg-[#0c0c10] border border-[#2b2b33] text-white flex items-center gap-1.5 transition-colors shadow-sm">
+                                <i class="fa-solid fa-download text-[#8e8e98]"></i>
+                                <span class="font-medium">.TXT</span>
+                            </button>
+                        </div>
+                    </div>
+                    <audio id="aiAudioPlayer" class="hidden"></audio>
+                </div>
+
+                <!-- MODE B: Full Script Editor & Reader View -->
+                <div id="centerScriptEditorStage" class="hidden w-full h-full flex-col p-4 bg-[#0c0c10]">
+                    <div class="flex items-center justify-between pb-3 mb-3 border-b border-white/5 text-xs">
+                        <span class="text-[#00e5cc] font-bold flex items-center gap-2">
+                            <i class="fa-solid fa-pen-nib text-[10px]"></i>
+                            កែសម្រួលអត្ថបទរឿងផ្ទាល់
+                        </span>
+                        <div class="flex items-center gap-2">
+                            <button onclick="quickRefineScript('dramatic')" class="px-3 py-1.5 rounded-lg bg-gradient-to-r from-purple-600/20 to-pink-600/20 text-purple-300 border border-purple-500/30 hover:border-purple-500/60 hover:shadow-[0_0_15px_rgba(168,85,247,0.2)] transition-all text-[11px] font-semibold flex items-center gap-1.5">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> បន្ថែមភាពជក់ចិត្ត
+                            </button>
+                            <button onclick="quickRefineScript('srt')" class="px-3 py-1.5 rounded-lg bg-gradient-to-r from-cyan-600/20 to-blue-600/20 text-cyan-300 border border-cyan-500/30 hover:border-cyan-500/60 hover:shadow-[0_0_15px_rgba(6,182,212,0.2)] transition-all text-[11px] font-semibold flex items-center gap-1.5">
+                                <i class="fa-regular fa-clock"></i> បំប្លែងជាម៉ោង .SRT
+                            </button>
+                        </div>
+                    </div>
+                    <textarea id="outputTextarea" oninput="handleManualOutputEdit()" class="flex-1 w-full bg-transparent font-story text-sm sm:text-base text-slate-200 leading-loose resize-none focus:outline-none placeholder-slate-600 custom-scrollbar" placeholder="អត្ថបទសម្រាយរឿង បកប្រែ ឬនិទានរឿងនឹងបង្ហាញនៅទីនេះ..."></textarea>
+                </div>
+            </div>
+
+            <!-- Center Player Bottom Transport Bar -->
+            <div class="h-11 px-4 border-t border-[#181920] bg-[#0b0c10] flex items-center justify-between text-xs shrink-0 z-10 relative">
+                <!-- Left Player Controls -->
+                <div class="flex items-center gap-3 text-[11px] text-[#8e8e98] font-medium">
+                    <button onclick="setCenterStageMode(centerStageMode === 'stage' ? 'editor' : 'stage')" class="px-3 py-1.5 rounded-md bg-[#1f1f27] hover:bg-[#2b2b36] text-slate-300 transition-colors shadow-sm">
+                        Script
+                    </button>
+                    <button onclick="openTeleprompter()" class="w-7 h-7 flex items-center justify-center rounded hover:bg-white/10 hover:text-white transition-colors" title="Fullscreen">
+                        <i class="fa-solid fa-expand text-[13px]"></i>
+                    </button>
+                    <!-- Timecode -->
+                    <div class="font-mono text-[11px] flex items-center gap-1.5 bg-black/40 px-2.5 py-1.5 rounded-md ml-1">
+                        <span id="playerCurrentTime" class="text-[#00e5cc] font-medium">00:00:00:00</span>
+                        <span class="text-[#4a4a5a]">/</span>
+                        <span id="playerTotalTime" class="text-[#8e8e98]">00:00:00:00</span>
+                    </div>
+                </div>
+
+                <!-- Center Play/Pause Button Controls -->
+                <div class="flex items-center gap-5">
+                    <button onclick="stepTimelineClip(-1)" class="w-6 h-6 flex items-center justify-center text-[#8e8e98] hover:text-white hover:bg-white/10 rounded transition-all" title="ឈុតមុន">
+                        <i class="fa-solid fa-backward-step"></i>
+                    </button>
+                    
+                    <!-- Clean White Play Button (Removed Cyan Hover) -->
+                    <button onclick="toggleTimelinePlayback()" id="playerPlayBtn" class="w-9 h-9 rounded-full bg-white text-black hover:bg-gray-200 hover:scale-105 flex items-center justify-center transition-all cursor-pointer shadow-lg" title="ចាក់មើលតាម Timeline">
+                        <i id="playerPlayIcon" class="fa-solid fa-play text-[15px] ml-0.5"></i>
+                    </button>
+                    
+                    <button onclick="stepTimelineClip(1)" class="w-6 h-6 flex items-center justify-center text-[#8e8e98] hover:text-white hover:bg-white/10 rounded transition-all" title="ឈុតបន្ទាប់">
+                        <i class="fa-solid fa-forward-step"></i>
+                    </button>
+                </div>
+
+                <!-- Right Player Controls (New Features Added!) -->
+                <div class="flex items-center gap-3 text-[11px] text-[#8e8e98] font-medium">
+                    <!-- Volume Control (New) -->
+                    <button onclick="showToast('មុខងារកំណត់កម្រិតសំឡេងកំពុងអភិវឌ្ឍ (Volume Control)', 'info')" class="w-7 h-7 flex items-center justify-center rounded hover:bg-white/10 hover:text-white transition-colors" title="កម្រិតសំឡេង">
+                        <i class="fa-solid fa-volume-high text-[12px]"></i>
+                    </button>
+                    
+                    <!-- Quality Selector (New) -->
+                    <div onclick="showToast('ជម្រើសគុណភាពបង្ហាញ (1080P/4K)', 'info')" class="px-2.5 py-1.5 rounded-md bg-[#1f1f27] hover:bg-[#2b2b36] text-slate-300 cursor-pointer transition-colors shadow-sm flex items-center gap-1.5">
+                        <span class="font-bold">1080P</span> <i class="fa-solid fa-caret-down text-[10px]"></i>
+                    </div>
+
+                    <!-- Ratio Selector -->
+                    <button onclick="showToast('កំណត់ទំហំផ្ទាំងវីដេអូ (Ratio)', 'info')" class="px-2.5 py-1.5 rounded-md bg-[#1f1f27] hover:bg-[#2b2b36] text-slate-300 transition-colors shadow-sm">
+                        Ratio
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. RIGHT PANEL: DETAILS & AI STORY STUDIO INSPECTOR (Col Span 3) -->
+        <section class="col-span-12 lg:col-span-3 cc-panel rounded-sm flex flex-col justify-between min-h-0 overflow-hidden">
+            
+            <!-- Right Panel Top Tabs: AI Studio Inspector vs CapCut Project Details -->
+            <div class="h-10 px-4 border-b border-[#2b2b33] bg-[#18181c]/80 backdrop-blur-md flex items-center justify-between shrink-0 z-10 relative">
+                <div class="flex items-center gap-5 text-[13px] font-bold">
+                    <button onclick="switchRightPanelTab('ai')" id="rightTabBtn-ai" class="text-[#00e5cc] border-b-2 border-[#00e5cc] py-2 relative">
+                        ឧបករណ៍ AI (Studio)
+                        <div class="absolute -bottom-[2px] left-0 right-0 h-[2px] bg-[#00e5cc] shadow-[0_0_10px_rgba(0,229,204,0.8)]"></div>
+                    </button>
+                    <button onclick="switchRightPanelTab('details')" id="rightTabBtn-details" class="text-[#8e8e98] hover:text-white py-2 transition-colors">
+                        Details
+                    </button>
+                </div>
+                <span id="activeToolIndicator" class="text-[10px] text-[#4a4a5a] font-medium tracking-wide">សម្រាយរឿង</span>
+            </div>
+
+            <!-- RIGHT TAB 1: INTERACTIVE AI TOOL FORMS -->
+            <div id="rightPanel-ai" class="flex-1 p-3 overflow-y-auto space-y-3.5 relative z-0">
+                
+                <!-- Quick 4-Tool Selector Pills inside Inspector -->
+                <div class="grid grid-cols-4 gap-1 bg-black p-1 rounded-xl border border-[#2b2b33] text-[11px]">
+                    <button onclick="openToolInInspector('recap')" id="inspTab-recap" class="py-1.5 rounded-lg font-bold bg-[#00e5cc] text-black transition-colors">
+                        សម្រាយរឿង
+                    </button>
+                    <button onclick="openToolInInspector('translate')" id="inspTab-translate" class="py-1.5 rounded-lg font-medium text-[#8e8e98] hover:text-white hover:bg-white/5 transition-colors">
+                        បកប្រែ
+                    </button>
+                    <button onclick="openToolInInspector('narrate')" id="inspTab-narrate" class="py-1.5 rounded-lg font-medium text-[#8e8e98] hover:text-white hover:bg-white/5 transition-colors">
+                        និទានរឿង
+                    </button>
+                    <button onclick="openToolInInspector('create')" id="inspTab-create" class="py-1.5 rounded-lg font-medium text-[#8e8e98] hover:text-white hover:bg-white/5 transition-colors">
+                        តែងរឿង
+                    </button>
+                </div>
+
+                <!-- FORM 1: សម្រាយរឿង (MOVIE RECAP) -->
+                <div id="toolForm-recap" class="space-y-4 pt-1">
+                    <div class="text-[10px] text-[#788294] font-bold uppercase tracking-[0.15em] px-1 mb-2">
+                        មុខងារសម្រាយរឿង (Recap Tools)
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="block text-[10px] font-bold text-[#788294] uppercase tracking-wider px-1">ចំណងជើងរឿង (Movie Title)</label>
+                        <input type="text" id="recapTitle" placeholder="ឈ្មោះរឿងភាពយន្ត..." class="w-full bg-[#121216] border border-[#2b2b33] hover:border-[#00e5cc]/30 focus:border-[#00e5cc] text-slate-200 text-[11.5px] rounded-xl px-3 py-2 transition-colors outline-none focus:ring-1 focus:ring-[#00e5cc]/30">
+                    </div>
+                    
+                    <div class="space-y-1.5 hidden">
+                        <input type="hidden" id="recapTone" value="រំភើប ជក់ចិត្ត (Exciting & Dramatic)">
+                        <input type="hidden" id="recapHook" value="ចាប់អារម្មណ៍ខ្លាំងភ្លាមៗ (Strong Hook)">
+                        <input type="hidden" id="recapLength" value="លម្អិត (Detailed)">
+                        <input type="hidden" id="recapNaming" value="ឈ្មោះតួពិត (Real Names)">
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="block text-[10px] font-bold text-[#788294] uppercase tracking-wider px-1">សាច់រឿងសង្ខេប (Plot summary)</label>
+                        <textarea id="recapPlot" rows="2" placeholder="សរសេរសាច់រឿងសង្ខេបទីនេះ ឬទុកទទេដើម្បីឱ្យ AI រៀបចំដោយស្វ័យប្រវត្តិ..." class="w-full bg-[#121216] border border-[#2b2b33] hover:border-[#00e5cc]/30 focus:border-[#00e5cc] text-slate-200 text-[11.5px] rounded-xl p-3 font-mono leading-relaxed resize-y transition-colors custom-scrollbar outline-none focus:ring-1 focus:ring-[#00e5cc]/30"></textarea>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <!-- Card 1: Start Recapping -->
+                        <button onclick="handleGenerate()" class="bg-[#18181c] border border-[#2b2b33] hover:border-[#00e5cc]/50 rounded-xl p-3.5 flex flex-col items-start gap-3 transition-colors text-left group relative overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-br from-[#00e5cc]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div class="w-9 h-9 rounded-xl bg-[#222228] group-hover:bg-[#00e5cc]/20 transition-colors flex items-center justify-center relative z-10 shadow-sm">
+                                <i class="fa-solid fa-wand-magic-sparkles text-[#00e5cc] text-[16px] group-hover:scale-110 transition-transform"></i>
+                            </div>
+                            <div class="relative z-10">
+                                <div class="text-slate-100 font-extrabold text-[12px] tracking-wide mb-1">ចាប់ផ្តើមសម្រាយរឿង</div>
+                                <div class="text-[#788294] text-[9.5px] font-medium leading-relaxed group-hover:text-slate-300 transition-colors">វិភាគវីដេអូ និងបង្កើតស្គ្រីបស្វ័យប្រវត្តិ</div>
+                            </div>
+                        </button>
+                        
+                        <!-- Card 2: Pro Recap Voice -->
+                        <button onclick="showToast('មុខងារសម្រាយរឿងបែបអាជីពកំពុងរៀបចំ...')" class="bg-[#18181c] border border-[#2b2b33] hover:border-purple-500/50 rounded-xl p-3.5 flex flex-col items-start gap-3 transition-colors text-left group relative overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div class="w-9 h-9 rounded-xl bg-[#222228] group-hover:bg-purple-500/20 transition-colors flex items-center justify-center relative z-10 shadow-sm">
+                                <i class="fa-solid fa-microphone-lines text-purple-400 text-[16px] group-hover:scale-110 transition-transform"></i>
+                            </div>
+                            <div class="relative z-10">
+                                <div class="text-slate-100 font-extrabold text-[12px] tracking-wide mb-1">សម្រាយរឿងបែបអាជីព</div>
+                                <div class="text-[#788294] text-[9.5px] font-medium leading-relaxed group-hover:text-slate-300 transition-colors">សំឡេង AI ដូចគេបញ្ចូលសំឡេងពិតៗ</div>
+                            </div>
+                        </button>
+
+                        <!-- Card 3: BGM -->
+                        <button onclick="showToast('មុខងារបន្ថែម BGM កំពុងរៀបចំ...')" class="bg-[#18181c] border border-[#2b2b33] hover:border-blue-500/50 rounded-xl p-3.5 flex flex-col items-start gap-3 transition-colors text-left group relative overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div class="w-9 h-9 rounded-xl bg-[#222228] group-hover:bg-blue-500/20 transition-colors flex items-center justify-center relative z-10 shadow-sm">
+                                <i class="fa-solid fa-music text-blue-400 text-[16px] group-hover:scale-110 transition-transform"></i>
+                            </div>
+                            <div class="relative z-10">
+                                <div class="text-slate-100 font-extrabold text-[12px] tracking-wide mb-1">បន្ថែម BGM</div>
+                                <div class="text-[#788294] text-[9.5px] font-medium leading-relaxed group-hover:text-slate-300 transition-colors">ដាក់ភ្លេងកំដរអារម្មណ៍អូតូ (Auto BGM)</div>
+                            </div>
+                        </button>
+                        
+                        <!-- Card 4: Extract Text -->
+                        <button onclick="triggerVideoTranscription()" class="bg-[#18181c] border border-[#2b2b33] hover:border-orange-500/50 rounded-xl p-3.5 flex flex-col items-start gap-3 transition-colors text-left group relative overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div class="w-9 h-9 rounded-xl bg-[#222228] group-hover:bg-orange-500/20 transition-colors flex items-center justify-center relative z-10 shadow-sm">
+                                <i class="fa-solid fa-closed-captioning text-orange-400 text-[16px] group-hover:scale-110 transition-transform"></i>
+                            </div>
+                            <div class="relative z-10">
+                                <div class="text-slate-100 font-extrabold text-[12px] tracking-wide mb-1">ទាញអត្ថបទពីវីដេអូ</div>
+                                <div class="text-[#788294] text-[9.5px] font-medium leading-relaxed group-hover:text-slate-300 transition-colors">បំប្លែងសំឡេងក្នុងវីដេអូទៅជាអក្សរ</div>
+                            </div>
+                        </button>
+                    </div>
+
+                    <!-- Recap Extensions -->
+                    <div class="pt-2 border-t border-[#2b2b33] mt-2">
+                        <div class="text-[9px] text-[#788294] font-bold uppercase tracking-wider mb-2">មុខងារបន្ថែមសម្រាប់សម្រាយរឿង</div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="showToast('មុខងារ Auto Subtitle កំពុងអភិវឌ្ឍន៍')" class="bg-[#18181c] hover:bg-[#25252c] border border-[#2b2b33] rounded-xl py-2 px-2 text-[10px] text-slate-300 hover:text-white flex items-center gap-2 transition-colors group">
+                                <i class="fa-regular fa-closed-captioning text-slate-400 group-hover:text-white transition-colors"></i> ទាញ Subtitle ស្វ័យប្រវត្តិ
+                            </button>
+                            <button onclick="showToast('មុខងារកែពណ៌ AI កំពុងអភិវឌ្ឍន៍')" class="bg-[#18181c] hover:bg-[#25252c] border border-[#2b2b33] rounded-xl py-2 px-2 text-[10px] text-slate-300 hover:text-white flex items-center gap-2 transition-colors group">
+                                <i class="fa-solid fa-wand-magic text-slate-400 group-hover:text-white transition-colors"></i> AI កែពណ៌វីដេអូ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FORM 2: បកប្រែរឿង (TRANSLATE STORY & SRT) -->
+                <div id="toolForm-translate" class="space-y-3.5 hidden pt-1">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="space-y-1.5">
+                            <label class="block text-[10px] font-bold text-[#788294] uppercase tracking-wider px-1">ភាសាដើម</label>
+                            <div class="relative group">
+                                <select id="transSourceLang" class="appearance-none w-full bg-[#121216] border border-[#2b2b33] group-hover:border-[#00e5cc]/50 focus:border-[#00e5cc] text-slate-200 text-[11px] rounded-xl pl-3 pr-8 py-2.5 transition-colors shadow-inner cursor-pointer outline-none">
+                                    <option value="ស្វ័យប្រវត្តិ (Auto-Detect)">🌐 Auto-Detect</option>
+                                    <option value="ភាសាអង់គ្លេស (English)">🇬🇧 អង់គ្លេស (English)</option>
+                                    <option value="ភាសាចិន (Chinese)">🇨🇳 ចិន (Chinese)</option>
+                                  
+                                    <option value="ភាសាកូរ៉េ (Korean)">🇰🇷 កូរ៉េ (Korean)</option>
+                                    <option value="ភាសាបារាំង (French)">🇫🇷 បារាំង (French)</option>
+                                    <option value="ភាសាជប៉ុន (Japanese)">🇯🇵 ជប៉ុន (Japanese)</option>
+                                </select>
+                                <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-500 pointer-events-none group-hover:text-[#00e5cc] transition-colors"></i>
+                            </div>
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-[10px] font-bold text-[#788294] uppercase tracking-wider px-1">ទម្រង់បកប្រែ</label>
+                            <div class="relative group">
+                                <select id="transFormat" class="appearance-none w-full bg-[#121216] border border-[#2b2b33] group-hover:border-[#00e5cc]/50 focus:border-[#00e5cc] text-slate-200 text-[11px] rounded-xl pl-3 pr-8 py-2.5 transition-colors shadow-inner cursor-pointer outline-none">
+                                    <option value="បកប្រែសម្រួលជាអត្ថបទសម្រាយរឿង (Smooth Recap)">🎬 សម្រួលសម្រាយរឿង</option>
+                                    <option value="រក្សាទម្រង់ម៉ោង Subtitle .SRT">⏱️ រក្សាម៉ោង .SRT</option>
+                                    <option value="បកប្រែសន្ទនាតួអង្គធម្មជាតិ">💬 សន្ទនាធម្មជាតិ</option>
+                                    <option value="បកប្រែពាក្យបច្ចេកទេស (Technical)">🛠️ បច្ចេកទេស/ឯកសារ</option>
+                                </select>
+                                <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-500 pointer-events-none group-hover:text-[#00e5cc] transition-colors"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-1.5">
+                        <label class="block text-[10px] font-bold text-[#788294] uppercase tracking-wider px-1">រចនាបថពាក្យពេចន៍</label>
+                        <div class="relative group">
+                            <select id="transTone" class="appearance-none w-full bg-[#121216] border border-[#2b2b33] group-hover:border-[#00e5cc]/50 focus:border-[#00e5cc] text-slate-200 text-[11px] rounded-xl pl-3 pr-8 py-2.5 transition-colors shadow-inner cursor-pointer outline-none">
+                                <option value="ភាសាខ្មែរនិយាយធម្មជាតិ ស្តាប់ងាយយល់ មិនបកប្រែឆៅ">✨ ភាសានិយាយធម្មជាតិ (Standard)</option>
+                                <option value="បែបរឿងបុរាណ ឬរឿងគុននិយមចិន (Wuxia)">⚔️ បុរាណ / គុននិយមចិន</option>
+                                <option value="បែបរន្ធត់ អាថ៌កំបាំង និងតានតឹង">🌑 រន្ធត់ / អាថ៌កំបាំង</option>
+                                <option value="ផ្លូវការ និងសុជីវធម៌ (Formal)">📜 ផ្លូវការ (Formal / Business)</option>
+                            </select>
+                            <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-500 pointer-events-none group-hover:text-[#00e5cc] transition-colors"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-1.5">
+                        <div class="flex items-center justify-between px-1">
+                            <label class="block text-[10px] font-bold text-[#788294] uppercase tracking-wider">អត្ថបទដើម ឬកូដ Subtitle (.SRT)</label>
+                            <button onclick="document.getElementById('transInput').value = ''" class="text-[10px] text-rose-500/70 hover:text-rose-400 transition-colors flex items-center gap-1 font-semibold">
+                                <i class="fa-solid fa-eraser"></i> ជម្រះអត្ថបទ
+                            </button>
+                        </div>
+                        <div class="relative">
+                            <textarea id="transInput" rows="5" placeholder="Paste អត្ថបទភាសាអង់គ្លេស ចិន ថៃ កូរ៉េ បារាំង ជប៉ុន ឬកូដ .SRT ទីនេះ..." class="w-full bg-[#121216] border border-[#2b2b33] hover:border-[#00e5cc]/30 focus:border-[#00e5cc] text-slate-200 text-[11.5px] rounded-xl p-3.5 font-mono leading-relaxed resize-y transition-colors shadow-inner custom-scrollbar outline-none focus:ring-1 focus:ring-[#00e5cc]/30"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Direct Translate Button inside Form -->
+                    <button onclick="handleGenerate()" class="group w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-500 hover:to-sky-400 text-white font-extrabold text-[12px] flex items-center justify-center gap-2.5 shadow-[0_0_15px_rgba(14,165,233,0.4)] hover:shadow-[0_0_25px_rgba(14,165,233,0.6)] transition-all hover:-translate-y-0.5 overflow-hidden relative">
+                        <div class="absolute inset-0 bg-white/20 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] skew-x-12"></div>
+                        <i class="fa-solid fa-language text-[16px] group-hover:scale-110 transition-transform relative z-10"></i>
+                        <span class="tracking-wide relative z-10 drop-shadow-md">ចាប់ផ្តើមបកប្រែ (Translate)</span>
+                    </button>
+
+                    <!-- Translate Extensions -->
+                    <div class="pt-2 border-t border-[#2b2b33] mt-2">
+                        <div class="text-[9px] text-[#788294] font-bold uppercase tracking-wider mb-2">មុខងារបន្ថែមសម្រាប់បកប្រែ</div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="showToast('Auto-Sync SRT កំពុងអភិវឌ្ឍន៍')" class="bg-[#1e1e24] hover:bg-[#25252c] border border-[#2b2b33] hover:border-blue-500/40 rounded-xl py-2 px-2 text-[10px] text-slate-300 hover:text-white flex items-center gap-2 transition-all group">
+                                <i class="fa-solid fa-clock-rotate-left text-blue-400 group-hover:scale-110 transition-transform"></i> Auto-Sync ម៉ោង
+                            </button>
+                            <button onclick="showToast('Grammar Check កំពុងអភិវឌ្ឍន៍')" class="bg-[#1e1e24] hover:bg-[#25252c] border border-[#2b2b33] hover:border-emerald-500/40 rounded-xl py-2 px-2 text-[10px] text-slate-300 hover:text-white flex items-center gap-2 transition-all group">
+                                <i class="fa-solid fa-spell-check text-emerald-400 group-hover:scale-110 transition-transform"></i> ពិនិត្យវេយ្យាករណ៍
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FORM 3: និទានរឿង និងបំប្លែងសំឡេង (TEXT TO SPEECH & CLONE) -->
+                <div id="toolForm-narrate" class="space-y-3.5 hidden pt-1">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="space-y-1.5">
+                            <label class="block text-[10px] font-bold text-[#788294] uppercase tracking-wider px-1">ជ្រើសរើសសំឡេង (Voice)</label>
+                            <div class="relative group">
+                                <select id="narrateVoice" class="appearance-none w-full bg-[#121216] border border-[#2b2b33] group-hover:border-[#00e5cc]/50 focus:border-[#00e5cc] text-slate-200 text-[11px] rounded-xl pl-3 pr-8 py-2.5 transition-colors shadow-inner cursor-pointer outline-none">
+                                    <optgroup label="សំឡេងមនុស្សពិត (Human Clones)">
+                                        <option value="sreyvich">👩 ស្រីវីច (អានពត៌មាន/ច្បាស់)</option>
+                                        <option value="sreynich">👩🏻 ស្រីនិច (អានពត៌មាន/ច្បាស់)</option>
+                                        <option value="dara">👨🏻 តារា (រៀបរាប់/រឹងមាំ)</option>
+                                        <option value="bopha">👩🏽 បុប្ផា (និទានរឿង/ស្រទន់)</option>
+                                    </optgroup>
+                                    <optgroup label="សំឡេង AI (Standard)">
+                                        <option value="kore">🤖 Kore (ម៉ឺងម៉ាត់)</option>
+                                        <option value="aoede">🌸 Aoede (ស្រទន់)</option>
+                                        <option value="charon">🌑 Charon (អាថ៌កំបាំង)</option>
+                                    </optgroup>
+                                </select>
+                                <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-500 pointer-events-none group-hover:text-[#00e5cc] transition-colors"></i>
+                            </div>
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-[10px] font-bold text-[#788294] uppercase tracking-wider px-1">អារម្មណ៍ (Emotion)</label>
+                            <div class="relative group">
+                                <select id="narrateEmotion" class="appearance-none w-full bg-[#121216] border border-[#2b2b33] group-hover:border-[#00e5cc]/50 focus:border-[#00e5cc] text-slate-200 text-[11px] rounded-xl pl-3 pr-8 py-2.5 transition-colors shadow-inner cursor-pointer outline-none">
+                                    <option value="natural">😊 ធម្មជាតិ (Natural)</option>
+                                    <option value="sad">😢 សោកសៅ (Sad/Emotional)</option>
+                                    <option value="excited">🤩 រំភើប (Excited/Hype)</option>
+                                    <option value="scary">👻 រន្ធត់ (Scary/Suspense)</option>
+                                    <option value="documentary">📺 ឯកសារ (Documentary)</option>
+                                </select>
+                                <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-500 pointer-events-none group-hover:text-[#00e5cc] transition-colors"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-1.5">
+                        <div class="flex items-center justify-between px-1">
+                            <label class="block text-[10px] font-bold text-[#788294] uppercase tracking-wider">អត្ថបទសម្រាប់អាន (Text to Speech)</label>
+                            <button onclick="document.getElementById('narrateText').value = ''" class="text-[10px] text-rose-500/70 hover:text-rose-400 transition-colors flex items-center gap-1 font-semibold">
+                                <i class="fa-solid fa-eraser"></i> ជម្រះអត្ថបទ
+                            </button>
+                        </div>
+                        <div class="relative">
+                            <textarea id="narrateText" rows="6" placeholder="បញ្ចូលអត្ថបទដែលអ្នកចង់បំប្លែងទៅជាសំឡេងទីនេះ...&#10;(ឧទាហរណ៍៖ កាលពីព្រេងនាយ មានបុរសម្នាក់...)" class="w-full bg-[#121216] border border-[#2b2b33] hover:border-[#00e5cc]/30 focus:border-[#00e5cc] text-slate-200 text-[11.5px] rounded-xl p-3.5 font-story leading-relaxed resize-y transition-colors shadow-inner custom-scrollbar outline-none focus:ring-1 focus:ring-[#00e5cc]/30"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Direct Audio Button inside Form -->
+                    <button onclick="generateAndPlayTTS(document.getElementById('narrateText').value)" class="group w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-500 hover:from-purple-500 hover:to-fuchsia-400 text-white font-extrabold text-[12px] flex items-center justify-center gap-2.5 shadow-[0_0_15px_rgba(168,85,247,0.4)] hover:shadow-[0_0_25px_rgba(168,85,247,0.6)] transition-all hover:-translate-y-0.5 overflow-hidden relative">
+                        <div class="absolute inset-0 bg-white/20 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] skew-x-12"></div>
+                        <i class="fa-solid fa-headphones-simple text-[16px] group-hover:scale-110 transition-transform relative z-10"></i>
+                        <span class="tracking-wide relative z-10 drop-shadow-md">ស្តាប់សាកល្បង (Preview Audio)</span>
+                    </button>
+
+                    <!-- Narrate Extensions -->
+                    <div class="pt-2 border-t border-[#2b2b33] mt-2">
+                        <div class="text-[9px] text-[#788294] font-bold uppercase tracking-wider mb-2">មុខងារសំឡេងពិសេស</div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="showToast('មុខងារ Clone សំឡេងកំពុងអភិវឌ្ឍន៍')" class="bg-[#1e1e24] hover:bg-[#25252c] border border-[#2b2b33] hover:border-fuchsia-500/40 rounded-xl py-2 px-2 text-[10px] text-slate-300 hover:text-white flex items-center gap-2 transition-all group">
+                                <i class="fa-solid fa-users-viewfinder text-fuchsia-400 group-hover:scale-110 transition-transform"></i> Clone សំឡេងខ្លួនឯង
+                            </button>
+                            <button onclick="showToast('មុខងារ Audio Enhancer កំពុងអភិវឌ្ឍន៍')" class="bg-[#1e1e24] hover:bg-[#25252c] border border-[#2b2b33] hover:border-orange-500/40 rounded-xl py-2 px-2 text-[10px] text-slate-300 hover:text-white flex items-center gap-2 transition-all group">
+                                <i class="fa-solid fa-wand-magic-sparkles text-orange-400 group-hover:scale-110 transition-transform"></i> តម្លើងគុណភាពសំឡេង
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FORM 4: តែងរឿងថ្មី (CREATIVE STORY WRITER) -->
+                <div id="toolForm-create" class="space-y-3.5 hidden pt-1">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="space-y-1.5">
+                            <label class="block text-[10px] font-bold text-[#788294] uppercase tracking-wider px-1">ប្រភេទរឿង (Genre)</label>
+                            <div class="relative group">
+                                <select id="createGenre" class="appearance-none w-full bg-[#121216] border border-[#2b2b33] group-hover:border-[#00e5cc]/50 focus:border-[#00e5cc] text-slate-200 text-[11px] rounded-xl pl-3 pr-8 py-2.5 transition-colors shadow-inner cursor-pointer outline-none">
+                                    <option value="មនោសញ្ចេតនា ស្នេហា និងការលះបង់">💖 មនោសញ្ចេតនា</option>
+                                    <option value="ផ្សងព្រេង អាថ៌កំបាំង និងអភិនិហារ">🗺️ ផ្សងព្រេង/អភិនិហារ</option>
+                                    <option value="ជីវិតគ្រួសារ ការតស៊ូ និងទឹកចិត្តម្តាយ">🏡 ជីវិតគ្រួសារ</option>
+                                    <option value="ស៊ើបអង្កេត និងអាថ៌កំបាំង">🔍 ស៊ើបអង្កេត/អាថ៌កំបាំង</option>
+                                    <option value="កំប្លែង សប្បាយៗ">😂 កំប្លែង</option>
+                                </select>
+                                <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-500 pointer-events-none group-hover:text-[#00e5cc] transition-colors"></i>
+                            </div>
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-[10px] font-bold text-[#788294] uppercase tracking-wider px-1">កម្រិតប្រវែង (Length)</label>
+                            <div class="relative group">
+                                <select id="createLength" class="appearance-none w-full bg-[#121216] border border-[#2b2b33] group-hover:border-[#00e5cc]/50 focus:border-[#00e5cc] text-slate-200 text-[11px] rounded-xl pl-3 pr-8 py-2.5 transition-colors shadow-inner cursor-pointer outline-none">
+                                    <option value="វែង និងក្បោះក្បាយបំផុត">📖 វែងក្បោះក្បាយ (Long)</option>
+                                    <option value="មធ្យម">📄 មធ្យម (Medium)</option>
+                                    <option value="ខ្លី ចំគោលដៅ">📝 ខ្លី (Short)</option>
+                                </select>
+                                <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-500 pointer-events-none group-hover:text-[#00e5cc] transition-colors"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-1.5">
+                        <label class="block text-[10px] font-bold text-[#788294] uppercase tracking-wider px-1">រចនាសម្ព័ន្ធ (Structure)</label>
+                        <div class="relative group">
+                            <select id="createStructure" class="appearance-none w-full bg-[#121216] border border-[#2b2b33] group-hover:border-[#00e5cc]/50 focus:border-[#00e5cc] text-slate-200 text-[11px] rounded-xl pl-3 pr-8 py-2.5 transition-colors shadow-inner cursor-pointer outline-none">
+                                <option value="ពេញលេញ (ផ្តើម តួសាច់រឿងមានបញ្ហា និងបញ្ចប់យ៉ាងល្អឥតខ្ចោះ)">🎬 ពេញលេញ (ផ្តើម តួ បញ្ចប់ល្អឥតខ្ចោះ)</option>
+                                <option value="បើកឆាកគួរឱ្យភ្ញាក់ផ្អើល (Plot Twist ខ្លាំង)">🌪️ ចាប់ផ្តើមភ្ញាក់ផ្អើល (Plot Twist)</option>
+                                <option value="សោកនាដកម្មនៅទីបញ្ចប់ (Sad Ending)">💧 សោកនាដកម្មទីបញ្ចប់</option>
+                            </select>
+                            <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-500 pointer-events-none group-hover:text-[#00e5cc] transition-colors"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-1.5">
+                        <div class="flex items-center justify-between px-1">
+                            <label class="block text-[10px] font-bold text-[#788294] uppercase tracking-wider">ចំណងជើងរឿង ឬ គោលគំនិត</label>
+                            <button onclick="document.getElementById('createTitlePrompt').value = ''" class="text-[10px] text-rose-500/70 hover:text-rose-400 transition-colors flex items-center gap-1 font-semibold">
+                                <i class="fa-solid fa-eraser"></i> ជម្រះ
+                            </button>
+                        </div>
+                        <div class="relative">
+                            <textarea id="createTitlePrompt" rows="5" placeholder="បញ្ចូលចំណងជើងរឿងទីនេះ (ឧ. ស្នេហាឆ្លងភព ឬ វិប្បដិសារីកូនប្រុស)...&#10;វានឹងតែងរឿងវែងយ៉ាងល្អ មានផ្តើម តួ និងបញ្ចប់ជូនអ្នក!" class="w-full bg-[#121216] border border-[#2b2b33] hover:border-[#00e5cc]/30 focus:border-[#00e5cc] text-[#00e5cc] text-[12px] font-bold rounded-xl p-3.5 leading-relaxed resize-y transition-colors shadow-inner custom-scrollbar outline-none focus:ring-1 focus:ring-[#00e5cc]/30"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Direct Generate Story Button inside Form -->
+                    <button onclick="handleGenerate()" class="group w-full py-3 rounded-xl bg-gradient-to-r from-[#00e5cc] to-[#00b3a0] hover:from-[#00f2d8] hover:to-[#00ccb6] text-black font-extrabold text-[12px] flex items-center justify-center gap-2.5 shadow-[0_0_15px_rgba(0,229,204,0.4)] hover:shadow-[0_0_25px_rgba(0,229,204,0.6)] transition-all hover:-translate-y-0.5 overflow-hidden relative">
+                        <div class="absolute inset-0 bg-white/20 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] skew-x-12"></div>
+                        <i class="fa-solid fa-wand-magic-sparkles text-[16px] group-hover:rotate-12 transition-transform relative z-10"></i>
+                        <span class="tracking-wide relative z-10 drop-shadow-md">តែងរឿងថ្មីដោយ AI (Generate Story)</span>
+                    </button>
+
+                    <!-- Create Extensions -->
+                    <div class="pt-2 border-t border-[#2b2b33] mt-2">
+                        <div class="text-[9px] text-[#788294] font-bold uppercase tracking-wider mb-2">មុខងារបន្ថែមសម្រាប់អ្នកតែងរឿង</div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="showToast('ទាញរូបភាព AI កំពុងអភិវឌ្ឍន៍')" class="bg-[#1e1e24] hover:bg-[#25252c] border border-[#2b2b33] hover:border-pink-500/40 rounded-xl py-2 px-2 text-[10px] text-slate-300 hover:text-white flex items-center gap-2 transition-all group">
+                                <i class="fa-solid fa-image text-pink-400 group-hover:scale-110 transition-transform"></i> បង្កើតរូបភាព (AI)
+                            </button>
+                            <button onclick="showToast('រក្សាទុក Project កំពុងអភិវឌ្ឍន៍')" class="bg-[#1e1e24] hover:bg-[#25252c] border border-[#2b2b33] hover:border-sky-500/40 rounded-xl py-2 px-2 text-[10px] text-slate-300 hover:text-white flex items-center gap-2 transition-all group">
+                                <i class="fa-regular fa-floppy-disk text-sky-400 group-hover:scale-110 transition-transform"></i> រក្សាទុករឿងនេះ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT TAB 2: EXACT CAPCUT PROJECT DETAILS REPLICA -->
+            <div id="rightPanel-details" class="hidden flex-1 p-5 overflow-y-auto text-[13px] space-y-4 font-medium bg-[#131317]">
+                <div class="grid grid-cols-12 gap-3 items-center">
+                    <span class="col-span-4 text-[#8a8a93]">ឈ្មោះ (Name):</span>
+                    <span id="detailProjectName" class="col-span-8 text-[#e0e0e6] font-semibold">0929</span>
+                </div>
+                <div class="grid grid-cols-12 gap-3 items-start mt-2">
+                    <span class="col-span-4 text-[#8a8a93] pt-1.5">ផ្លូវ (Path):</span>
+                    <span class="col-span-8 text-[#93c5fd] font-medium break-all text-[12px] leading-relaxed bg-[#0d0d11] p-3 rounded-md border border-[#1f1f26] shadow-inner">C:/Users/KLS COMPUTER/AppData/Local/CapCut/User Data/Projects/com.lveditor.draft/0929</span>
+                </div>
+                <div class="grid grid-cols-12 gap-3 items-center mt-5">
+                    <span class="col-span-4 text-[#8a8a93]">មេឌៀបានបញ្ចូល:</span>
+                    <span class="col-span-8 text-[#e0e0e6] font-semibold">Stay in original location</span>
+                </div>
+                <div class="grid grid-cols-12 gap-3 items-center mt-3">
+                    <span class="col-span-4 text-[#8a8a93] flex items-center gap-1">រៀបចំស្រទាប់ <i class="fa-regular fa-circle-question text-[#60606b]"></i> :</span>
+                    <span class="col-span-8 text-[#e0e0e6] font-semibold">Turned on</span>
+                </div>
+                <div class="grid grid-cols-12 gap-3 items-center mt-3 pb-5 border-b border-[#282830]">
+                    <span class="col-span-4 text-[#8a8a93] flex items-center gap-1">ប្រូកស៊ី <i class="fa-regular fa-circle-question text-[#60606b]"></i> :</span>
+                    <span class="col-span-8 text-[#e0e0e6] font-semibold">Turned off</span>
+                </div>
+
+                <div class="grid grid-cols-12 gap-3 items-center pt-2">
+                    <span class="col-span-4 text-[#8a8a93]">ឈ្មោះថាមឡាញ:</span>
+                    <span class="col-span-8 text-[#e0e0e6] font-semibold">Timeline 01</span>
+                </div>
+                <div class="grid grid-cols-12 gap-3 items-center mt-3">
+                    <span class="col-span-4 text-[#8a8a93]">សមាមាត្រ:</span>
+                    <span class="col-span-8 text-[#e0e0e6] font-semibold">Original</span>
+                </div>
+                <div class="grid grid-cols-12 gap-3 items-center mt-3">
+                    <span class="col-span-4 text-[#8a8a93]">គុណភាពបង្ហាញ:</span>
+                    <span class="col-span-8 text-[#e0e0e6] font-semibold">Adapted</span>
+                </div>
+                <div class="grid grid-cols-12 gap-3 items-center mt-3">
+                    <span class="col-span-4 text-[#8a8a93]">អត្រាហ្វ្រេម:</span>
+                    <span class="col-span-8 text-[#e0e0e6] font-semibold">30.00fps</span>
+                </div>
+            </div>
+
+        </section>
+    </div>
+
+    <!-- BOTTOM PANEL: CAPCUT MULTI-TRACK TIMELINE -->
+    <footer class="h-60 cc-panel mx-1 mb-1 rounded-sm flex flex-col justify-between shrink-0 overflow-hidden select-none">
+        
+        <!-- 1. Timeline Top Toolbar (Exact CapCut Icons) -->
+        <div class="h-10 px-4 border-b border-[#1a1a20] bg-[#141418] flex items-center justify-between text-xs shrink-0">
+            <!-- Left Editing Tools -->
+            <div class="flex items-center gap-2.5 text-[#9ca3af]">
+                <!-- Select Arrow (Active State) -->
+                <button class="w-[46px] h-[28px] flex items-center justify-center rounded-[8px] border-2 border-[#e4e4e7] text-[#e4e4e7] hover:bg-white/5 transition-colors gap-1.5" title="Select (A)">
+                    <i class="fa-solid fa-arrow-pointer text-[13px]"></i>
+                    <i class="fa-solid fa-caret-down text-[10px] -ml-0.5"></i>
+                </button>
+                
+                <span class="h-[14px] w-[1px] bg-[#2b2b33] mx-1"></span>
+                
+                <!-- Undo/Redo (Disabled State) -->
+                <button onclick="undoScriptChange()" class="w-8 h-8 flex items-center justify-center rounded hover:bg-[#2b2b33] transition-colors text-[#52525b] cursor-not-allowed" title="ត្រលប់ក្រោយ (Undo)"><i class="fa-solid fa-rotate-left text-[14px]"></i></button>
+                <button onclick="redoScriptChange()" class="w-8 h-8 flex items-center justify-center rounded hover:bg-[#2b2b33] transition-colors text-[#52525b] cursor-not-allowed" title="ធ្វើឡើងវិញ (Redo)"><i class="fa-solid fa-rotate-right text-[14px]"></i></button>
+                
+                <span class="h-[14px] w-[1px] bg-[#2b2b33] mx-1"></span>
+                
+                <!-- Split -->
+                <button onclick="splitActiveTimelineClip()" class="w-8 h-8 flex items-center justify-center rounded hover:bg-[#2b2b33] hover:text-white transition-colors" title="កាត់បំបែកឈុត (Split)"><i class="fa-solid fa-table-columns text-[14px]"></i></button>
+                
+                <!-- Delete (Disabled State) -->
+                <button onclick="deleteSelectedClip()" class="w-8 h-8 flex items-center justify-center rounded hover:bg-[#2b2b33] transition-colors text-[#52525b] cursor-not-allowed" title="លុបឈុត (Delete)"><i class="fa-regular fa-trash-can text-[14px]"></i></button>
+                
+                <span class="h-[14px] w-[1px] bg-[#2b2b33] mx-1"></span>
+                
+                <!-- Freeze, Reverse -->
+                <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-[#2b2b33] hover:text-white transition-colors" title="Freeze frame"><i class="fa-regular fa-snowflake text-[14px]"></i></button>
+                <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-[#2b2b33] hover:text-white transition-colors" title="Reverse"><i class="fa-solid fa-clock-rotate-left text-[14px]"></i></button>
+            </div>
+
+            <!-- Right Timeline Controls -->
+            <div class="flex items-center gap-2 text-[#9ca3af]">
+                <button onclick="generateAndPlayTTS()" class="w-[34px] h-[28px] flex items-center justify-center rounded hover:bg-[#2b2b33] hover:text-white transition-colors" title="ថត/ចាក់សំឡេងនិទាន AI">
+                    <i class="fa-solid fa-microphone text-[14px]"></i>
+                </button>
+                
+                <span class="h-[14px] w-[1px] bg-[#2b2b33] mx-1.5"></span>
+                
+                <!-- Magnet & Snap (Active Blocks) -->
+                <div class="flex items-center gap-1.5">
+                    <button class="w-[32px] h-[28px] flex items-center justify-center rounded-[6px] bg-[#32323d] text-[#00e5cc] hover:bg-[#3f3f4c] transition-colors" title="Main track magnet">
+                        <i class="fa-solid fa-magnet text-[14px]"></i>
+                    </button>
+                    <button class="w-[32px] h-[28px] flex items-center justify-center rounded-[6px] bg-[#32323d] text-[#00e5cc] hover:bg-[#3f3f4c] transition-colors" title="Auto snapping">
+                        <i class="fa-solid fa-arrows-to-dot text-[14px]"></i>
+                    </button>
+                </div>
+                
+                <button class="w-10 h-[28px] flex items-center justify-center rounded hover:bg-[#2b2b33] hover:text-white transition-colors gap-1.5 ml-1" title="Linkage">
+                    <i class="fa-solid fa-link text-[14px]"></i>
+                    <i class="fa-solid fa-caret-down text-[10px] -ml-0.5 text-[#585863]"></i>
+                </button>
+                <button class="w-10 h-[28px] flex items-center justify-center rounded hover:bg-[#2b2b33] hover:text-white transition-colors gap-1.5" title="Preview Quality">
+                    <i class="fa-solid fa-display text-[14px]"></i>
+                    <i class="fa-solid fa-caret-down text-[10px] -ml-0.5 text-[#585863]"></i>
+                </button>
+                
+                <span class="h-[14px] w-[1px] bg-[#2b2b33] mx-1.5"></span>
+                
+                <button class="w-[34px] h-[28px] flex items-center justify-center rounded hover:bg-[#2b2b33] hover:text-white transition-colors" title="Time Ruler">
+                    <i class="fa-solid fa-ruler-horizontal text-[14px]"></i>
+                </button>
+                
+                <!-- Zoom Controls -->
+                <div class="hidden sm:flex items-center gap-3 ml-1.5">
+                    <button onclick="changeZoom(-1)" class="w-6 h-6 flex items-center justify-center rounded hover:bg-[#2b2b33] hover:text-white transition-colors"><i class="fa-solid fa-minus text-[13px]"></i></button>
+                    <!-- Custom Zoom Slider -->
+                    <input id="timelineZoomSlider" type="range" min="10" max="60" value="22" oninput="handleZoomChange()" 
+                           class="w-[84px] h-[4px] bg-[#2b2b33] rounded-full appearance-none outline-none cursor-pointer
+                                  [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:bg-[#00e5cc] [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-[0_0_10px_rgba(0,229,204,0.6)]
+                                  [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-3.5 [&::-moz-range-thumb]:h-3.5 [&::-moz-range-thumb]:bg-[#00e5cc] [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:shadow-[0_0_10px_rgba(0,229,204,0.6)]">
+                    <button onclick="changeZoom(1)" class="w-6 h-6 flex items-center justify-center rounded hover:bg-[#2b2b33] hover:text-white transition-colors"><i class="fa-solid fa-plus text-[13px]"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Timeline Tracks Workspace (Left Track Headers + Right Scrollable Clips & Playhead) -->
+        <div class="flex-1 flex min-h-0 relative overflow-hidden bg-[#111115]">
+            
+            <!-- Left Track Header Column (T រឿង/អក្សរ, វីដេអូ, សំឡេងនិទាន) -->
+            <div class="w-[185px] bg-[#111115] border-r border-[#1a1a20] flex flex-col justify-between py-0 shrink-0 z-20">
+                <!-- Ruler Spacer -->
+                <div class="h-[30px] px-3 flex items-center">
+                </div>
+
+                <!-- 3 Track Headers Matching Khmer Screenshot -->
+                
+
+                <!-- Bottom Drop Bar Left Label -->
+                <div class="h-6 px-2.5 flex items-center text-[10px] text-[#788294] border-t border-[#1a1a20]">
+                    <i class="fa-solid fa-film mr-1.5"></i> Timeline 01
+                </div>
+            </div>
+
+            <!-- Right Scrollable Timeline Area -->
+            <div id="timelineTracksArea" onclick="handleTimelineAreaClick(event)" ondragover="handleTimelineDragOver(event)" ondrop="handleTimelineDrop(event)" class="flex-1 flex flex-col justify-between bg-[#111115] relative overflow-x-auto overflow-y-hidden cursor-pointer">
+                
+                <!-- Playhead Vertical Line -->
+                <div id="timelinePlayhead" class="absolute top-0 bottom-0 w-[1.5px] bg-[#f0f0f5] z-30 pointer-events-none shadow-[0_0_8px_rgba(255,255,255,0.6)]" style="left: 24px;">
+                    <!-- Playhead Handle (CapCut Style Polygon) -->
+                    <div id="playheadHandle" class="absolute -top-[1px] -left-[6px] w-[14px] h-[18px] text-[#f0f0f5] drop-shadow-md pointer-events-auto cursor-ew-resize hover:scale-110 transition-transform">
+                        <svg viewBox="0 0 14 18" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M0 0 h14 v12 L7 18 L0 12 Z"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Time Ruler with Ticks -->
+                <div id="timelineRulerWrapper" class="h-6 border-b border-[#1a1a20] relative shrink-0" style="min-width: 100%;">
+                    <div id="rulerShortTicks" class="absolute inset-0 opacity-20 pointer-events-none"></div>
+                    <div id="rulerLongTicks" class="absolute inset-0 opacity-40 pointer-events-none"></div>
+                    <div id="rulerTimeLabels" class="absolute inset-0 top-[2px] text-[9px] text-[#5a5a6a] font-medium pointer-events-none"></div>
+                </div>
+                
+                <!-- Empty State (Placeholder) -->
+                <div id="timelineEmptyState" class="absolute inset-0 top-[38px] left-[6px] right-0 flex items-start justify-start z-10 pointer-events-none transition-opacity duration-300">
+                    <div class="flex items-center justify-start gap-2 h-11 px-3 mt-1 opacity-70">
+                        <div class="w-7 h-7 rounded border border-dashed border-[#585863] flex items-center justify-center">
+                            <i class="fa-solid fa-plus text-[10px] text-[#585863]"></i>
+                        </div>
+                        <span class="text-[11px] text-[#585863] font-medium tracking-wide">ចុច <span class="text-[#00e5cc]">បង្កើតអត្ថបទ</span> ដើម្បីបញ្ចូលឈុតទៅក្នុង Timeline</span>
+                    </div>
+                </div>
+
+                <!-- 3 Interactive Track Rows -->
+                <div id="trackRowsContainer" class="flex-1 flex flex-col justify-start gap-0 px-1 pt-2 w-full min-w-full opacity-0 pointer-events-none transition-opacity duration-300">
+                    <!-- Track 1: វីដេអូ (Scene Blocks) -->
+                    <div id="trackRow-video" class="h-11 timeline-track-row flex items-center gap-0 px-0 relative"></div>
+
+                    <!-- Track 2: រឿង/អក្សរ (Text / Subtitle Segments) -->
+                    <div id="trackRow-text" class="h-11 timeline-track-row flex items-center gap-0 px-0 relative mt-1.5"></div>
+
+                    <!-- Track 3: សំឡេងនិទាន (Voiceover & Sound Cue Blocks) -->
+                    <div id="trackRow-audio" class="h-11 timeline-track-row flex items-center gap-0 px-0 relative mt-1.5"></div>
+                </div>
+
+                <!-- Bottom Hint Bar: អូសសម្ភារៈចូលទីនេះដើម្បីចាប់ផ្តើម -->
+                <div class="h-6 px-4 bg-[#111115] border-t border-[#1a1a20] flex items-center justify-between text-[11px] text-[#788294] shrink-0">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-film text-xs"></i>
+                        <span>អូសសម្ភារៈចូលទីនេះដើម្បីចាប់ផ្តើម — ចុចលើប្លុកឈុតណាមួយនៅលើ Timeline ដើម្បីមើល និងស្ដាប់សំឡេង</span>
+                    </div>
+                    <span id="timelineClipSummary" class="text-[10px] text-[#00e5cc]">0 ឈុតនៅលើ Timeline</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Fullscreen Teleprompter Modal -->
+    <div id="teleprompterModal" class="fixed inset-0 z-[100] bg-black hidden flex-col transition-opacity duration-300">
+        <!-- Floating Glassmorphic Control Panel -->
+        <div class="absolute top-6 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur-2xl border border-white/20 rounded-2xl px-6 py-4 flex flex-wrap items-center justify-between gap-8 z-20 shadow-[0_20px_50px_rgba(0,0,0,0.5)] w-[90%] max-w-6xl transition-transform duration-500 hover:bg-white/15">
+            <!-- Left Branding -->
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-[0_0_15px_rgba(168,85,247,0.4)] relative">
+                    <i class="fa-solid fa-tv text-white text-xl"></i>
+                    <div class="absolute inset-0 rounded-full border border-white/30 animate-ping opacity-20"></div>
+                </div>
+                <div>
+                    <h3 class="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400 text-lg tracking-wide uppercase">Studio Teleprompter</h3>
+                    <p class="text-[12px] text-purple-300 font-medium tracking-wider">អានអត្ថបទបញ្ចូលសំឡេងងាយស្រួល</p>
+                </div>
+            </div>
+
+            <!-- Right Controls -->
+            <div class="flex flex-wrap items-center gap-5">
+                <!-- Speed Slider -->
+                <div class="flex items-center gap-3 bg-black/40 px-4 py-2 rounded-xl border border-white/10">
+                    <i class="fa-solid fa-person-walking text-slate-400"></i>
+                    <div class="flex flex-col">
+                        <span class="text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-1">ល្បឿន (Speed)</span>
+                        <input id="prompterSpeed" type="range" min="1" max="10" value="3" class="accent-purple-500 w-32 h-1.5 rounded-lg appearance-none bg-slate-700 cursor-pointer">
+                    </div>
+                    <i class="fa-solid fa-person-running text-slate-400"></i>
+                </div>
+
+                <!-- Font Size -->
+                <div class="flex items-center bg-black/40 p-1 rounded-xl border border-white/10">
+                    <button onclick="adjustPrompterFont(-4)" class="w-10 h-10 rounded-lg hover:bg-white/10 text-white font-bold text-lg flex items-center justify-center transition-colors" title="បន្ថយទំហំអក្សរ">
+                        <i class="fa-solid fa-a text-[14px]"></i>-
+                    </button>
+                    <div class="w-px h-6 bg-white/10 mx-1"></div>
+                    <button onclick="adjustPrompterFont(4)" class="w-10 h-10 rounded-lg hover:bg-white/10 text-white font-bold text-lg flex items-center justify-center transition-colors" title="ពង្រីកទំហំអក្សរ">
+                        <i class="fa-solid fa-a text-[18px]"></i>+
+                    </button>
+                </div>
+
+                <!-- Play/Pause -->
+                <button onclick="togglePrompterScroll()" class="group px-6 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400 text-white font-bold text-sm flex items-center gap-3 shadow-[0_0_20px_rgba(168,85,247,0.4)] transition-all duration-300 transform hover:scale-105">
+                    <i id="prompterPlayIcon" class="fa-solid fa-play text-lg"></i>
+                    <span id="prompterPlayText" class="tracking-wider">ចាប់ផ្តើម</span>
+                </button>
+
+                <!-- Close -->
+                <button onclick="closeTeleprompter()" class="w-12 h-12 rounded-xl bg-rose-500/20 hover:bg-rose-500/40 border border-rose-500/30 text-rose-400 hover:text-rose-300 flex items-center justify-center transition-all duration-300 transform hover:rotate-90" title="បិទ Teleprompter">
+                    <i class="fa-solid fa-xmark text-2xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Prompter Reading Area -->
+        <div class="relative flex-1 overflow-hidden flex justify-center bg-[#050505]">
+            <!-- Beautiful Glowing Reading Line -->
+            <div class="pointer-events-none absolute top-1/2 -translate-y-1/2 left-0 right-0 h-24 bg-gradient-to-b from-transparent via-purple-500/10 to-transparent z-10 flex items-center px-10">
+                <div class="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-purple-500 to-transparent shadow-[0_0_15px_#a855f7] opacity-60"></div>
+                <div class="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center shadow-[0_0_20px_#a855f7] animate-pulse">
+                    <i class="fa-solid fa-caret-right text-white text-xl ml-1"></i>
+                </div>
+            </div>
+
+            <!-- Content Container -->
+            <div id="prompterScrollContainer" class="w-full max-w-5xl px-8 overflow-y-auto font-story text-slate-300 leading-loose text-center scroll-smooth no-scrollbar" style="font-size: 40px; padding-top: 45vh;">
+                <div id="prompterContent" class="whitespace-pre-wrap pb-[60vh] drop-shadow-xl"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Saved History Modal -->
+    <div id="historyModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="cc-panel w-full max-w-2xl rounded-lg shadow-2xl overflow-hidden flex flex-col max-h-[80vh]">
+            <div class="px-5 py-3 border-b border-cc-border flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-cc-teal"></i>
+                    <h3 class="font-bold text-white text-sm">ប្រវត្តិអត្ថបទដែលបានបង្កើត (Saved History)</h3>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="clearAllHistory()" class="text-xs text-rose-400 hover:underline">លុបទាំងអស់</button>
+                    <button onclick="toggleHistoryModal()" class="w-7 h-7 rounded bg-cc-card text-slate-300 flex items-center justify-center">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="historyListContainer" class="p-4 overflow-y-auto space-y-2 flex-1"></div>
+        </div>
+    </div>
+
+    <!-- Beautiful Preferences Modal (Like the design provided) -->
+    <!-- AI Progress Modal (Simulates deep video analysis) -->
+    <div id="aiProgressModal" class="fixed inset-0 bg-black/95 backdrop-blur-xl z-[60] hidden flex-col items-center justify-center p-4 transition-all duration-300">
+        <!-- Magic Ring Animation -->
+        <div class="relative w-32 h-32 mb-8">
+            <div class="absolute inset-0 rounded-full border-4 border-[#2b2b33]"></div>
+            <div class="absolute inset-0 rounded-full border-4 border-[#00e5cc] border-t-transparent animate-spin" style="animation-duration: 1.5s;"></div>
+            <div class="absolute inset-2 rounded-full border-4 border-purple-500 border-b-transparent animate-spin" style="animation-duration: 2s; animation-direction: reverse;"></div>
+            <div class="absolute inset-0 flex items-center justify-center">
+                <i class="fa-solid fa-brain text-white text-4xl animate-pulse"></i>
+            </div>
+        </div>
+        
+        <h2 id="aiProgressTitle" class="text-white font-extrabold text-[22px] tracking-wide mb-3 drop-shadow-[0_0_10px_rgba(0,229,204,0.5)]">Sora AI កំពុងវិភាគវីដេអូ...</h2>
+        <p id="aiProgressDesc" class="text-[#00e5cc] text-[13px] font-medium animate-pulse mb-10">កំពុងទាញយកទិន្នន័យរូបភាព...</p>
+        
+        <!-- Progress Bar -->
+        <div class="w-full max-w-[400px] bg-[#18181c] rounded-full h-3 mb-3 overflow-hidden border border-[#2b2b33] shadow-inner">
+            <div id="aiProgressBar" class="bg-gradient-to-r from-blue-600 via-[#00e5cc] to-emerald-400 h-3 rounded-full relative overflow-hidden" style="width: 0%">
+                <div class="absolute inset-0 bg-white/20 -translate-x-full animate-[shimmer_1s_infinite] skew-x-12"></div>
+            </div>
+        </div>
+        <div id="aiProgressPercent" class="text-[#788294] text-[14px] font-bold font-mono tracking-wider">0%</div>
+    </div>
+
+    <!-- AI Auto-Recap Flow Modal -->
+    <div id="aiFlowModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-[#18181c] border border-[#2b2b33] rounded-2xl shadow-2xl w-full max-w-[500px] overflow-hidden transform scale-95 opacity-0 transition-all duration-300" id="aiFlowModalContent">
+            <!-- Header -->
+            <div class="h-32 bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-orange-600/20 relative flex items-center justify-center border-b border-[#2b2b33]">
+                <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
+                <div class="text-center relative z-10">
+                    <div class="w-16 h-16 bg-[#18181c] border border-[#2b2b33] rounded-full mx-auto mb-2 flex items-center justify-center shadow-[0_0_20px_rgba(0,229,204,0.3)]">
+                        <i class="fa-solid fa-wand-magic-sparkles text-[#00e5cc] text-[24px]"></i>
+                    </div>
+                    <h2 class="text-slate-100 font-extrabold text-[16px] tracking-wide">AI ត្រៀមខ្លួនរួចរាល់!</h2>
+                    <p class="text-[#788294] text-[11px] font-medium mt-1">វីដេអូត្រូវបានបញ្ចូលទៅក្នុង Timeline ជោគជ័យ</p>
+                </div>
+            </div>
+            
+            <!-- Body: The Action Buttons -->
+            <div class="p-5 space-y-3">
+                <p class="text-[#788294] text-[11px] font-medium text-center mb-4">តើលោកអ្នកចង់ឲ្យ AI ជួយកាត់វីដេអូនេះបែបណា?</p>
+                
+                <!-- Action 1 -->
+                <button onclick="handleAiFlowAction('recap')" class="w-full bg-[#1e1e24] border border-[#2b2b33] hover:border-[#00e5cc]/50 hover:bg-[#1e1e24]/80 rounded-xl p-3.5 flex items-center gap-4 transition-all group">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#00e5cc]/20 to-transparent flex items-center justify-center">
+                        <i class="fa-solid fa-bolt text-[#00e5cc] text-[18px] group-hover:scale-110 transition-transform"></i>
+                    </div>
+                    <div class="flex-1 text-left">
+                        <div class="text-slate-100 font-extrabold text-[13px] tracking-wide mb-0.5">ចាប់ផ្តើមសម្រាយរឿង</div>
+                        <div class="text-[#788294] text-[10px] font-medium">ឱ្យ AI វិភាគវីដេអូ និងតែងស្គ្រីបឱ្យដោយស្វ័យប្រវត្តិ</div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-[#4a4a5a] group-hover:text-[#00e5cc] transition-colors"></i>
+                </button>
+
+                <!-- Action 2 -->
+                <button onclick="handleAiFlowAction('pro-voice')" class="w-full bg-[#1e1e24] border border-[#2b2b33] hover:border-purple-500/50 hover:bg-[#1e1e24]/80 rounded-xl p-3.5 flex items-center gap-4 transition-all group">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500/20 to-transparent flex items-center justify-center">
+                        <i class="fa-solid fa-microphone-lines text-purple-400 text-[18px] group-hover:scale-110 transition-transform"></i>
+                    </div>
+                    <div class="flex-1 text-left">
+                        <div class="text-slate-100 font-extrabold text-[13px] tracking-wide mb-0.5">សម្រាយរឿងបែបអាជីព</div>
+                        <div class="text-[#788294] text-[10px] font-medium">បញ្ចូលសំឡេង AI ដូចគេបញ្ចូលសំឡេងពិតៗ (Pro Voice)</div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-[#4a4a5a] group-hover:text-purple-400 transition-colors"></i>
+                </button>
+
+                <!-- Action 3 -->
+                <button onclick="handleAiFlowAction('bgm')" class="w-full bg-[#1e1e24] border border-[#2b2b33] hover:border-blue-500/50 hover:bg-[#1e1e24]/80 rounded-xl p-3.5 flex items-center gap-4 transition-all group">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/20 to-transparent flex items-center justify-center">
+                        <i class="fa-solid fa-music text-blue-400 text-[18px] group-hover:scale-110 transition-transform"></i>
+                    </div>
+                    <div class="flex-1 text-left">
+                        <div class="text-slate-100 font-extrabold text-[13px] tracking-wide mb-0.5">បន្ថែម BGM</div>
+                        <div class="text-[#788294] text-[10px] font-medium">ឱ្យ AI រកភ្លេងកំដរអារម្មណ៍អូតូ (Auto BGM)</div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-[#4a4a5a] group-hover:text-blue-400 transition-colors"></i>
+                </button>
+            </div>
+            
+            <!-- Footer -->
+            <div class="p-4 border-t border-[#2b2b33] bg-[#111115] text-center">
+                <button onclick="closeAiFlowModal()" class="text-[#788294] hover:text-white text-[11px] font-bold transition-colors">
+                    រំលងសិន (Skip for now)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="apiModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 transition-all duration-300 opacity-0 scale-95" style="display: none;">
+        <div class="bg-[#13131a] w-full max-w-4xl h-[580px] rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col overflow-hidden border border-[#2b2b36] relative group/modal">
+            
+            <!-- Modal Background Glow -->
+            <div class="absolute -top-40 -right-40 w-96 h-96 bg-[#00e5cc]/10 rounded-full blur-[100px] pointer-events-none transition-opacity duration-700 opacity-50 group-hover/modal:opacity-80"></div>
+            
+            <!-- Header -->
+            <div class="flex items-center justify-between px-8 py-5 bg-[#181820]/80 backdrop-blur-md border-b border-[#2b2b36] z-10">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#00e5cc] via-[#00b3a0] to-[#008073] flex items-center justify-center shadow-[0_0_20px_rgba(0,229,204,0.4)] border border-white/20 relative group">
+                        <div class="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <i class="fa-solid fa-gear text-white text-[22px] drop-shadow-md group-hover:rotate-90 transition-transform duration-700"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-white text-xl font-extrabold tracking-wide leading-tight drop-shadow-sm">Settings</h2>
+                        <p class="text-[#9ca3af] text-[12px] font-medium mt-0.5">Manage your API keys & workspace preferences</p>
+                    </div>
+                </div>
+                <button onclick="toggleApiModal()" class="w-10 h-10 rounded-full bg-white/5 hover:bg-rose-500/20 hover:text-rose-400 border border-transparent hover:border-rose-500/30 flex items-center justify-center text-[#9ca3af] transition-all duration-300 group">
+                    <i class="fa-solid fa-xmark text-[16px] group-hover:scale-110 group-hover:rotate-90 transition-transform duration-300"></i>
+                </button>
+            </div>
+
+            <!-- Body -->
+            <div class="flex flex-1 overflow-hidden z-10">
+                <!-- Sidebar -->
+                <div class="w-[260px] bg-[#15151c]/90 backdrop-blur-md p-4 flex flex-col gap-1 overflow-y-auto shrink-0 border-r border-[#2b2b36] custom-scrollbar shadow-inner">
+                    
+                    <div class="flex items-center gap-2 pl-3 pb-2 pt-2">
+                        <div class="w-1.5 h-1.5 rounded-full bg-[#5a5a6a]"></div>
+                        <div class="text-[10px] font-extrabold text-[#5a5a6a] uppercase tracking-[0.15em]">System</div>
+                    </div>
+                    
+                    <button class="group flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-[#9ca3af] hover:bg-white/5 hover:text-white transition-all duration-300 text-[13px] font-semibold w-full text-left relative overflow-hidden border border-transparent hover:border-white/10">
+                        <div class="w-8 h-8 rounded-[10px] bg-gradient-to-br from-[#4a4a5a] to-[#2a2a35] flex items-center justify-center shadow-inner border border-white/10 group-hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] transition-all">
+                            <i class="fa-solid fa-sliders text-[12px] text-[#d1d5db] group-hover:text-white group-hover:scale-110 transition-transform"></i>
+                        </div>
+                        <span class="relative z-10 tracking-wide">General</span>
+                    </button>
+                    
+                    <button class="group flex items-center justify-between px-3.5 py-3 rounded-xl text-[#9ca3af] hover:bg-white/5 hover:text-white transition-all duration-300 text-[13px] font-semibold w-full text-left relative overflow-hidden border border-transparent hover:border-white/10">
+                        <div class="flex items-center gap-3.5 relative z-10">
+                            <div class="w-8 h-8 rounded-[10px] bg-gradient-to-br from-[#b34df2] to-[#7928ca] flex items-center justify-center shadow-inner border border-white/20 group-hover:shadow-[0_0_15px_rgba(179,77,242,0.4)] transition-all">
+                                <i class="fa-solid fa-palette text-[12px] text-white group-hover:scale-110 group-hover:-rotate-12 transition-transform"></i>
+                            </div>
+                            <span class="tracking-wide">Appearance</span>
+                        </div>
+                        <span class="relative z-10 text-[9px] font-extrabold text-[#00e5cc] bg-[#00e5cc]/10 px-2 py-0.5 rounded border border-[#00e5cc]/30 shadow-[0_0_8px_rgba(0,229,204,0.2)]">NEW</span>
+                    </button>
+                    
+                    <div class="w-full h-px bg-gradient-to-r from-transparent via-[#2b2b36] to-transparent my-3"></div>
+                    
+                    <div class="flex items-center gap-2 pl-3 pb-2">
+                        <div class="w-1.5 h-1.5 rounded-full bg-[#5a5a6a]"></div>
+                        <div class="text-[10px] font-extrabold text-[#5a5a6a] uppercase tracking-[0.15em]">AI Studio</div>
+                    </div>
+                    
+                    <!-- Selected Tab -->
+                    <button class="flex items-center justify-between px-3.5 py-3 rounded-xl bg-gradient-to-r from-[#00e5cc]/20 via-[#00e5cc]/5 to-transparent text-white font-extrabold border-l-[4px] border-[#00e5cc] transition-all text-[13px] w-full text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] relative overflow-hidden group">
+                        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 pointer-events-none"></div>
+                        <div class="flex items-center gap-3.5 relative z-10">
+                            <div class="w-8 h-8 rounded-[10px] bg-gradient-to-br from-[#00e5cc] to-[#009988] flex items-center justify-center shadow-[0_0_15px_rgba(0,229,204,0.5)] border border-white/30 relative">
+                                <div class="absolute inset-0 bg-white/20 rounded-[10px] opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <i class="fa-solid fa-key text-[13px] text-[#051124] drop-shadow-md group-hover:rotate-12 group-hover:scale-110 transition-transform"></i>
+                            </div>
+                            <span class="tracking-wide drop-shadow-sm text-[#00e5cc]">API Keys</span>
+                        </div>
+                    </button>
+                    
+                    <button class="group flex items-center justify-between px-3.5 py-3 rounded-xl text-[#9ca3af] hover:bg-white/5 hover:text-white transition-all duration-300 text-[13px] font-semibold w-full text-left relative overflow-hidden border border-transparent hover:border-white/10">
+                        <div class="flex items-center gap-3.5 relative z-10">
+                            <div class="w-8 h-8 rounded-[10px] bg-gradient-to-br from-[#ff4b4b] to-[#c11010] flex items-center justify-center shadow-inner border border-white/20 group-hover:shadow-[0_0_15px_rgba(255,75,75,0.4)] transition-all">
+                                <i class="fa-solid fa-microphone-lines text-[12px] text-white group-hover:scale-110 transition-transform"></i>
+                            </div>
+                            <span class="tracking-wide">Voice Engine</span>
+                        </div>
+                        <span class="relative z-10 text-[9px] font-extrabold text-rose-100 bg-rose-600 px-2 py-0.5 rounded shadow-[0_0_10px_rgba(225,29,72,0.6)] animate-pulse">HOT</span>
+                    </button>
+
+                    <button class="group flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-[#9ca3af] hover:bg-white/5 hover:text-white transition-all duration-300 text-[13px] font-semibold w-full text-left relative overflow-hidden border border-transparent hover:border-white/10">
+                        <div class="w-8 h-8 rounded-[10px] bg-gradient-to-br from-[#f5a623] to-[#d48102] flex items-center justify-center shadow-inner border border-white/20 group-hover:shadow-[0_0_15px_rgba(245,166,35,0.4)] transition-all">
+                            <i class="fa-solid fa-wand-magic-sparkles text-[12px] text-white group-hover:scale-110 group-hover:rotate-12 transition-transform"></i>
+                        </div>
+                        <span class="relative z-10 tracking-wide">Auto Tools</span>
+                    </button>
+                    
+                    <div class="w-full h-px bg-gradient-to-r from-transparent via-[#2b2b36] to-transparent my-3"></div>
+                    
+                    <div class="flex items-center gap-2 pl-3 pb-2">
+                        <div class="w-1.5 h-1.5 rounded-full bg-[#5a5a6a]"></div>
+                        <div class="text-[10px] font-extrabold text-[#5a5a6a] uppercase tracking-[0.15em]">Support</div>
+                    </div>
+
+                    <button class="group flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-[#9ca3af] hover:bg-white/5 hover:text-white transition-all duration-300 text-[13px] font-semibold w-full text-left relative overflow-hidden border border-transparent hover:border-white/10">
+                        <div class="w-8 h-8 rounded-[10px] bg-gradient-to-br from-[#3b82f6] to-[#1d4ed8] flex items-center justify-center shadow-inner border border-white/20 group-hover:shadow-[0_0_15px_rgba(59,130,246,0.4)] transition-all">
+                            <i class="fa-solid fa-keyboard text-[12px] text-white group-hover:scale-110 transition-transform"></i>
+                        </div>
+                        <span class="relative z-10 tracking-wide">Shortcuts</span>
+                    </button>
+                    <button class="group flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-[#9ca3af] hover:bg-white/5 hover:text-white transition-all duration-300 text-[13px] font-semibold w-full text-left relative overflow-hidden border border-transparent hover:border-white/10 mt-auto">
+                        <div class="w-8 h-8 rounded-[10px] bg-gradient-to-br from-[#10b981] to-[#047857] flex items-center justify-center shadow-inner border border-white/20 group-hover:shadow-[0_0_15px_rgba(16,185,129,0.4)] transition-all">
+                            <i class="fa-solid fa-circle-info text-[12px] text-white group-hover:scale-110 transition-transform"></i>
+                        </div>
+                        <span class="relative z-10 tracking-wide">About VoxCMP</span>
+                    </button>
+                </div>
+
+                <!-- Main Content Area -->
+                <div class="flex-1 bg-[#1a1a24] p-10 overflow-y-auto custom-scrollbar relative">
+                    
+                    <!-- Subtle Background Grid -->
+                    <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.02] pointer-events-none"></div>
+
+                    <!-- GEMINI API Group -->
+                    <div class="mb-10 relative z-10">
+                        <div class="flex items-center gap-3 mb-4 ml-1">
+                            <div class="w-8 h-8 rounded-full bg-[#00e5cc]/10 flex items-center justify-center border border-[#00e5cc]/20">
+                                <i class="fa-solid fa-robot text-[#00e5cc] text-[14px]"></i>
+                            </div>
+                            <h3 class="text-[#00e5cc] text-[12px] font-extrabold tracking-[0.2em] uppercase drop-shadow-[0_0_8px_rgba(0,229,204,0.3)]">Google Gemini AI</h3>
+                        </div>
+                        
+                        <div class="bg-[#20202b] border border-[#2e2e3a] rounded-2xl p-6 hover:border-[#00e5cc]/40 transition-colors shadow-lg relative group">
+                            <!-- Gradient Top Border -->
+                            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#00e5cc] to-purple-500 rounded-t-2xl opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                            
+                            <div class="flex items-start justify-between mb-4 mt-1">
+                                <div>
+                                    <span class="text-[15px] font-extrabold text-white block mb-1.5 flex items-center gap-2">
+                                        API Key Configuration
+                                    </span>
+                                    <p class="text-[12px] text-[#9ca3af] leading-relaxed max-w-md">
+                                        បញ្ចូល Gemini API Key របស់លោកអ្នកនៅទីនេះ ដើម្បីដំណើរការមុខងារ សម្រាយរឿង និងបកប្រែដោយស្វ័យប្រវត្តិ។
+                                    </p>
+                                </div>
+                                <span class="text-[10px] font-extrabold text-amber-300 bg-amber-400/10 px-2.5 py-1.5 rounded-lg border border-amber-400/20 flex items-center gap-2 shadow-sm">
+                                    <span class="relative flex h-2 w-2">
+                                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                                      <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                                    </span>
+                                    REQUIRED
+                                </span>
+                            </div>
+                            
+                            <div class="relative mt-6 mb-6 group/input">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <div class="w-8 h-8 rounded-lg bg-[#2b2b36] flex items-center justify-center group-focus-within/input:bg-[#00e5cc]/10 group-focus-within/input:text-[#00e5cc] text-[#6b7280] transition-colors border border-transparent group-focus-within/input:border-[#00e5cc]/30">
+                                        <i class="fa-solid fa-key text-[13px]"></i>
+                                    </div>
+                                </div>
+                                <input id="customApiKeyInput" type="password" placeholder="ឧទាហរណ៍៖ AIzaSyD..." class="w-full bg-[#15151c] border border-[#2b2b36] rounded-xl py-3.5 pl-14 pr-4 text-[13px] text-white focus:outline-none focus:border-[#00e5cc] focus:ring-2 focus:ring-[#00e5cc]/20 transition-all placeholder:text-[#4b5563] shadow-inner font-mono font-medium">
+                                <button class="absolute inset-y-0 right-0 pr-4 flex items-center text-[#6b7280] hover:text-white transition-colors" onclick="togglePasswordVisibility('customApiKeyInput', this)">
+                                    <i class="fa-solid fa-eye text-[14px]"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="flex justify-end gap-3 pt-4 border-t border-[#2b2b36]">
+                                <button onclick="toggleApiModal()" class="px-6 py-2.5 rounded-xl bg-[#252530] hover:bg-[#2b2b36] border border-[#323240] transition-colors text-[12px] font-bold text-white shadow-sm">
+                                    បិទផ្ទាំង (Cancel)
+                                </button>
+                                <button onclick="saveCustomApiKey()" class="group/btn px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#00e5cc] to-[#00b3a0] hover:from-[#00f2d8] hover:to-[#00ccb6] text-[#051124] transition-all text-[12px] font-extrabold shadow-[0_0_15px_rgba(0,229,204,0.3)] hover:shadow-[0_0_25px_rgba(0,229,204,0.5)] hover:-translate-y-0.5 flex items-center gap-2 overflow-hidden relative">
+                                    <div class="absolute inset-0 bg-white/20 -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite] skew-x-12"></div>
+                                    <i class="fa-solid fa-check group-hover/btn:scale-125 transition-transform relative z-10"></i> 
+                                    <span class="relative z-10">រក្សាទុក (Save)</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- WORKSPACE Group -->
+                    <div class="mb-4 relative z-10">
+                        <div class="flex items-center gap-3 mb-4 ml-1 opacity-70">
+                            <div class="w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
+                                <i class="fa-solid fa-layer-group text-indigo-400 text-[13px]"></i>
+                            </div>
+                            <h3 class="text-indigo-400 text-[12px] font-extrabold tracking-[0.2em] uppercase">Workspace <span class="text-[9px] bg-indigo-500/20 px-2 py-0.5 rounded text-indigo-300 ml-2 border border-indigo-500/30">COMING SOON</span></h3>
+                        </div>
+                        
+                        <div class="bg-[#20202b]/50 border border-[#2e2e3a]/50 rounded-2xl overflow-hidden backdrop-blur-sm">
+                            <div class="flex items-center justify-between p-5 border-b border-[#2b2b36]/50 opacity-60">
+                                <div>
+                                    <span class="text-[13px] font-bold text-white block mb-0.5">Auto-save project</span>
+                                    <span class="text-[11px] text-[#9ca3af]">Automatically sync your edits to local storage.</span>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-not-allowed">
+                                    <input type="checkbox" class="sr-only peer" checked disabled>
+                                    <div class="w-10 h-5 bg-[#32323a] rounded-full peer peer-checked:bg-[#32323a]"></div>
+                                    <div class="absolute left-1 top-1 bg-[#6b7280] w-3 h-3 rounded-full transition-all peer-checked:translate-x-5 shadow-sm"></div>
+                                </label>
+                            </div>
+                            <div class="flex items-center justify-between p-5 opacity-60">
+                                <div>
+                                    <span class="text-[13px] font-bold text-white block mb-0.5">High quality timeline preview</span>
+                                    <span class="text-[11px] text-[#9ca3af]">Render timeline clips in full 1080p resolution.</span>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-not-allowed">
+                                    <input type="checkbox" class="sr-only peer" disabled>
+                                    <div class="w-10 h-5 bg-[#32323a] rounded-full peer"></div>
+                                    <div class="absolute left-1 top-1 bg-[#6b7280] w-3 h-3 rounded-full transition-all peer-checked:translate-x-5 shadow-sm"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Store & Update Modal -->
+    <div id="storeModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-md hidden items-center justify-center p-4 transition-all duration-300">
+        <div class="bg-[#0e0e12] w-full max-w-5xl h-[700px] rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-white/10 relative">
+            
+            <!-- Header -->
+            <div class="flex items-center justify-between px-8 py-5 border-b border-white/5 bg-gradient-to-r from-[#14141a] to-[#0e0e12]">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-[0_0_20px_rgba(139,92,246,0.3)]">
+                        <i class="fa-solid fa-store text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-white text-xl font-extrabold tracking-wide">Plugin Store & Updates</h2>
+                        <p class="text-slate-400 text-xs mt-0.5">Discover, purchase, and update your studio tools.</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2 bg-[#1a1a24] px-4 py-2 rounded-xl border border-white/5">
+                        <i class="fa-solid fa-coins text-amber-400"></i>
+                        <span class="text-white font-bold text-sm">2,450</span>
+                        <button class="ml-2 w-5 h-5 rounded-md bg-blue-600 hover:bg-blue-500 flex items-center justify-center text-white transition-colors text-xs">+</button>
+                    </div>
+                    <button onclick="toggleStoreModal()" class="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-300 transition-colors">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="flex-1 overflow-y-auto p-8">
+                
+                <!-- Updates Available Section -->
+                <div class="mb-10">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-white text-lg font-bold flex items-center gap-2">
+                            <i class="fa-solid fa-download text-emerald-400"></i> Available Updates
+                            <span class="bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full ml-2">2 Updates</span>
+                        </h3>
+                        <button class="text-sm font-semibold text-blue-400 hover:text-blue-300 transition-colors">Update All</button>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- Update Card 1 -->
+                        <div class="bg-[#15151c] rounded-2xl p-4 border border-white/5 flex items-center justify-between group hover:border-emerald-500/30 transition-all">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center border border-emerald-500/20">
+                                    <i class="fa-solid fa-microphone-lines text-emerald-400 text-lg"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-white font-bold text-sm">VoxCMP2 Voice Engine</h4>
+                                    <p class="text-xs text-slate-400 mt-1">v2.1.4 <i class="fa-solid fa-arrow-right mx-1 text-[10px]"></i> <span class="text-emerald-400 font-semibold">v2.2.0</span></p>
+                                </div>
+                            </div>
+                            <button class="px-4 py-2 rounded-xl bg-white/5 hover:bg-emerald-500 hover:text-white transition-colors text-emerald-400 font-bold text-sm">Update</button>
+                        </div>
+
+                        <!-- Update Card 2 -->
+                        <div class="bg-[#15151c] rounded-2xl p-4 border border-white/5 flex items-center justify-between group hover:border-blue-500/30 transition-all">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-indigo-500/20 flex items-center justify-center border border-blue-500/20">
+                                    <i class="fa-solid fa-language text-blue-400 text-lg"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-white font-bold text-sm">Auto-Translate Pro</h4>
+                                    <p class="text-xs text-slate-400 mt-1">v1.0.2 <i class="fa-solid fa-arrow-right mx-1 text-[10px]"></i> <span class="text-blue-400 font-semibold">v1.1.0</span></p>
+                                </div>
+                            </div>
+                            <button class="px-4 py-2 rounded-xl bg-white/5 hover:bg-blue-600 hover:text-white transition-colors text-blue-400 font-bold text-sm">Update</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Marketplace Section -->
+                <div>
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-white text-lg font-bold flex items-center gap-2">
+                            <i class="fa-solid fa-shapes text-purple-400"></i> Premium Tools
+                        </h3>
+                        <div class="flex gap-2">
+                            <button class="px-4 py-1.5 rounded-full bg-blue-600 text-white text-xs font-bold">All</button>
+                            <button class="px-4 py-1.5 rounded-full bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-bold transition-colors">AI Models</button>
+                            <button class="px-4 py-1.5 rounded-full bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-bold transition-colors">Effects</button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-6">
+                        <!-- Tool Card 1 -->
+                        <div class="bg-[#15151c] rounded-2xl p-5 border border-white/5 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)] hover:border-purple-500/30 transition-all group flex flex-col h-full">
+                            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center border border-purple-500/20 mb-4">
+                                <i class="fa-solid fa-wand-magic-sparkles text-purple-400 text-xl"></i>
+                            </div>
+                            <h4 class="text-white font-bold text-base mb-2">Cinematic Story-Weaver</h4>
+                            <p class="text-xs text-slate-400 leading-relaxed flex-1">Advanced AI model specialized in generating movie-like storytelling with complex character arcs and suspenseful plots.</p>
+                            <div class="mt-5 flex items-center justify-between pt-4 border-t border-white/5">
+                                <div class="flex items-center gap-1.5 font-bold text-amber-400 text-sm">
+                                    <i class="fa-solid fa-coins text-[10px]"></i> 1,200
+                                </div>
+                                <button class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-lg shadow-purple-500/20 transition-colors">Purchase</button>
+                            </div>
+                        </div>
+
+                        <!-- Tool Card 2 -->
+                        <div class="bg-[#15151c] rounded-2xl p-5 border border-white/5 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)] hover:border-amber-500/30 transition-all group flex flex-col h-full">
+                            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex items-center justify-center border border-amber-500/20 mb-4">
+                                <i class="fa-solid fa-bolt text-amber-400 text-xl"></i>
+                            </div>
+                            <h4 class="text-white font-bold text-base mb-2">Turbo Render Engine</h4>
+                            <p class="text-xs text-slate-400 leading-relaxed flex-1">Accelerates timeline preview and export speeds by 400% using cloud processing.</p>
+                            <div class="mt-5 flex items-center justify-between pt-4 border-t border-white/5">
+                                <div class="flex items-center gap-1.5 font-bold text-amber-400 text-sm">
+                                    <i class="fa-solid fa-coins text-[10px]"></i> 850
+                                </div>
+                                <button class="px-4 py-2 rounded-xl bg-white/5 hover:bg-amber-500 hover:text-white transition-colors text-slate-300 font-bold text-xs">Purchase</button>
+                            </div>
+                        </div>
+
+                        <!-- Tool Card 3 -->
+                        <div class="bg-[#15151c] rounded-2xl p-5 border border-white/5 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)] hover:border-cyan-500/30 transition-all group flex flex-col h-full relative overflow-hidden">
+                            <div class="absolute -right-6 -top-6 w-24 h-24 bg-cyan-500/10 rounded-full blur-xl pointer-events-none group-hover:bg-cyan-500/20 transition-all"></div>
+                            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 flex items-center justify-center border border-cyan-500/20 mb-4">
+                                <i class="fa-solid fa-masks-theater text-cyan-400 text-xl"></i>
+                            </div>
+                            <h4 class="text-white font-bold text-base mb-2">Character Voices Pack</h4>
+                            <p class="text-xs text-slate-400 leading-relaxed flex-1">Unlock 50+ premium expressive voices including anime characters, monsters, and narrators.</p>
+                            <div class="mt-5 flex items-center justify-between pt-4 border-t border-white/5">
+                                <div class="flex items-center gap-1 font-bold text-emerald-400 text-sm bg-emerald-400/10 px-2 py-1 rounded-md border border-emerald-400/20">
+                                    <i class="fa-solid fa-check text-[10px]"></i> Owned
+                                </div>
+                                <button class="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-bold text-xs transition-colors">Manage</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toastBox" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="cc-panel px-4 py-2.5 rounded-lg border border-cc-teal/50 shadow-2xl flex items-center gap-2.5">
+            <i id="toastIcon" class="fa-solid fa-circle-check text-cc-teal"></i>
+            <span id="toastText" class="text-xs font-medium text-white">ជោគជ័យ!</span>
+        </div>
+    </div>
+
+    <script src="assets/js/script.js"></script>
+
+</body>
+</html>
