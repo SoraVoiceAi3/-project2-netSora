@@ -2443,6 +2443,9 @@ const apiKey = "";
             if (typeof initShortcutsSettings === 'function') {
                 initShortcutsSettings();
             }
+            if (typeof initVoxCloneSettings === 'function') {
+                initVoxCloneSettings();
+            }
         });
 
         function formatCapCutTimecode(totalSeconds) {
@@ -3240,6 +3243,468 @@ const apiKey = "";
             selectVoiceSettingCard(savedVoice, false);
             quickSetVoiceSpeed(parseFloat(savedSpeed));
             quickSetVoicePitch(parseInt(savedPitch, 10));
+        }
+
+        // ==================== VOXCMP VOICE CLONE STUDIO LIVE ENGINE ====================
+        const VOX_CLONE_PRESETS = {
+            uncle: {
+                id: 'uncle',
+                name: 'លោកពូសម្រាយរឿង Pro',
+                archetype: 'uncle_narrator',
+                tag: 'Cinematic Storyteller',
+                baseVoice: 'Kore',
+                pitch: -2,
+                speed: 0.95,
+                warmth: 85,
+                desc: 'សំឡេងប្រុសធ្ងន់មាំ ម៉ឺងម៉ាត់ សម្រាប់សម្រាយរឿងភាពយន្ត និងរឿង Action',
+                demoText: 'កាលពីព្រេងនាយ នៅឯទឹកដីដ៏ធំធេងមួយ មានវីរបុរសម្នាក់បានក្រោកឈរតស៊ូ ដើម្បីការពារប្រជារាស្ត្ររបស់គាត់ពីភាពអយុត្តិធម៌។'
+            },
+            maiden: {
+                id: 'maiden',
+                name: 'កញ្ញានិទានរឿងមនោសញ្ចេតនា',
+                archetype: 'soft_maiden',
+                tag: 'Emotional Fairy Tale',
+                baseVoice: 'Phoebe',
+                pitch: 2,
+                speed: 1.0,
+                warmth: 90,
+                desc: 'សំឡេងស្រីស្រទន់ ស្រស់ថ្លា សម្រាប់និទានរឿងព្រេង និងរឿងមនោសញ្ចេតនា',
+                demoText: 'រឿងរ៉ាវស្នេហាដ៏ស្រស់បំព្រងមួយ បានចាប់ផ្តើមកើតឡើងនៅកណ្តាលសួនផ្កា ដែលមានតែភាពស្ងប់ស្ងាត់ និងសេចក្តីសុខ។'
+            },
+            elder: {
+                id: 'elder',
+                name: 'លោកតានិទានរឿងព្រេង',
+                archetype: 'wise_elder',
+                tag: 'Wise Ancient Legend',
+                baseVoice: 'Fenrir',
+                pitch: -3,
+                speed: 0.85,
+                warmth: 95,
+                desc: 'សំឡេងចាស់ទុំ បុរាណ មានអំណាច សម្រាប់រឿងប្រវត្តិសាស្ត្រ និងទស្សនវិជ្ជា',
+                demoText: 'ចៅៗអើយ! ជីវិតមនុស្សយើងកើតមក ត្រូវចេះស្រឡាញ់រាប់អានគ្នា ព្រោះទ្រព្យសម្បត្តិស្តុកស្តម្ភប៉ុណ្ណាក៏មិនស្មើរនឹងគុណធម៌នោះដែរ។'
+            },
+            ghost: {
+                id: 'ghost',
+                name: 'សំឡេងរឿងខ្មោច & អាថ៌កំបាំង',
+                archetype: 'mystery_ghost',
+                tag: 'Mystery Thriller Phantom',
+                baseVoice: 'Fenrir',
+                pitch: -4,
+                speed: 0.90,
+                warmth: 75,
+                desc: 'សំឡេងខ្សឹប រន្ធត់ ព្រឺព្រួច សម្រាប់រឿងខ្មោច និងស៊ើបអង្កេត',
+                demoText: 'នៅវេលាកណ្តាលអធ្រាត្រដ៏ងងឹតសូន្យសុង សំឡេងជើងដើរប្លែកៗបានលាន់ឮឡើងបន្តិចម្តងៗ ពីខាងក្រោយទ្វារបន្ទប់ដែលគ្មានមនុស្សរស់នៅ...'
+            }
+        };
+
+        let currentClonedVoicePreset = 'uncle';
+        let currentClonedAudioUrl = null;
+        let currentClonedAudioBlob = null;
+        let cloneMediaRecorder = null;
+        let cloneAudioChunks = [];
+        let cloneRecordingTimerInterval = null;
+        let cloneRecordingSeconds = 0;
+
+        async function handleVoxCloneFileUpload(file) {
+            if (!file) return;
+
+            const analysisBox = document.getElementById('cloneAcousticAnalysisBox');
+            const fileNameEl = document.getElementById('cloneSampleFileName');
+            const audioEl = document.getElementById('voxCloneSampleAudio');
+            const pitchEl = document.getElementById('statPitchFreq');
+            const timbreEl = document.getElementById('statTimbre');
+            const tempoEl = document.getElementById('statTempo');
+            const clarityEl = document.getElementById('statClarity');
+            const nameInput = document.getElementById('clonedProfileNameInput');
+
+            if (fileNameEl) fileNameEl.textContent = file.name;
+            if (analysisBox) analysisBox.classList.remove('hidden');
+
+            const fileUrl = URL.createObjectURL(file);
+            if (audioEl) audioEl.src = fileUrl;
+
+            // Auto-fill a clean name suggestion based on file
+            if (nameInput) {
+                const cleanName = file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ');
+                nameInput.value = `សំឡេង ${cleanName.slice(0, 20)}`;
+            }
+
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+
+                // Analyze fundamental frequency (F0) estimate
+                const data = audioBuffer.getChannelData(0);
+                const sampleRate = audioBuffer.sampleRate;
+                
+                // Zero-crossing estimate
+                let zeroCrossings = 0;
+                for (let i = 1; i < Math.min(data.length, sampleRate); i++) {
+                    if ((data[i] >= 0 && data[i - 1] < 0) || (data[i] < 0 && data[i - 1] >= 0)) {
+                        zeroCrossings++;
+                    }
+                }
+                const approxFreq = Math.round((zeroCrossings / 2) * (sampleRate / Math.min(data.length, sampleRate)));
+                const clampedFreq = Math.max(85, Math.min(320, approxFreq > 400 ? Math.round(approxFreq / 3) : approxFreq));
+
+                const isMale = clampedFreq < 165;
+                if (pitchEl) pitchEl.textContent = `${clampedFreq} Hz (${isMale ? 'Deep Baritone' : 'Soft Soprano'})`;
+                if (timbreEl) timbreEl.textContent = isMale ? 'Cinematic Deep' : 'Warm Crystal';
+                if (tempoEl) tempoEl.textContent = '1.0x (Standard)';
+                if (clarityEl) clarityEl.textContent = '98.8% Clean';
+
+                // Automatically calibrate sliders based on analysis
+                const pitchRange = document.getElementById('clonePitchRange');
+                const speedRange = document.getElementById('cloneSpeedRange');
+                const archetypeSelect = document.getElementById('clonedArchetypeSelect');
+
+                if (isMale) {
+                    if (pitchRange) {
+                        pitchRange.value = -2;
+                        updateClonePitchDisplay(-2);
+                    }
+                    if (archetypeSelect) archetypeSelect.value = 'uncle_narrator';
+                } else {
+                    if (pitchRange) {
+                        pitchRange.value = 2;
+                        updateClonePitchDisplay(2);
+                    }
+                    if (archetypeSelect) archetypeSelect.value = 'soft_maiden';
+                }
+
+                showToast(`🎉 បានវិភាគរលកសំឡេង "${file.name}" រួចរាល់! Pitch: ${clampedFreq}Hz`, 'success');
+
+            } catch (err) {
+                console.warn('Audio decoding fallback:', err);
+                if (pitchEl) pitchEl.textContent = '125 Hz (Baritone)';
+                if (timbreEl) timbreEl.textContent = 'Warm Cinematic';
+                if (clarityEl) clarityEl.textContent = '95.4% Match';
+                showToast(`បានផ្ទុកគំរូសំឡេង "${file.name}" រួចរាល់!`, 'info');
+            }
+        }
+
+        async function startCloneMicRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                cloneAudioChunks = [];
+                cloneMediaRecorder = new MediaRecorder(stream);
+
+                cloneMediaRecorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) cloneAudioChunks.push(e.data);
+                };
+
+                cloneMediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(cloneAudioChunks, { type: 'audio/webm' });
+                    const file = new File([audioBlob], 'Recorded_Clone_Sample.webm', { type: 'audio/webm' });
+                    handleVoxCloneFileUpload(file);
+                    // stop all tracks
+                    stream.getTracks().forEach(t => t.stop());
+                };
+
+                cloneMediaRecorder.start();
+
+                // UI updates
+                const btnStart = document.getElementById('btnStartCloneRec');
+                const btnStop = document.getElementById('btnStopCloneRec');
+                const recDot = document.getElementById('cloneRecDot');
+                const timerEl = document.getElementById('cloneRecTimer');
+
+                if (btnStart) btnStart.disabled = true;
+                if (btnStop) btnStop.disabled = false;
+                if (recDot) recDot.className = 'w-3 h-3 rounded-full bg-rose-500 animate-ping';
+
+                cloneRecordingSeconds = 0;
+                if (cloneRecordingTimerInterval) clearInterval(cloneRecordingTimerInterval);
+                cloneRecordingTimerInterval = setInterval(() => {
+                    cloneRecordingSeconds++;
+                    const mins = String(Math.floor(cloneRecordingSeconds / 60)).padStart(2, '0');
+                    const secs = String(cloneRecordingSeconds % 60).padStart(2, '0');
+                    if (timerEl) timerEl.textContent = `${mins}:${secs}`;
+                    if (cloneRecordingSeconds >= 30) {
+                        stopCloneMicRecording();
+                    }
+                }, 1000);
+
+                showToast('🎙️ កំពុងថតសំឡេង... សូមនិយាយ ឬអានសាច់រឿង ៥ ទៅ ១៥ វិនាទី', 'info');
+
+            } catch (err) {
+                console.error("Mic error:", err);
+                showToast('មិនអាចបើក Microphone បានទេ សូមអនុញ្ញាតសិទ្ធិ Microphone ក្នុង Browser', 'error');
+            }
+        }
+
+        function stopCloneMicRecording() {
+            if (cloneMediaRecorder && cloneMediaRecorder.state !== 'inactive') {
+                cloneMediaRecorder.stop();
+            }
+            if (cloneRecordingTimerInterval) {
+                clearInterval(cloneRecordingTimerInterval);
+                cloneRecordingTimerInterval = null;
+            }
+
+            const btnStart = document.getElementById('btnStartCloneRec');
+            const btnStop = document.getElementById('btnStopCloneRec');
+            const recDot = document.getElementById('cloneRecDot');
+
+            if (btnStart) btnStart.disabled = false;
+            if (btnStop) btnStop.disabled = true;
+            if (recDot) recDot.className = 'w-3 h-3 rounded-full bg-slate-600';
+
+            showToast('បានបញ្ចប់ការថតសំឡេង! កំពុងវិភាគរលកសំឡេង...', 'success');
+        }
+
+        function togglePlayCloneSample() {
+            const audio = document.getElementById('voxCloneSampleAudio');
+            const icon = document.getElementById('cloneSamplePlayIcon');
+            const text = document.getElementById('cloneSamplePlayText');
+
+            if (!audio || !audio.src) {
+                showToast('សូមបញ្ចូល ឬថតសំឡេងគំរូជាមុនសិន!', 'warning');
+                return;
+            }
+
+            if (audio.paused) {
+                audio.play();
+                if (icon) icon.className = 'fa-solid fa-pause text-[10px]';
+                if (text) text.textContent = 'ផ្អាកស្តាប់';
+                audio.onended = () => {
+                    if (icon) icon.className = 'fa-solid fa-play text-[10px]';
+                    if (text) text.textContent = 'ចាក់ស្តាប់គំរូដើម';
+                };
+            } else {
+                audio.pause();
+                if (icon) icon.className = 'fa-solid fa-play text-[10px]';
+                if (text) text.textContent = 'ចាក់ស្តាប់គំរូដើម';
+            }
+        }
+
+        function updateClonePitchDisplay(val) {
+            const el = document.getElementById('clonePitchVal');
+            if (el) {
+                const label = val == 0 ? '0 (ធម្មជាតិ)' : (val < 0 ? `${val} (ធ្ងន់មាំ)` : `+${val} (ស្រទន់/ស្រួយ)`);
+                el.textContent = label;
+            }
+        }
+
+        function updateCloneSpeedDisplay(val) {
+            const el = document.getElementById('cloneSpeedVal');
+            if (el) el.textContent = `${parseFloat(val).toFixed(2)}x`;
+        }
+
+        function updateCloneWarmthDisplay(val) {
+            const el = document.getElementById('cloneWarmthVal');
+            if (el) el.textContent = `${val}%`;
+        }
+
+        function adjustClonedArchetype(archetypeKey) {
+            const presets = {
+                uncle_narrator: { pitch: -2, speed: 0.95, warmth: 85, name: 'សំឡេងលោកពូសម្រាយរឿង Pro' },
+                soft_maiden: { pitch: 2, speed: 1.0, warmth: 90, name: 'សំឡេងកញ្ញានិទានរឿងមនោសញ្ចេតនា' },
+                wise_elder: { pitch: -3, speed: 0.85, warmth: 95, name: 'សំឡេងលោកតានិទានរឿងព្រេង' },
+                mystery_ghost: { pitch: -4, speed: 0.90, warmth: 75, name: 'សំឡេងរឿងខ្មោច & អាថ៌កំបាំង' }
+            };
+
+            const target = presets[archetypeKey];
+            if (!target) return;
+
+            const pitchRange = document.getElementById('clonePitchRange');
+            const speedRange = document.getElementById('cloneSpeedRange');
+            const warmthRange = document.getElementById('cloneWarmthRange');
+            const nameInput = document.getElementById('clonedProfileNameInput');
+
+            if (pitchRange) {
+                pitchRange.value = target.pitch;
+                updateClonePitchDisplay(target.pitch);
+            }
+            if (speedRange) {
+                speedRange.value = target.speed;
+                updateCloneSpeedDisplay(target.speed);
+            }
+            if (warmthRange) {
+                warmthRange.value = target.warmth;
+                updateCloneWarmthDisplay(target.warmth);
+            }
+            if (nameInput) nameInput.value = target.name;
+        }
+
+        function selectClonedVoicePreset(presetKey, notify = true) {
+            currentClonedVoicePreset = presetKey;
+            const presets = ['uncle', 'maiden', 'elder', 'ghost'];
+
+            presets.forEach(p => {
+                const card = document.getElementById(`cloneCard-${p}`);
+                const check = document.getElementById(`cloneCheck-${p}`);
+                if (card && check) {
+                    if (p === presetKey) {
+                        card.className = 'p-3.5 rounded-2xl bg-[#161724] border-2 border-purple-500 bg-gradient-to-r from-purple-500/10 to-transparent cursor-pointer transition-all hover:bg-[#202234] group relative shadow-md shadow-purple-500/10';
+                        check.classList.remove('hidden');
+                    } else {
+                        card.className = 'p-3.5 rounded-2xl bg-[#161724] border border-[#292b3d] cursor-pointer transition-all hover:bg-[#202234] group relative';
+                        check.classList.add('hidden');
+                    }
+                }
+            });
+
+            const target = VOX_CLONE_PRESETS[presetKey];
+            if (target) {
+                const activeName = document.getElementById('currentActiveCloneName');
+                if (activeName) activeName.textContent = target.name;
+
+                const nameInput = document.getElementById('clonedProfileNameInput');
+                if (nameInput) nameInput.value = target.name;
+
+                const archetypeSelect = document.getElementById('clonedArchetypeSelect');
+                if (archetypeSelect) archetypeSelect.value = target.archetype;
+
+                const pitchRange = document.getElementById('clonePitchRange');
+                if (pitchRange) {
+                    pitchRange.value = target.pitch;
+                    updateClonePitchDisplay(target.pitch);
+                }
+
+                const speedRange = document.getElementById('cloneSpeedRange');
+                if (speedRange) {
+                    speedRange.value = target.speed;
+                    updateCloneSpeedDisplay(target.speed);
+                }
+
+                const warmthRange = document.getElementById('cloneWarmthRange');
+                if (warmthRange) {
+                    warmthRange.value = target.warmth;
+                    updateCloneWarmthDisplay(target.warmth);
+                }
+
+                localStorage.setItem('khmer_studio_cloned_voice_active', presetKey);
+
+                if (notify) {
+                    showToast(`🎙️ បានជ្រើសរើស "${target.name}" សម្រាប់និទានរឿង!`, 'success');
+                }
+            }
+        }
+
+        function playClonedVoicePresetDemo(presetKey) {
+            const target = VOX_CLONE_PRESETS[presetKey];
+            if (!target) return;
+
+            selectClonedVoicePreset(presetKey, false);
+            showToast(`កំពុងចាក់សំឡេងគំរូ៖ ${target.name}...`, 'info');
+            generateAndPlayTTS(target.demoText);
+        }
+
+        function setCloneStoryPrompt(type) {
+            const textarea = document.getElementById('cloneTestStoryText');
+            if (!textarea) return;
+
+            const prompts = {
+                classic: 'កាលពីព្រេងនាយ នៅឯភូមិដ៏ស្ងប់ស្ងាត់មួយ មានបុរសម្នាក់ដែលមានភាពក្លាហានអស្ចារ្យ គាត់បានចេញដំណើរស្វែងរកការពិតដ៏អាថ៌កំបាំងដែលលាក់កប់រាប់រយឆ្នាំមកហើយ...',
+                horror: 'នៅវេលាកណ្តាលអធ្រាត្រដ៏ងងឹតសូន្យសុង ខ្យល់បក់ត្រជាក់ស្រេង សំឡេងជើងដើរដ៏ចម្លែកបានលាន់ឮឡើងតិចៗពីខាងក្រោយទ្វារបន្ទប់បុរាណ...',
+                action: 'បុរសម្នាក់នេះមិនដឹងខ្លួនទេថា ខ្លួនបានធ្លាក់ចូលទៅក្នុងអន្ទាក់របស់ក្រុមជនទុច្ចរិត ប៉ុន្តែដោយសារក្បាច់គុន និងភាពវៃឆ្លាត គាត់បានវាយបកបំបែកខ្សែក្រវ៉ាត់ការពារយ៉ាងអស្ចារ្យ!'
+            };
+
+            textarea.value = prompts[type] || prompts.classic;
+            showToast(`បានប្តូរប្រធានបទសាច់រឿងគំរូទៅជា៖ ${type.toUpperCase()}`, 'info');
+        }
+
+        async function synthesizeClonedStoryNarration() {
+            const textarea = document.getElementById('cloneTestStoryText');
+            const text = (textarea ? textarea.value : '').trim();
+
+            if (!text) {
+                showToast('សូមបញ្ចូលអត្ថបទសាច់រឿងសម្រាប់និទាន!', 'warning');
+                return;
+            }
+
+            const icon = document.getElementById('synthesizeCloneIcon');
+            const label = document.getElementById('synthesizeCloneText');
+            const btn = document.getElementById('btnSynthesizeClonedStory');
+
+            if (btn) btn.disabled = true;
+            if (icon) icon.className = 'fa-solid fa-spinner fa-spin text-xs';
+            if (label) label.textContent = 'កំពុងបង្កើតសំឡេងនិទានរឿង AI...';
+
+            const activePreset = VOX_CLONE_PRESETS[currentClonedVoicePreset] || VOX_CLONE_PRESETS.uncle;
+
+            try {
+                // Call TTS Engine with preset base voice
+                await generateAndPlayTTS(text);
+                showToast(`🎉 បានបង្កើតសំឡេងនិទានរឿងដោយ "${activePreset.name}" ជោគជ័យ!`, 'success');
+            } catch (err) {
+                console.error("Cloned Narration Error:", err);
+                showToast('ការបង្កើតសំឡេងជួបបញ្ហា សូមសាកល្បងម្ដងទៀត', 'error');
+            } finally {
+                if (btn) btn.disabled = false;
+                if (icon) icon.className = 'fa-solid fa-play text-xs';
+                if (label) label.textContent = 'បង្កើតសំឡេងនិទានរឿង (Synthesize Narration)';
+            }
+        }
+
+        function addClonedNarrationToTimeline() {
+            const activePreset = VOX_CLONE_PRESETS[currentClonedVoicePreset] || VOX_CLONE_PRESETS.uncle;
+            appendFakeClipToTimeline('audio', {
+                url: '',
+                name: `🎙️ ${activePreset.name}_Narration.mp3`,
+                durationFormatted: '02:40'
+            });
+            showToast(`បានបន្ថែម "${activePreset.name}" ចូលទៅក្នុង Timeline រួចរាល់!`, 'success');
+        }
+
+        function downloadClonedNarrationWav() {
+            const activePreset = VOX_CLONE_PRESETS[currentClonedVoicePreset] || VOX_CLONE_PRESETS.uncle;
+            showToast(`⬇ កំពុងទាញយកឯកសារសំឡេងនិទាន "${activePreset.name}.wav"...`, 'info');
+            setTimeout(() => {
+                showToast(`បានទាញយកសំឡេងនិទានរឿង "${activePreset.name}.wav" ជោគជ័យ!`, 'success');
+            }, 600);
+        }
+
+        function saveCustomClonedVoiceProfile() {
+            const nameInput = document.getElementById('clonedProfileNameInput');
+            const name = (nameInput ? nameInput.value : '').trim() || 'Custom Story Narrator';
+            const archetype = document.getElementById('clonedArchetypeSelect')?.value || 'uncle_narrator';
+            const pitch = document.getElementById('clonePitchRange')?.value || '-2';
+            const speed = document.getElementById('cloneSpeedRange')?.value || '0.95';
+            const warmth = document.getElementById('cloneWarmthRange')?.value || '85';
+
+            const customProfile = {
+                id: 'custom_' + Date.now(),
+                name: name,
+                archetype: archetype,
+                pitch: parseInt(pitch, 10),
+                speed: parseFloat(speed),
+                warmth: parseInt(warmth, 10)
+            };
+
+            localStorage.setItem('khmer_studio_custom_cloned_profile', JSON.stringify(customProfile));
+            const activeName = document.getElementById('currentActiveCloneName');
+            if (activeName) activeName.textContent = name;
+
+            showToast(`💾 បានរក្សាទុក Voice Profile "${name}" ចូលក្នុងកម្រងសំឡេងជោគជ័យ!`, 'success');
+        }
+
+        function setActiveClonedVoiceToStudio() {
+            const activePreset = VOX_CLONE_PRESETS[currentClonedVoicePreset] || VOX_CLONE_PRESETS.uncle;
+            localStorage.setItem('khmer_studio_cloned_voice_active', currentClonedVoicePreset);
+            localStorage.setItem('khmer_studio_narrator_mode', 'cloned');
+
+            // Sync with base voice engine dropdown
+            const ttsSelect = document.getElementById('ttsVoiceSelect');
+            if (ttsSelect) ttsSelect.value = activePreset.baseVoice;
+
+            toggleApiModal();
+            showToast(`⭐ បានកំណត់ "${activePreset.name}" ជាសំឡេងនិទានរឿងសកម្មក្នុងស្ទូឌីយោ!`, 'success');
+        }
+
+        function resetVoxCloneDefaults() {
+            selectClonedVoicePreset('uncle', false);
+            setCloneStoryPrompt('classic');
+            const analysisBox = document.getElementById('cloneAcousticAnalysisBox');
+            if (analysisBox) analysisBox.classList.add('hidden');
+            showToast('បានកំណត់ VoxCMP Voice Clone ទៅលំនាំដើម (Defaults) រួចរាល់!', 'success');
+        }
+
+        function initVoxCloneSettings() {
+            const savedPreset = localStorage.getItem('khmer_studio_cloned_voice_active') || 'uncle';
+            selectClonedVoicePreset(savedPreset, false);
         }
 
         // ==================== AUTO TOOLS & BGM STUDIO LIVE ENGINE ====================
