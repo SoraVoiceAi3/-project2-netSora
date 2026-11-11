@@ -3062,7 +3062,6 @@ const apiKey = "";
                 showToast('បានសម្អាត Workspace រួចរាល់!', 'info');
             }
         }
-        }
 
         let toastTimeout = null;
         function showToast(message, type = 'success') {
