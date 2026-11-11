@@ -2926,7 +2926,8 @@ const apiKey = "";
 
         function toggleApiModal() {
             const modal = document.getElementById('apiModal');
-            if (modal.classList.contains('hidden')) {
+            if (!modal) return;
+            if (modal.classList.contains('hidden') || modal.style.display === 'none') {
                 const keyInput = document.getElementById('customApiKeyInput');
                 if (keyInput) keyInput.value = localStorage.getItem('khmer_studio_custom_api_key') || '';
                 const modelSelect = document.getElementById('geminiModelSelect');
@@ -2934,9 +2935,14 @@ const apiKey = "";
                 updateGoogleConnectionUI();
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');
+                modal.style.display = 'flex';
+                setTimeout(() => {
+                    if (keyInput) keyInput.focus();
+                }, 100);
             } else {
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
+                modal.style.display = 'none';
             }
         }
 
@@ -2962,6 +2968,100 @@ const apiKey = "";
             updateGoogleConnectionUI();
             toggleApiModal();
             showToast(key ? 'បានរក្សាទុក Google API Key និងបានភ្ជាប់ជោគជ័យ!' : 'បានជម្រះ API Key!', 'success');
+        }
+
+        function switchSettingsTab(tabKey) {
+            // 1. Deactivate all sidebar buttons
+            document.querySelectorAll('.settings-sidebar-btn').forEach(btn => {
+                btn.className = 'settings-sidebar-btn group flex items-center justify-between px-3.5 py-3 rounded-xl text-[#9ca3af] hover:bg-white/5 hover:text-white transition-all duration-300 text-[13px] font-semibold w-full text-left relative overflow-hidden border border-transparent hover:border-white/10 cursor-pointer';
+                const label = btn.querySelector('.tracking-wide');
+                if (label) label.className = 'tracking-wide text-[#9ca3af] group-hover:text-white transition-colors';
+            });
+
+            // 2. Activate selected button
+            const activeBtn = document.getElementById(`setTab-${tabKey}`);
+            if (activeBtn) {
+                activeBtn.className = 'settings-sidebar-btn flex items-center justify-between px-3.5 py-3 rounded-xl bg-gradient-to-r from-[#00e5cc]/20 via-[#00e5cc]/5 to-transparent text-white font-extrabold border-l-[4px] border-[#00e5cc] transition-all text-[13px] w-full text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] relative overflow-hidden group cursor-pointer';
+                const label = activeBtn.querySelector('.tracking-wide');
+                if (label) label.className = 'tracking-wide drop-shadow-sm text-[#00e5cc]';
+            }
+
+            // 3. Switch visible panel
+            document.querySelectorAll('.settings-content-panel').forEach(panel => {
+                panel.classList.add('hidden');
+            });
+            const targetPanel = document.getElementById(`setPanel-${tabKey}`);
+            if (targetPanel) {
+                targetPanel.classList.remove('hidden');
+            }
+        }
+
+        function selectVoiceSettingCard(el, voiceName) {
+            document.querySelectorAll('#settingsVoiceCards .voice-card').forEach(card => {
+                card.className = 'voice-card p-3 rounded-xl bg-[#181822] border border-[#2b2b36] flex items-center justify-between cursor-pointer transition-all hover:bg-[#252535]';
+                const icon = card.querySelector('i');
+                if (icon) icon.className = 'fa-solid fa-circle text-slate-600 text-sm';
+            });
+
+            el.className = 'voice-card active p-3 rounded-xl bg-[#20202b] border-2 border-[#00e5cc] flex items-center justify-between cursor-pointer transition-all hover:bg-[#252535]';
+            const activeIcon = el.querySelector('i');
+            if (activeIcon) activeIcon.className = 'fa-solid fa-circle-check text-[#00e5cc] text-sm';
+
+            localStorage.setItem('khmer_studio_voice', voiceName);
+            const narrateSelect = document.getElementById('narrateVoice');
+            if (narrateSelect) narrateSelect.value = voiceName;
+            const ttsSelect = document.getElementById('ttsVoiceSelect');
+            if (ttsSelect) ttsSelect.value = voiceName;
+
+            showToast(`បានជ្រើសរើសសំឡេង៖ ${voiceName}`, 'info');
+        }
+
+        function testVoicePreviewAudio() {
+            const voice = localStorage.getItem('khmer_studio_voice') || 'Kore';
+            const speed = parseFloat(document.getElementById('voiceSpeedRange')?.value || 1.0);
+            const sampleText = `ជំរាបសួរ! នេះជាសំឡេងសាកល្បងរបស់តួអង្គ ${voice} នៅក្នុងប្រព័ន្ធ Sora Voice AI Studio សម្រាប់សម្រាយរឿង។`;
+            
+            showToast(`កំពុងចាក់សាកល្បងសំឡេង ${voice}...`, 'info');
+            generateAndPlayTTS(sampleText);
+        }
+
+        function saveVoiceSettings() {
+            const speed = document.getElementById('voiceSpeedRange')?.value || '1.0';
+            const pitch = document.getElementById('voicePitchRange')?.value || '0';
+            localStorage.setItem('khmer_studio_voice_speed', speed);
+            localStorage.setItem('khmer_studio_voice_pitch', pitch);
+            showToast('បានរក្សាទុកការកំណត់ Voice Engine ជោគជ័យ!', 'success');
+        }
+
+        function applyThemePreset(preset) {
+            document.querySelectorAll('.theme-card').forEach(card => {
+                card.classList.remove('active', 'border-2', 'border-[#00e5cc]', 'border-[#3b82f6]', 'border-[#10b981]', 'border-[#a855f7]');
+                card.classList.add('border', 'border-[#2b2b36]');
+            });
+
+            const current = event?.currentTarget;
+            if (current) {
+                current.classList.add('active', 'border-2');
+                if (preset === 'capcut') current.classList.add('border-[#00e5cc]');
+                else if (preset === 'midnight') current.classList.add('border-[#3b82f6]');
+                else if (preset === 'emerald') current.classList.add('border-[#10b981]');
+                else if (preset === 'purple') current.classList.add('border-[#a855f7]');
+            }
+
+            localStorage.setItem('khmer_studio_theme_preset', preset);
+            showToast(`បានអនុវត្ត Theme: ${preset.toUpperCase()}!`, 'success');
+        }
+
+        function resetWorkspaceData() {
+            if (confirm('តើលោកអ្នកពិតជាចង់សម្អាត Timeline និង Script ទាំងអស់ឡើងវិញមែនទេ?')) {
+                timelineSegments = [];
+                currentOutputText = '';
+                const textarea = document.getElementById('outputTextarea');
+                if (textarea) textarea.value = '';
+                renderTimelineSegments();
+                showToast('បានសម្អាត Workspace រួចរាល់!', 'info');
+            }
+        }
         }
 
         let toastTimeout = null;

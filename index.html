@@ -1271,7 +1271,7 @@
         </div>
     </div>
 
-    <div id="apiModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 transition-all duration-300 opacity-0 scale-95" style="display: none;">
+    <div id="apiModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 transition-all duration-300">
         <div class="bg-[#13131a] w-full max-w-4xl h-[580px] rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col overflow-hidden border border-[#2b2b36] relative group/modal">
             
             <!-- Modal Background Glow -->
@@ -1304,14 +1304,14 @@
                         <div class="text-[10px] font-extrabold text-[#5a5a6a] uppercase tracking-[0.15em]">System</div>
                     </div>
                     
-                    <button class="group flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-[#9ca3af] hover:bg-white/5 hover:text-white transition-all duration-300 text-[13px] font-semibold w-full text-left relative overflow-hidden border border-transparent hover:border-white/10">
+                    <button id="setTab-general" onclick="switchSettingsTab('general')" class="settings-sidebar-btn group flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-[#9ca3af] hover:bg-white/5 hover:text-white transition-all duration-300 text-[13px] font-semibold w-full text-left relative overflow-hidden border border-transparent hover:border-white/10 cursor-pointer">
                         <div class="w-8 h-8 rounded-[10px] bg-gradient-to-br from-[#4a4a5a] to-[#2a2a35] flex items-center justify-center shadow-inner border border-white/10 group-hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] transition-all">
                             <i class="fa-solid fa-sliders text-[12px] text-[#d1d5db] group-hover:text-white group-hover:scale-110 transition-transform"></i>
                         </div>
                         <span class="relative z-10 tracking-wide">General</span>
                     </button>
                     
-                    <button class="group flex items-center justify-between px-3.5 py-3 rounded-xl text-[#9ca3af] hover:bg-white/5 hover:text-white transition-all duration-300 text-[13px] font-semibold w-full text-left relative overflow-hidden border border-transparent hover:border-white/10">
+                    <button id="setTab-appearance" onclick="switchSettingsTab('appearance')" class="settings-sidebar-btn group flex items-center justify-between px-3.5 py-3 rounded-xl text-[#9ca3af] hover:bg-white/5 hover:text-white transition-all duration-300 text-[13px] font-semibold w-full text-left relative overflow-hidden border border-transparent hover:border-white/10 cursor-pointer">
                         <div class="flex items-center gap-3.5 relative z-10">
                             <div class="w-8 h-8 rounded-[10px] bg-gradient-to-br from-[#b34df2] to-[#7928ca] flex items-center justify-center shadow-inner border border-white/20 group-hover:shadow-[0_0_15px_rgba(179,77,242,0.4)] transition-all">
                                 <i class="fa-solid fa-palette text-[12px] text-white group-hover:scale-110 group-hover:-rotate-12 transition-transform"></i>
@@ -1328,8 +1328,8 @@
                         <div class="text-[10px] font-extrabold text-[#5a5a6a] uppercase tracking-[0.15em]">AI Studio</div>
                     </div>
                     
-                    <!-- Selected Tab -->
-                    <button class="flex items-center justify-between px-3.5 py-3 rounded-xl bg-gradient-to-r from-[#00e5cc]/20 via-[#00e5cc]/5 to-transparent text-white font-extrabold border-l-[4px] border-[#00e5cc] transition-all text-[13px] w-full text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] relative overflow-hidden group">
+                    <!-- Selected Tab (API Keys default active) -->
+                    <button id="setTab-apikeys" onclick="switchSettingsTab('apikeys')" class="settings-sidebar-btn flex items-center justify-between px-3.5 py-3 rounded-xl bg-gradient-to-r from-[#00e5cc]/20 via-[#00e5cc]/5 to-transparent text-white font-extrabold border-l-[4px] border-[#00e5cc] transition-all text-[13px] w-full text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] relative overflow-hidden group cursor-pointer">
                         <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 pointer-events-none"></div>
                         <div class="flex items-center gap-3.5 relative z-10">
                             <div class="w-8 h-8 rounded-[10px] bg-gradient-to-br from-[#00e5cc] to-[#009988] flex items-center justify-center shadow-[0_0_15px_rgba(0,229,204,0.5)] border border-white/30 relative">
@@ -1340,7 +1340,7 @@
                         </div>
                     </button>
                     
-                    <button class="group flex items-center justify-between px-3.5 py-3 rounded-xl text-[#9ca3af] hover:bg-white/5 hover:text-white transition-all duration-300 text-[13px] font-semibold w-full text-left relative overflow-hidden border border-transparent hover:border-white/10">
+                    <button id="setTab-voice" onclick="switchSettingsTab('voice')" class="settings-sidebar-btn group flex items-center justify-between px-3.5 py-3 rounded-xl text-[#9ca3af] hover:bg-white/5 hover:text-white transition-all duration-300 text-[13px] font-semibold w-full text-left relative overflow-hidden border border-transparent hover:border-white/10 cursor-pointer">
                         <div class="flex items-center gap-3.5 relative z-10">
                             <div class="w-8 h-8 rounded-[10px] bg-gradient-to-br from-[#ff4b4b] to-[#c11010] flex items-center justify-center shadow-inner border border-white/20 group-hover:shadow-[0_0_15px_rgba(255,75,75,0.4)] transition-all">
                                 <i class="fa-solid fa-microphone-lines text-[12px] text-white group-hover:scale-110 transition-transform"></i>
@@ -1350,7 +1350,7 @@
                         <span class="relative z-10 text-[9px] font-extrabold text-rose-100 bg-rose-600 px-2 py-0.5 rounded shadow-[0_0_10px_rgba(225,29,72,0.6)] animate-pulse">HOT</span>
                     </button>
 
-                    <button class="group flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-[#9ca3af] hover:bg-white/5 hover:text-white transition-all duration-300 text-[13px] font-semibold w-full text-left relative overflow-hidden border border-transparent hover:border-white/10">
+                    <button id="setTab-tools" onclick="switchSettingsTab('tools')" class="settings-sidebar-btn group flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-[#9ca3af] hover:bg-white/5 hover:text-white transition-all duration-300 text-[13px] font-semibold w-full text-left relative overflow-hidden border border-transparent hover:border-white/10 cursor-pointer">
                         <div class="w-8 h-8 rounded-[10px] bg-gradient-to-br from-[#f5a623] to-[#d48102] flex items-center justify-center shadow-inner border border-white/20 group-hover:shadow-[0_0_15px_rgba(245,166,35,0.4)] transition-all">
                             <i class="fa-solid fa-wand-magic-sparkles text-[12px] text-white group-hover:scale-110 group-hover:rotate-12 transition-transform"></i>
                         </div>
@@ -1364,13 +1364,13 @@
                         <div class="text-[10px] font-extrabold text-[#5a5a6a] uppercase tracking-[0.15em]">Support</div>
                     </div>
 
-                    <button class="group flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-[#9ca3af] hover:bg-white/5 hover:text-white transition-all duration-300 text-[13px] font-semibold w-full text-left relative overflow-hidden border border-transparent hover:border-white/10">
+                    <button id="setTab-shortcuts" onclick="switchSettingsTab('shortcuts')" class="settings-sidebar-btn group flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-[#9ca3af] hover:bg-white/5 hover:text-white transition-all duration-300 text-[13px] font-semibold w-full text-left relative overflow-hidden border border-transparent hover:border-white/10 cursor-pointer">
                         <div class="w-8 h-8 rounded-[10px] bg-gradient-to-br from-[#3b82f6] to-[#1d4ed8] flex items-center justify-center shadow-inner border border-white/20 group-hover:shadow-[0_0_15px_rgba(59,130,246,0.4)] transition-all">
                             <i class="fa-solid fa-keyboard text-[12px] text-white group-hover:scale-110 transition-transform"></i>
                         </div>
                         <span class="relative z-10 tracking-wide">Shortcuts</span>
                     </button>
-                    <button class="group flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-[#9ca3af] hover:bg-white/5 hover:text-white transition-all duration-300 text-[13px] font-semibold w-full text-left relative overflow-hidden border border-transparent hover:border-white/10 mt-auto">
+                    <button id="setTab-about" onclick="switchSettingsTab('about')" class="settings-sidebar-btn group flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-[#9ca3af] hover:bg-white/5 hover:text-white transition-all duration-300 text-[13px] font-semibold w-full text-left relative overflow-hidden border border-transparent hover:border-white/10 mt-auto cursor-pointer">
                         <div class="w-8 h-8 rounded-[10px] bg-gradient-to-br from-[#10b981] to-[#047857] flex items-center justify-center shadow-inner border border-white/20 group-hover:shadow-[0_0_15px_rgba(16,185,129,0.4)] transition-all">
                             <i class="fa-solid fa-circle-info text-[12px] text-white group-hover:scale-110 transition-transform"></i>
                         </div>
@@ -1384,120 +1384,451 @@
                     <!-- Subtle Background Grid -->
                     <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.02] pointer-events-none"></div>
 
-                    <!-- GEMINI API Group -->
-                    <div class="mb-10 relative z-10">
-                        <div class="flex items-center justify-between mb-4 ml-1">
-                            <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500/20 via-red-500/10 to-yellow-500/20 flex items-center justify-center border border-white/10 shadow-sm">
-                                    <i class="fa-brands fa-google text-lg text-white"></i>
-                                </div>
-                                <div>
-                                    <h3 class="text-white text-[14px] font-extrabold tracking-wide flex items-center gap-2">
-                                        Google Gemini AI Studio
-                                        <span id="googleApiStatusBadge" class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/30">
-                                            🔴 មិនទាន់ភ្ជាប់ (Disconnected)
-                                        </span>
-                                    </h3>
-                                    <p class="text-[11px] text-[#788294]">តភ្ជាប់ទៅកាន់ម៉ូដែល AI របស់ Google ដោយផ្ទាល់ដើម្បីបង្កើតសម្រាយរឿង និងនិទានរឿងពិតៗ</p>
-                                </div>
-                            </div>
-
-                            <!-- Direct Button to Google AI Studio -->
-                            <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-[12px] flex items-center gap-2 shadow-md hover:shadow-blue-500/25 transition-all">
-                                <i class="fa-solid fa-arrow-up-right-from-square text-[11px]"></i>
-                                <span>យក API Key ពី Google (ឥតគិតថ្លៃ)</span>
-                            </a>
-                        </div>
-                        
-                        <div class="bg-[#20202b] border border-[#2e2e3a] rounded-2xl p-6 hover:border-[#00e5cc]/40 transition-colors shadow-lg relative group">
-                            <!-- Gradient Top Border -->
-                            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#4285F4] via-[#EA4335] via-[#FBBC05] to-[#34A853] rounded-t-2xl opacity-70 group-hover:opacity-100 transition-opacity"></div>
-                            
-                            <!-- Steps Helper Banner -->
-                            <div class="bg-[#15151c] rounded-xl p-3.5 mb-5 border border-white/5 flex items-start gap-3">
-                                <i class="fa-solid fa-circle-info text-blue-400 mt-0.5 text-sm"></i>
-                                <div class="text-[11.5px] text-[#9ca3af] leading-relaxed">
-                                    <span class="text-white font-bold block mb-1">របៀបភ្ជាប់ជាមួយ Google Gemini (៣ ជំហានងាយៗ)៖</span>
-                                    ១. ចុចប៊ូតុងពណ៌ខៀវខាងលើ <b class="text-blue-400">«យក API Key ពី Google»</b> ដើម្បីបើកទំព័រ Google AI Studio<br>
-                                    ២. ចុចលើប៊ូតុង <b class="text-white">«Create API key»</b> រួច Copy Key នោះ (ផ្តើមដោយ <code class="text-[#00e5cc]">AIzaSy...</code>)<br>
-                                    ៣. យកមក Paste ចូលប្រអប់ខាងក្រោម រួចចុច <b class="text-emerald-400">«សាកល្បងតភ្ជាប់ (Test Connection)»</b>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                                <div class="md:col-span-2 space-y-1.5">
-                                    <label class="block text-[11px] font-bold text-slate-300">Google Gemini API Key</label>
-                                    <div class="relative group/input">
-                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                            <i class="fa-solid fa-key text-[13px] text-[#788294] group-focus-within/input:text-[#00e5cc] transition-colors"></i>
-                                        </div>
-                                        <input id="customApiKeyInput" type="password" placeholder="បិទភ្ជាប់ API Key ទីនេះ (AIzaSy...)" class="w-full bg-[#15151c] border border-[#2b2b36] rounded-xl py-3 pl-11 pr-10 text-[12.5px] text-white focus:outline-none focus:border-[#00e5cc] focus:ring-1 focus:ring-[#00e5cc]/30 transition-all font-mono">
-                                        <button class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#6b7280] hover:text-white transition-colors" onclick="togglePasswordVisibility('customApiKeyInput', this)">
-                                            <i class="fa-solid fa-eye text-[13px]"></i>
-                                        </button>
+                    <!-- ==================== PANEL 1: API KEYS ==================== -->
+                    <div id="setPanel-apikeys" class="settings-content-panel relative z-10 space-y-8">
+                        <div>
+                            <div class="flex items-center justify-between mb-4 ml-1">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500/20 via-red-500/10 to-yellow-500/20 flex items-center justify-center border border-white/10 shadow-sm">
+                                        <i class="fa-brands fa-google text-lg text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-white text-[14px] font-extrabold tracking-wide flex items-center gap-2">
+                                            Google Gemini AI Studio
+                                            <span id="googleApiStatusBadge" class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/30">
+                                                🔴 មិនទាន់ភ្ជាប់ (Disconnected)
+                                            </span>
+                                        </h3>
+                                        <p class="text-[11px] text-[#788294]">តភ្ជាប់ទៅកាន់ម៉ូដែល AI របស់ Google ដោយផ្ទាល់ដើម្បីបង្កើតសម្រាយរឿង និងនិទានរឿងពិតៗ</p>
                                     </div>
                                 </div>
 
-                                <div class="space-y-1.5">
-                                    <label class="block text-[11px] font-bold text-slate-300">ម៉ូដែល AI (AI Model)</label>
-                                    <select id="geminiModelSelect" class="w-full bg-[#15151c] border border-[#2b2b36] rounded-xl py-3 px-3 text-[12px] text-white focus:outline-none focus:border-[#00e5cc] transition-all cursor-pointer font-medium">
-                                        <option value="gemini-1.5-flash">Gemini 1.5 Flash (លឿន & ណែនាំ)</option>
-                                        <option value="gemini-2.0-flash">Gemini 2.0 Flash (ជំនាន់ចុងក្រោយ)</option>
-                                        <option value="gemini-1.5-pro">Gemini 1.5 Pro (ឆ្លាតវៃស៊ីជម្រៅ)</option>
-                                    </select>
-                                </div>
+                                <!-- Direct Button to Google AI Studio -->
+                                <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-[12px] flex items-center gap-2 shadow-md hover:shadow-blue-500/25 transition-all">
+                                    <i class="fa-solid fa-arrow-up-right-from-square text-[11px]"></i>
+                                    <span>យក API Key ពី Google (ឥតគិតថ្លៃ)</span>
+                                </a>
                             </div>
                             
-                            <div class="flex items-center justify-between pt-4 border-t border-[#2b2b36]">
-                                <button onclick="testGoogleApiKey()" id="testApiKeyBtn" class="px-5 py-2.5 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 text-blue-300 hover:text-white transition-all text-[12px] font-bold flex items-center gap-2">
-                                    <i id="testApiKeyIcon" class="fa-solid fa-plug-circle-bolt text-blue-400"></i>
-                                    <span id="testApiKeyText">សាកល្បងតភ្ជាប់ (Test Connection)</span>
-                                </button>
+                            <div class="bg-[#20202b] border border-[#2e2e3a] rounded-2xl p-6 hover:border-[#00e5cc]/40 transition-colors shadow-lg relative group">
+                                <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#4285F4] via-[#EA4335] via-[#FBBC05] to-[#34A853] rounded-t-2xl opacity-70 group-hover:opacity-100 transition-opacity"></div>
+                                
+                                <div class="bg-[#15151c] rounded-xl p-3.5 mb-5 border border-white/5 flex items-start gap-3">
+                                    <i class="fa-solid fa-circle-info text-blue-400 mt-0.5 text-sm"></i>
+                                    <div class="text-[11.5px] text-[#9ca3af] leading-relaxed">
+                                        <span class="text-white font-bold block mb-1">របៀបភ្ជាប់ជាមួយ Google Gemini (៣ ជំហានងាយៗ)៖</span>
+                                        ១. ចុចប៊ូតុងពណ៌ខៀវខាងលើ <b class="text-blue-400">«យក API Key ពី Google»</b> ដើម្បីបើកទំព័រ Google AI Studio<br>
+                                        ២. ចុចលើប៊ូតុង <b class="text-white">«Create API key»</b> រួច Copy Key នោះ (ផ្តើមដោយ <code class="text-[#00e5cc]">AIzaSy...</code>)<br>
+                                        ៣. យកមក Paste ចូលប្រអប់ខាងក្រោម រួចចុច <b class="text-emerald-400">«សាកល្បងតភ្ជាប់ (Test Connection)»</b>
+                                    </div>
+                                </div>
 
-                                <div class="flex items-center gap-3">
-                                    <button onclick="toggleApiModal()" class="px-5 py-2.5 rounded-xl bg-[#252530] hover:bg-[#2b2b36] border border-[#323240] transition-colors text-[12px] font-bold text-white shadow-sm">
-                                        បិទផ្ទាំង (Cancel)
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+                                    <div class="space-y-1.5">
+                                        <label class="block text-[11px] font-bold text-slate-300">Google Gemini API Key</label>
+                                        <div class="relative group/input">
+                                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                                <i class="fa-solid fa-key text-[13px] text-[#788294] group-focus-within/input:text-[#00e5cc] transition-colors"></i>
+                                            </div>
+                                            <input id="customApiKeyInput" type="password" placeholder="បិទភ្ជាប់ API Key ទីនេះ (AIzaSy...)" class="w-full bg-[#15151c] border border-[#2b2b36] rounded-xl py-3 pl-11 pr-10 text-[12.5px] text-white focus:outline-none focus:border-[#00e5cc] focus:ring-1 focus:ring-[#00e5cc]/30 transition-all font-mono">
+                                            <button type="button" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#6b7280] hover:text-white transition-colors" onclick="togglePasswordVisibility('customApiKeyInput', this)">
+                                                <i class="fa-solid fa-eye text-[13px]"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-1.5">
+                                        <label class="block text-[11px] font-bold text-slate-300">ម៉ូដែល AI (AI Model)</label>
+                                        <select id="geminiModelSelect" class="w-full bg-[#15151c] border border-[#2b2b36] rounded-xl py-3 px-3 text-[12px] text-white focus:outline-none focus:border-[#00e5cc] transition-all cursor-pointer font-medium">
+                                            <option value="gemini-1.5-flash">Gemini 1.5 Flash (លឿន & ណែនាំ)</option>
+                                            <option value="gemini-2.0-flash">Gemini 2.0 Flash (ជំនាន់ចុងក្រោយ)</option>
+                                            <option value="gemini-1.5-pro">Gemini 1.5 Pro (ឆ្លាតវៃស៊ីជម្រៅ)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between pt-4 border-t border-[#2b2b36]">
+                                    <button onclick="testGoogleApiKey()" id="testApiKeyBtn" class="px-5 py-2.5 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 text-blue-300 hover:text-white transition-all text-[12px] font-bold flex items-center gap-2 cursor-pointer">
+                                        <i id="testApiKeyIcon" class="fa-solid fa-plug-circle-bolt text-blue-400"></i>
+                                        <span id="testApiKeyText">សាកល្បងតភ្ជាប់ (Test Connection)</span>
                                     </button>
-                                    <button onclick="saveCustomApiKey()" class="group/btn px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#00e5cc] to-[#00b3a0] hover:from-[#00f2d8] hover:to-[#00ccb6] text-[#051124] transition-all text-[12px] font-extrabold shadow-[0_0_15px_rgba(0,229,204,0.3)] hover:shadow-[0_0_25px_rgba(0,229,204,0.5)] flex items-center gap-2 overflow-hidden relative">
-                                        <i class="fa-solid fa-check relative z-10"></i> 
-                                        <span class="relative z-10">រក្សាទុក (Save)</span>
-                                    </button>
+
+                                    <div class="flex items-center gap-3">
+                                        <button onclick="toggleApiModal()" class="px-5 py-2.5 rounded-xl bg-[#252530] hover:bg-[#2b2b36] border border-[#323240] transition-colors text-[12px] font-bold text-white shadow-sm cursor-pointer">
+                                            បិទផ្ទាំង (Cancel)
+                                        </button>
+                                        <button onclick="saveCustomApiKey()" class="group/btn px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#00e5cc] to-[#00b3a0] hover:from-[#00f2d8] hover:to-[#00ccb6] text-[#051124] transition-all text-[12px] font-extrabold shadow-[0_0_15px_rgba(0,229,204,0.3)] hover:shadow-[0_0_25px_rgba(0,229,204,0.5)] flex items-center gap-2 overflow-hidden relative cursor-pointer">
+                                            <i class="fa-solid fa-check relative z-10"></i> 
+                                            <span class="relative z-10">រក្សាទុក (Save)</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Secondary AI Services -->
+                        <div>
+                            <div class="flex items-center gap-2 mb-3 px-1">
+                                <i class="fa-solid fa-microchip text-slate-400 text-xs"></i>
+                                <span class="text-[12px] font-bold text-slate-300 uppercase tracking-wider">សេវាកម្ម AI ជំនួយផ្សេងទៀត (Other Providers)</span>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <div class="p-3.5 rounded-xl bg-[#181822] border border-[#282834] flex items-center justify-between">
+                                    <div class="flex items-center gap-2.5">
+                                        <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">O</div>
+                                        <div>
+                                            <div class="text-[11.5px] font-bold text-white">OpenAI GPT-4o</div>
+                                            <div class="text-[9.5px] text-[#788294]">Script Generator</div>
+                                        </div>
+                                    </div>
+                                    <span class="text-[9px] font-mono text-slate-400 bg-white/5 px-2 py-0.5 rounded border border-white/5">Optional</span>
+                                </div>
+                                <div class="p-3.5 rounded-xl bg-[#181822] border border-[#282834] flex items-center justify-between">
+                                    <div class="flex items-center gap-2.5">
+                                        <div class="w-7 h-7 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-xs">11</div>
+                                        <div>
+                                            <div class="text-[11.5px] font-bold text-white">ElevenLabs Voice</div>
+                                            <div class="text-[9.5px] text-[#788294]">Pro Khmer TTS</div>
+                                        </div>
+                                    </div>
+                                    <span class="text-[9px] font-mono text-slate-400 bg-white/5 px-2 py-0.5 rounded border border-white/5">Optional</span>
+                                </div>
+                                <div class="p-3.5 rounded-xl bg-[#181822] border border-[#282834] flex items-center justify-between">
+                                    <div class="flex items-center gap-2.5">
+                                        <div class="w-7 h-7 rounded-lg bg-orange-500/20 text-orange-400 flex items-center justify-center font-bold text-xs">C</div>
+                                        <div>
+                                            <div class="text-[11.5px] font-bold text-white">Claude 3.5 Sonnet</div>
+                                            <div class="text-[9.5px] text-[#788294]">Deep Analysis</div>
+                                        </div>
+                                    </div>
+                                    <span class="text-[9px] font-mono text-slate-400 bg-white/5 px-2 py-0.5 rounded border border-white/5">Optional</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- WORKSPACE Group -->
-                    <div class="mb-4 relative z-10">
-                        <div class="flex items-center gap-3 mb-4 ml-1 opacity-70">
-                            <div class="w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
-                                <i class="fa-solid fa-layer-group text-indigo-400 text-[13px]"></i>
+                    <!-- ==================== PANEL 2: VOICE ENGINE ==================== -->
+                    <div id="setPanel-voice" class="settings-content-panel hidden relative z-10 space-y-6">
+                        <div class="flex items-center justify-between border-b border-[#282834] pb-4">
+                            <div>
+                                <h3 class="text-white text-base font-extrabold flex items-center gap-2">
+                                    <i class="fa-solid fa-microphone-lines text-rose-500"></i>
+                                    Voice Engine Studio (ប្រព័ន្ធសំឡេង AI)
+                                    <span class="text-[9px] bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded font-extrabold border border-rose-500/40">PRO VOICE</span>
+                                </h3>
+                                <p class="text-[11px] text-[#788294] mt-0.5">កំណត់តួអង្គសំឡេងនិយាយសម្រាយរឿង និងរៀបចំកម្រិតល្បឿន និងអារម្មណ៍</p>
                             </div>
-                            <h3 class="text-indigo-400 text-[12px] font-extrabold tracking-[0.2em] uppercase">Workspace <span class="text-[9px] bg-indigo-500/20 px-2 py-0.5 rounded text-indigo-300 ml-2 border border-indigo-500/30">COMING SOON</span></h3>
+                            <button onclick="testVoicePreviewAudio()" class="px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-[11px] flex items-center gap-1.5 shadow-md shadow-rose-600/30 cursor-pointer">
+                                <i class="fa-solid fa-play text-[10px]"></i> សាកល្បងស្តាប់សំឡេង
+                            </button>
                         </div>
-                        
-                        <div class="bg-[#20202b]/50 border border-[#2e2e3a]/50 rounded-2xl overflow-hidden backdrop-blur-sm">
-                            <div class="flex items-center justify-between p-5 border-b border-[#2b2b36]/50 opacity-60">
-                                <div>
-                                    <span class="text-[13px] font-bold text-white block mb-0.5">Auto-save project</span>
-                                    <span class="text-[11px] text-[#9ca3af]">Automatically sync your edits to local storage.</span>
+
+                        <!-- Voice Model Cards -->
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-300 mb-2">ជ្រើសរើសតួអង្គសំឡេង AI (Voice Characters)</label>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="settingsVoiceCards">
+                                <div onclick="selectVoiceSettingCard(this, 'Kore')" class="voice-card active p-3 rounded-xl bg-[#20202b] border-2 border-[#00e5cc] flex items-center justify-between cursor-pointer transition-all hover:bg-[#252535]">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">K</div>
+                                        <div>
+                                            <div class="text-[12px] font-bold text-white flex items-center gap-1.5">Kore <span class="text-[9px] bg-[#00e5cc]/20 text-[#00e5cc] px-1.5 py-0.2 rounded font-bold">Default</span></div>
+                                            <div class="text-[10px] text-[#8e8e98]">សំឡេងប្រុសមាំ ម៉ឺងម៉ាត់ (សម្រាប់សម្រាយរឿង)</div>
+                                        </div>
+                                    </div>
+                                    <i class="fa-solid fa-circle-check text-[#00e5cc] text-sm"></i>
                                 </div>
-                                <label class="relative inline-flex items-center cursor-not-allowed">
-                                    <input type="checkbox" class="sr-only peer" checked disabled>
-                                    <div class="w-10 h-5 bg-[#32323a] rounded-full peer peer-checked:bg-[#32323a]"></div>
-                                    <div class="absolute left-1 top-1 bg-[#6b7280] w-3 h-3 rounded-full transition-all peer-checked:translate-x-5 shadow-sm"></div>
+                                <div onclick="selectVoiceSettingCard(this, 'Phoebe')" class="voice-card p-3 rounded-xl bg-[#181822] border border-[#2b2b36] flex items-center justify-between cursor-pointer transition-all hover:bg-[#252535]">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">P</div>
+                                        <div>
+                                            <div class="text-[12px] font-bold text-white">Phoebe</div>
+                                            <div class="text-[10px] text-[#8e8e98]">សំឡេងស្រីស្រទន់ រៀបរាប់ពីរោះរលូន</div>
+                                        </div>
+                                    </div>
+                                    <i class="fa-solid fa-circle text-slate-600 text-sm"></i>
+                                </div>
+                                <div onclick="selectVoiceSettingCard(this, 'Aoede')" class="voice-card p-3 rounded-xl bg-[#181822] border border-[#2b2b36] flex items-center justify-between cursor-pointer transition-all hover:bg-[#252535]">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">A</div>
+                                        <div>
+                                            <div class="text-[12px] font-bold text-white">Aoede</div>
+                                            <div class="text-[10px] text-[#8e8e98]">សំឡេងរំជួលចិត្ត ជក់ចិត្តដិតអារម្មណ៍</div>
+                                        </div>
+                                    </div>
+                                    <i class="fa-solid fa-circle text-slate-600 text-sm"></i>
+                                </div>
+                                <div onclick="selectVoiceSettingCard(this, 'Fenrir')" class="voice-card p-3 rounded-xl bg-[#181822] border border-[#2b2b36] flex items-center justify-between cursor-pointer transition-all hover:bg-[#252535]">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">F</div>
+                                        <div>
+                                            <div class="text-[12px] font-bold text-white">Fenrir</div>
+                                            <div class="text-[10px] text-[#8e8e98]">សំឡេងធ្ងន់ អាថ៌កំបាំង រន្ធត់</div>
+                                        </div>
+                                    </div>
+                                    <i class="fa-solid fa-circle text-slate-600 text-sm"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Speed & Pitch Sliders -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-[#181822] p-4 rounded-xl border border-[#2b2b36]">
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center text-[11px] font-bold">
+                                    <span class="text-slate-300">ល្បឿននិយាយ (Speed Rate)</span>
+                                    <span id="voiceSpeedDisplay" class="text-[#00e5cc] font-mono">1.0x</span>
+                                </div>
+                                <input type="range" id="voiceSpeedRange" min="0.7" max="1.5" step="0.05" value="1.0" oninput="document.getElementById('voiceSpeedDisplay').textContent = this.value + 'x'" class="w-full accent-[#00e5cc] cursor-pointer">
+                            </div>
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center text-[11px] font-bold">
+                                    <span class="text-slate-300">កម្រិតសូរសៀង (Pitch)</span>
+                                    <span id="voicePitchDisplay" class="text-[#00e5cc] font-mono">ធម្មជាតិ (0)</span>
+                                </div>
+                                <input type="range" id="voicePitchRange" min="-4" max="4" step="1" value="0" oninput="document.getElementById('voicePitchDisplay').textContent = (this.value > 0 ? '+' : '') + this.value" class="w-full accent-[#00e5cc] cursor-pointer">
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end pt-2">
+                            <button onclick="saveVoiceSettings()" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#00e5cc] to-[#00b3a0] text-black font-extrabold text-[12px] shadow-md hover:brightness-110 cursor-pointer">
+                                រក្សាទុកការកំណត់សំឡេង
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- ==================== PANEL 3: GENERAL SETTINGS ==================== -->
+                    <div id="setPanel-general" class="settings-content-panel hidden relative z-10 space-y-6">
+                        <div class="border-b border-[#282834] pb-4">
+                            <h3 class="text-white text-base font-extrabold flex items-center gap-2">
+                                <i class="fa-solid fa-sliders text-blue-400"></i>
+                                General Settings (ការកំណត់ទូទៅ)
+                            </h3>
+                            <p class="text-[11px] text-[#788294] mt-0.5">គ្រប់គ្រងគម្រោង ការរក្សាទុកស្វ័យប្រវត្តិ និងទំហំវីដេអូ</p>
+                        </div>
+
+                        <div class="space-y-4">
+                            <!-- Option 1: Auto-save -->
+                            <div class="p-4 rounded-xl bg-[#181822] border border-[#2b2b36] flex items-center justify-between">
+                                <div>
+                                    <div class="text-[12.5px] font-bold text-white">រក្សាទុកការងារស្វ័យប្រវត្តិ (Auto-save)</div>
+                                    <div class="text-[11px] text-[#8e8e98]">រក្សាទុកការកែសម្រួល Timeline និង Script រៀងរាល់ ៣០ វិនាទីម្តង</div>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="genAutoSaveToggle" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-[#2a2a35] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#00e5cc]"></div>
                                 </label>
                             </div>
-                            <div class="flex items-center justify-between p-5 opacity-60">
+
+                            <!-- Option 2: Default Ratio -->
+                            <div class="p-4 rounded-xl bg-[#181822] border border-[#2b2b36] flex items-center justify-between">
                                 <div>
-                                    <span class="text-[13px] font-bold text-white block mb-0.5">High quality timeline preview</span>
-                                    <span class="text-[11px] text-[#9ca3af]">Render timeline clips in full 1080p resolution.</span>
+                                    <div class="text-[12.5px] font-bold text-white">ទំហំវីដេអូលំនាំដើម (Default Aspect Ratio)</div>
+                                    <div class="text-[11px] text-[#8e8e98]">ជ្រើសរើសទំហំវីដេអូសម្រាប់ YouTube ឬ TikTok</div>
                                 </div>
-                                <label class="relative inline-flex items-center cursor-not-allowed">
-                                    <input type="checkbox" class="sr-only peer" disabled>
-                                    <div class="w-10 h-5 bg-[#32323a] rounded-full peer"></div>
-                                    <div class="absolute left-1 top-1 bg-[#6b7280] w-3 h-3 rounded-full transition-all peer-checked:translate-x-5 shadow-sm"></div>
-                                </label>
+                                <select id="genDefaultRatio" class="bg-[#121218] border border-[#2e2e3a] text-slate-200 text-[11.5px] rounded-lg px-3 py-1.5 outline-none cursor-pointer">
+                                    <option value="16:9">16:9 (YouTube Landscape)</option>
+                                    <option value="9:16">9:16 (TikTok / Reels Vertical)</option>
+                                </select>
+                            </div>
+
+                            <!-- Option 3: Export Resolution -->
+                            <div class="p-4 rounded-xl bg-[#181822] border border-[#2b2b36] flex items-center justify-between">
+                                <div>
+                                    <div class="text-[12.5px] font-bold text-white">កម្រិតរូបភាពពេល Export (Video Resolution)</div>
+                                    <div class="text-[11px] text-[#8e8e98]">កម្រិតច្បាស់ពេលទាញយកវីដេអូសម្រាយរឿង</div>
+                                </div>
+                                <select id="genExportRes" class="bg-[#121218] border border-[#2e2e3a] text-slate-200 text-[11.5px] rounded-lg px-3 py-1.5 outline-none cursor-pointer">
+                                    <option value="1080p">1080p Full HD (60fps - ណែនាំ)</option>
+                                    <option value="4k">4K Ultra HD (30fps)</option>
+                                    <option value="720p">720p HD</option>
+                                </select>
+                            </div>
+
+                            <!-- Danger Zone -->
+                            <div class="p-4 rounded-xl bg-rose-950/20 border border-rose-500/30 flex items-center justify-between">
+                                <div>
+                                    <div class="text-[12.5px] font-bold text-rose-300">សម្អាតទិន្នន័យគម្រោង (Reset Project)</div>
+                                    <div class="text-[11px] text-[#8e8e98]">លុបសម្ភារៈលើ Timeline និងអត្ថបទចាស់ៗចេញទាំងអស់</div>
+                                </div>
+                                <button onclick="resetWorkspaceData()" class="px-3.5 py-1.5 rounded-lg bg-rose-600/30 hover:bg-rose-600 border border-rose-500/50 text-rose-200 hover:text-white text-[11px] font-bold transition-all cursor-pointer">
+                                    Reset Workspace
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end pt-2">
+                            <button onclick="showToast('បានរក្សាទុកការកំណត់ទូទៅ!', 'success')" class="px-6 py-2.5 rounded-xl bg-[#00e5cc] text-black font-extrabold text-[12px] cursor-pointer">
+                                រក្សាទុក
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- ==================== PANEL 4: APPEARANCE ==================== -->
+                    <div id="setPanel-appearance" class="settings-content-panel hidden relative z-10 space-y-6">
+                        <div class="border-b border-[#282834] pb-4">
+                            <h3 class="text-white text-base font-extrabold flex items-center gap-2">
+                                <i class="fa-solid fa-palette text-purple-400"></i>
+                                Appearance & Themes (រូបរាង និងពណ៌ស្ទាយ)
+                            </h3>
+                            <p class="text-[11px] text-[#788294] mt-0.5">ប្តូរពណ៌ Theme តាមចំណូលចិត្តរបស់អ្នក</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-300 mb-3">ពណ៌ Theme ស្តូឌីយោ (Studio Color Themes)</label>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                <div onclick="applyThemePreset('capcut')" class="theme-card active p-3 rounded-xl bg-[#14141c] border-2 border-[#00e5cc] cursor-pointer text-center group hover:scale-[1.02] transition-transform">
+                                    <div class="h-10 rounded-lg bg-gradient-to-r from-[#0e0e12] to-[#181822] border border-[#2b2b36] mb-2 flex items-center justify-center">
+                                        <div class="w-4 h-4 rounded-full bg-[#00e5cc] shadow-[0_0_8px_#00e5cc]"></div>
+                                    </div>
+                                    <div class="text-[11px] font-bold text-white">Cyber CapCut</div>
+                                    <div class="text-[9px] text-[#00e5cc]">Default Dark</div>
+                                </div>
+
+                                <div onclick="applyThemePreset('midnight')" class="theme-card p-3 rounded-xl bg-[#14141c] border border-[#2b2b36] cursor-pointer text-center group hover:scale-[1.02] transition-transform">
+                                    <div class="h-10 rounded-lg bg-gradient-to-r from-[#090d16] to-[#121c2e] border border-[#2b2b36] mb-2 flex items-center justify-center">
+                                        <div class="w-4 h-4 rounded-full bg-[#3b82f6] shadow-[0_0_8px_#3b82f6]"></div>
+                                    </div>
+                                    <div class="text-[11px] font-bold text-white">Midnight Blue</div>
+                                    <div class="text-[9px] text-blue-400">Deep Blue</div>
+                                </div>
+
+                                <div onclick="applyThemePreset('emerald')" class="theme-card p-3 rounded-xl bg-[#14141c] border border-[#2b2b36] cursor-pointer text-center group hover:scale-[1.02] transition-transform">
+                                    <div class="h-10 rounded-lg bg-gradient-to-r from-[#0a1410] to-[#12241d] border border-[#2b2b36] mb-2 flex items-center justify-center">
+                                        <div class="w-4 h-4 rounded-full bg-[#10b981] shadow-[0_0_8px_#10b981]"></div>
+                                    </div>
+                                    <div class="text-[11px] font-bold text-white">Emerald Matrix</div>
+                                    <div class="text-[9px] text-emerald-400">Forest Neon</div>
+                                </div>
+
+                                <div onclick="applyThemePreset('purple')" class="theme-card p-3 rounded-xl bg-[#14141c] border border-[#2b2b36] cursor-pointer text-center group hover:scale-[1.02] transition-transform">
+                                    <div class="h-10 rounded-lg bg-gradient-to-r from-[#140a1c] to-[#241232] border border-[#2b2b36] mb-2 flex items-center justify-center">
+                                        <div class="w-4 h-4 rounded-full bg-[#a855f7] shadow-[0_0_8px_#a855f7]"></div>
+                                    </div>
+                                    <div class="text-[11px] font-bold text-white">Royal Amethyst</div>
+                                    <div class="text-[9px] text-purple-400">Velvet Dark</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Font Family Selection -->
+                        <div class="p-4 rounded-xl bg-[#181822] border border-[#2b2b36] flex items-center justify-between">
+                            <div>
+                                <div class="text-[12.5px] font-bold text-white">ពុម្ពអក្សរខ្មែរ (Khmer Typography)</div>
+                                <div class="text-[11px] text-[#8e8e98]">ជ្រើសរើសទម្រង់អក្សរសម្រាប់បង្ហាញលើអេក្រង់</div>
+                            </div>
+                            <select id="fontSelect" onchange="document.body.style.fontFamily = this.value" class="bg-[#121218] border border-[#2e2e3a] text-slate-200 text-[11.5px] rounded-lg px-3 py-1.5 outline-none cursor-pointer">
+                                <option value="'Kantumruy Pro', sans-serif">Kantumruy Pro (ណែនាំ - ទំនើប)</option>
+                                <option value="'Battambang', sans-serif">Battambang (បុរាណ)</option>
+                                <option value="'Inter', sans-serif">Inter (អន្តរជាតិ)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- ==================== PANEL 5: AUTO TOOLS ==================== -->
+                    <div id="setPanel-tools" class="settings-content-panel hidden relative z-10 space-y-6">
+                        <div class="border-b border-[#282834] pb-4">
+                            <h3 class="text-white text-base font-extrabold flex items-center gap-2">
+                                <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i>
+                                Auto Tools (ប្រព័ន្ធកាត់តស្វ័យប្រវត្តិ)
+                            </h3>
+                            <p class="text-[11px] text-[#788294] mt-0.5">ការកំណត់កាត់ឈុតវីដេអូអូតូ និងភ្លេងកំដរ BGM</p>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="p-4 rounded-xl bg-[#181822] border border-[#2b2b36] space-y-2">
+                                <div class="flex justify-between items-center text-[12px] font-bold text-slate-200">
+                                    <span>កម្រិតសំឡេងភ្លេងកំដរ (Auto BGM Volume Balance)</span>
+                                    <span id="bgmVolDisplay" class="text-amber-400 font-mono">20%</span>
+                                </div>
+                                <input type="range" min="5" max="50" step="5" value="20" oninput="document.getElementById('bgmVolDisplay').textContent = this.value + '%'" class="w-full accent-amber-400 cursor-pointer">
+                                <div class="text-[10px] text-[#788294]">កម្រិត ២០% គឺល្អបំផុត ដើម្បីកុំឱ្យលុបលើសំឡេងអ្នកសម្រាយរឿង</div>
+                            </div>
+
+                            <div class="p-4 rounded-xl bg-[#181822] border border-[#2b2b36] flex items-center justify-between">
+                                <div>
+                                    <div class="text-[12.5px] font-bold text-white">ប្រវែងកាត់ឈុតវីដេអូអូតូ (Auto Split Scene Duration)</div>
+                                    <div class="text-[11px] text-[#8e8e98]">រយៈពេលនៃឈុតនីមួយៗពេលកាត់តវីដេអូស្វ័យប្រវត្តិ</div>
+                                </div>
+                                <select class="bg-[#121218] border border-[#2e2e3a] text-slate-200 text-[11.5px] rounded-lg px-3 py-1.5 outline-none cursor-pointer">
+                                    <option value="3">ឈុតខ្លីៗ (៣ វិនាទី - លឿន ជក់ចិត្ត)</option>
+                                    <option value="5" selected>ឈុតមធ្យម (៥ វិនាទី - ស្តង់ដារ)</option>
+                                    <option value="8">ឈុតវែង (៨ វិនាទី - រៀបរាប់ពិស្តារ)</option>
+                                </select>
+                            </div>
+
+                            <div class="p-4 rounded-xl bg-[#181822] border border-[#2b2b36] flex items-center justify-between">
+                                <div>
+                                    <div class="text-[12.5px] font-bold text-white">ពណ៌អក្សររំលេច Subtitle (Highlight Color)</div>
+                                    <div class="text-[11px] text-[#8e8e98]">ពណ៌សម្រាប់ពាក្យកំពុងអានលើផ្ទាំងវីដេអូ</div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button class="w-6 h-6 rounded-full bg-amber-400 ring-2 ring-white/50 cursor-pointer"></button>
+                                    <button class="w-6 h-6 rounded-full bg-[#00e5cc] hover:scale-110 transition-transform cursor-pointer"></button>
+                                    <button class="w-6 h-6 rounded-full bg-white hover:scale-110 transition-transform cursor-pointer"></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ==================== PANEL 6: SHORTCUTS ==================== -->
+                    <div id="setPanel-shortcuts" class="settings-content-panel hidden relative z-10 space-y-6">
+                        <div class="border-b border-[#282834] pb-4">
+                            <h3 class="text-white text-base font-extrabold flex items-center gap-2">
+                                <i class="fa-solid fa-keyboard text-sky-400"></i>
+                                Keyboard Shortcuts (គ្រាប់ចុចកាត់)
+                            </h3>
+                            <p class="text-[11px] text-[#788294] mt-0.5">បញ្ជាការកាត់ត និងចាក់វីដេអូបានលឿនជាងមុន</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-[12px]">
+                            <div class="p-3 rounded-xl bg-[#181822] border border-[#2b2b36] flex items-center justify-between">
+                                <span class="text-slate-300 font-medium">ចាក់ / ផ្អាក (Play / Pause)</span>
+                                <kbd class="px-2.5 py-1 bg-[#22222e] border border-[#3b3b4a] rounded text-[11px] font-mono text-[#00e5cc] font-bold">Space</kbd>
+                            </div>
+                            <div class="p-3 rounded-xl bg-[#181822] border border-[#2b2b36] flex items-center justify-between">
+                                <span class="text-slate-300 font-medium">កាត់តឈុតត្រង់ Playhead (Split)</span>
+                                <kbd class="px-2.5 py-1 bg-[#22222e] border border-[#3b3b4a] rounded text-[11px] font-mono text-[#00e5cc] font-bold">S</kbd>
+                            </div>
+                            <div class="p-3 rounded-xl bg-[#181822] border border-[#2b2b36] flex items-center justify-between">
+                                <span class="text-slate-300 font-medium">លុបឈុតដែលជ្រើសរើស (Delete)</span>
+                                <kbd class="px-2.5 py-1 bg-[#22222e] border border-[#3b3b4a] rounded text-[11px] font-mono text-rose-400 font-bold">Del</kbd>
+                            </div>
+                            <div class="p-3 rounded-xl bg-[#181822] border border-[#2b2b36] flex items-center justify-between">
+                                <span class="text-slate-300 font-medium">ត្រឡប់ក្រោយ (Undo)</span>
+                                <kbd class="px-2.5 py-1 bg-[#22222e] border border-[#3b3b4a] rounded text-[11px] font-mono text-slate-200 font-bold">Ctrl + Z</kbd>
+                            </div>
+                            <div class="p-3 rounded-xl bg-[#181822] border border-[#2b2b36] flex items-center justify-between">
+                                <span class="text-slate-300 font-medium">ទៅមុខ (Redo)</span>
+                                <kbd class="px-2.5 py-1 bg-[#22222e] border border-[#3b3b4a] rounded text-[11px] font-mono text-slate-200 font-bold">Ctrl + Y</kbd>
+                            </div>
+                            <div class="p-3 rounded-xl bg-[#181822] border border-[#2b2b36] flex items-center justify-between">
+                                <span class="text-slate-300 font-medium">បិទ/បើកសំឡេង (Mute Track)</span>
+                                <kbd class="px-2.5 py-1 bg-[#22222e] border border-[#3b3b4a] rounded text-[11px] font-mono text-slate-200 font-bold">M</kbd>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ==================== PANEL 7: ABOUT ==================== -->
+                    <div id="setPanel-about" class="settings-content-panel hidden relative z-10 space-y-6">
+                        <div class="border-b border-[#282834] pb-4">
+                            <h3 class="text-white text-base font-extrabold flex items-center gap-2">
+                                <i class="fa-solid fa-circle-info text-emerald-400"></i>
+                                About SoraVoiceAi Studio
+                            </h3>
+                            <p class="text-[11px] text-[#788294] mt-0.5">ព័ត៌មានប្រព័ន្ធ និងកំណែជំនាន់</p>
+                        </div>
+
+                        <div class="bg-[#181822] border border-[#2b2b36] rounded-2xl p-6 text-center space-y-3">
+                            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#00e5cc] to-[#008073] mx-auto flex items-center justify-center shadow-lg shadow-[#00e5cc]/20">
+                                <i class="fa-solid fa-wand-magic-sparkles text-2xl text-black"></i>
+                            </div>
+                            <div class="text-lg font-black text-white">SoraVoiceAi Studio <span class="text-xs bg-[#00e5cc]/20 text-[#00e5cc] px-2 py-0.5 rounded font-mono">v3.5 PRO</span></div>
+                            <p class="text-xs text-[#8e8e98] max-w-md mx-auto leading-relaxed">
+                                ប្រព័ន្ធផលិតវីដេអូសម្រាយរឿង និងបកប្រែរឿងដោយបញ្ញាសិប្បនិម្មិត (AI) ដំបូងគេបង្អស់សម្រាប់ភាសាខ្មែរ រួមបញ្ចូលជាមួយ Google Gemini AI និង CapCut Dark Timeline Engine។
+                            </p>
+                            <div class="pt-4 flex items-center justify-center gap-4 text-[11px] text-slate-400 border-t border-white/5">
+                                <span class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-emerald-400"></i> Google Gemini 1.5/2.0</span>
+                                <span class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-emerald-400"></i> Pro Voice TTS</span>
+                                <span class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-emerald-400"></i> 10+ Hours SRT</span>
                             </div>
                         </div>
                     </div>
