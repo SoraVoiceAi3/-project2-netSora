@@ -4,7 +4,7 @@ const apiKey = "";
         let centerStageMode = 'stage';
         let currentOutputText = '';
         let previousScriptSnapshot = '';
-        let timelineZoomScale = 22; // Default px per second
+        let timelineZoomScale = 10; // Default px per second (Adaptive 1 - 40)
 
         function updatePlayheadPosition(timeInSeconds) {
             const playhead = document.getElementById('timelinePlayhead');
@@ -16,7 +16,7 @@ const apiKey = "";
 
         function seekTimelineToPx(x) {
             const safeX = Math.max(0, x);
-            const time = safeX / (timelineZoomScale || 22);
+            const time = safeX / (timelineZoomScale || 10);
             const videoEl = document.getElementById('uploadedVideoPreview');
             
             if (videoEl && videoEl.src && !videoEl.classList.contains('hidden') && !isNaN(videoEl.duration) && videoEl.duration > 0) {
@@ -35,20 +35,16 @@ const apiKey = "";
         function handleZoomChange() {
             const slider = document.getElementById('timelineZoomSlider');
             if (slider) {
-                timelineZoomScale = parseInt(slider.value, 10);
-                if (typeof renderTimelineTracks === 'function') renderTimelineTracks();
-                if (typeof selectTimelineSegment === 'function' && timelineSegments && timelineSegments.length > 0) {
-                    selectTimelineSegment(activeSegmentIndex);
-                }
-                
-                // Update width of all media clips on timeline when zooming
+                timelineZoomScale = Math.max(1, parseInt(slider.value, 10) || 10);
+
+                // Update width of ALL media clips on timeline immediately
                 document.querySelectorAll('.timeline-clip').forEach(clip => {
-                    if (clip.dataset.baseWidth) {
-                        clip.style.width = `${timelineZoomScale * parseFloat(clip.dataset.baseWidth)}px`;
-                    }
+                    const baseW = parseFloat(clip.dataset.baseWidth) || 60;
+                    const newW = Math.max(40, timelineZoomScale * baseW);
+                    clip.style.width = `${newW}px`;
                 });
 
-                // Update ruler and container width
+                // Calculate current project / video time
                 const videoEl = document.getElementById('uploadedVideoPreview');
                 let totalSecs = 120;
                 let curTime = 0;
@@ -62,17 +58,19 @@ const apiKey = "";
                     curTime = acc;
                 }
 
+                // Re-render ruler with adaptive tick intervals
                 if (typeof renderTimelineRuler === 'function') {
-                    renderTimelineRuler(totalSecs + 60);
+                    renderTimelineRuler(totalSecs + 30);
                 }
 
-                const totalPx = Math.max(1200, (totalSecs + 60) * timelineZoomScale);
+                // Expand container width so scroll area matches zoomed clips
+                const totalPx = Math.max(1200, (totalSecs + 30) * timelineZoomScale);
                 const rulerWrapper = document.getElementById('timelineRulerWrapper');
                 if (rulerWrapper) rulerWrapper.style.minWidth = `${totalPx}px`;
                 const rowsContainer = document.getElementById('trackRowsContainer');
                 if (rowsContainer) rowsContainer.style.minWidth = `${totalPx}px`;
 
-                // Update playhead position to match current time
+                // Update playhead position to stay at exact same second
                 updatePlayheadPosition(curTime);
             }
         }
@@ -80,7 +78,7 @@ const apiKey = "";
         function changeZoom(delta) {
             const slider = document.getElementById('timelineZoomSlider');
             if (slider) {
-                let newVal = parseInt(slider.value, 10) + (delta * 10);
+                let newVal = parseInt(slider.value, 10) + (delta * 2);
                 newVal = Math.max(parseInt(slider.min), Math.min(parseInt(slider.max), newVal));
                 slider.value = newVal;
                 handleZoomChange();
@@ -1468,9 +1466,9 @@ const apiKey = "";
                 const existingClip = document.querySelector('#trackRow-video .timeline-clip');
                 if (existingClip) {
                     existingClip.dataset.baseWidth = dur;
-                    existingClip.style.width = `${dur * timelineZoomScale}px`;
+                    existingClip.style.width = `${Math.max(40, dur * timelineZoomScale)}px`;
                     const badge = existingClip.querySelector('span.font-mono');
-                    if (badge) badge.textContent = `00:00 - ${media.durationFormatted}`;
+                    if (badge) badge.textContent = media.durationFormatted;
                 }
 
                 // Reset playhead to 0
@@ -1685,36 +1683,52 @@ const apiKey = "";
             clip.dataset.baseWidth = baseWidth;
             
             if (type === 'video') {
-                // CapCut Video Clip Style: Taller clip, repeating thumbnail filmstrip
-                clip.className = 'timeline-clip h-[42px] rounded-sm flex items-center justify-between px-2 shrink-0 border border-[#2b2b33] hover:border-white relative overflow-hidden bg-[#1a1a24] text-slate-200 shadow-sm transition-colors cursor-pointer group';
-                clip.style.width = `${timelineZoomScale * baseWidth}px`;
-                clip.dataset.bgOffsetX = '0'; // Track background offset for seamless splits
+                // Sleek CapCut Desktop Video Clip: Dark indigo/slate card with single thumbnail preview, crisp metadata, and clean film perforations
+                clip.className = 'timeline-clip h-[42px] rounded-lg flex items-center justify-between px-2 shrink-0 border border-[#2d3248] hover:border-[#00e5cc] relative overflow-hidden bg-gradient-to-r from-[#1c2033] via-[#181b2c] to-[#141624] text-slate-200 shadow-md transition-all cursor-pointer group select-none';
+                clip.style.width = `${Math.max(40, timelineZoomScale * baseWidth)}px`;
+                clip.dataset.bgOffsetX = '0';
                 
-                let bgHtml = '';
+                let thumbHtml = '';
                 if (thumbnail) {
-                    // Repeating X to simulate film strip
-                    bgHtml = `<div class="absolute inset-0 opacity-80 pointer-events-none filmstrip-bg" style="background-image: url('${thumbnail}'); background-size: auto 100%; background-repeat: repeat-x; background-position-x: 0px;"></div>`;
+                    thumbHtml = `
+                        <div class="w-10 h-7 rounded bg-black/60 border border-white/20 overflow-hidden shrink-0 flex items-center justify-center mr-2 shadow-sm">
+                            <img src="${thumbnail}" class="w-full h-full object-cover" alt="Thumb">
+                        </div>
+                    `;
                 } else {
-                    bgHtml = `<div class="absolute inset-0 opacity-10 flex items-center justify-around pointer-events-none">
-                        <i class="fa-solid fa-image text-[12px]"></i>
-                        <i class="fa-solid fa-image text-[12px]"></i>
-                    </div>`;
+                    thumbHtml = `
+                        <div class="w-7 h-7 rounded bg-[#00e5cc]/15 text-[#00e5cc] border border-[#00e5cc]/30 flex items-center justify-center shrink-0 mr-2">
+                            <i class="fa-solid fa-film text-[11px]"></i>
+                        </div>
+                    `;
                 }
+
+                // Subtle filmstrip sprocket holes along top and bottom
+                const sprockets = `
+                    <div class="absolute top-0 left-0 right-0 h-[3px] opacity-25 pointer-events-none" style="background-image: repeating-linear-gradient(to right, #fff, #fff 4px, transparent 4px, transparent 10px);"></div>
+                    <div class="absolute bottom-0 left-0 right-0 h-[3px] opacity-25 pointer-events-none" style="background-image: repeating-linear-gradient(to right, #fff, #fff 4px, transparent 4px, transparent 10px);"></div>
+                `;
                 
                 clip.innerHTML = `
-                    ${bgHtml}
-                    <!-- Dark gradients on left and right edges so text is readable -->
-                    <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-transparent to-black/80 pointer-events-none"></div>
-                    <span class="relative z-10 font-mono text-[9px] font-semibold drop-shadow-[0_1px_1px_rgba(0,0,0,1)]">00:00 - ${durationBadge}</span>
-                    <span class="relative z-10 text-[9.5px] font-medium truncate max-w-[150px] drop-shadow-[0_1px_1px_rgba(0,0,0,1)]">${name}</span>
+                    ${sprockets}
+                    <div class="flex items-center min-w-0 z-10 pointer-events-none">
+                        ${thumbHtml}
+                        <div class="flex flex-col min-w-0 pr-2">
+                            <span class="text-white text-[11px] font-bold truncate max-w-[200px] leading-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">${name}</span>
+                            <span class="text-slate-400 text-[9px] font-mono leading-tight">1080P • Video</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1.5 z-10 shrink-0 pointer-events-none">
+                        <span class="px-1.5 py-0.5 rounded bg-black/60 text-[#00e5cc] font-mono text-[9.5px] font-bold border border-white/10 shadow-sm">${durationBadge}</span>
+                    </div>
                 `;
             } else {
                 // CapCut Audio Clip Style: Teal background, white waveform
-                clip.className = 'timeline-clip h-[30px] rounded flex items-center justify-start px-2 shrink-0 border border-[#1a8c88] hover:border-white relative overflow-hidden bg-[#146c68] text-[#e0f2f1] shadow-sm transition-colors cursor-pointer group';
-                clip.style.width = `${timelineZoomScale * baseWidth}px`;
+                clip.className = 'timeline-clip h-[32px] rounded-lg flex items-center justify-start px-2 shrink-0 border border-[#1a8c88] hover:border-white relative overflow-hidden bg-[#146c68] text-[#e0f2f1] shadow-sm transition-colors cursor-pointer group';
+                clip.style.width = `${Math.max(40, timelineZoomScale * baseWidth)}px`;
                 clip.innerHTML = `
                     <div class="absolute inset-0 opacity-30 flex items-center pointer-events-none overflow-hidden" style="background-image: repeating-linear-gradient(90deg, transparent, transparent 1px, #fff 1px, #fff 2px); background-size: 4px 60%; background-position: center; background-repeat: repeat-x;"></div>
-                    <i class="fa-solid fa-file-audio mr-1.5 text-[10px] relative z-10 drop-shadow-[0_1px_1px_rgba(0,0,0,1)]"></i>
+                    <i class="fa-solid fa-file-audio mr-1.5 text-[10px] relative z-10 drop-shadow-[0_1px_1px_rgba(0,0,0,1)] text-[#00e5cc]"></i>
                     <span class="truncate text-[9.5px] font-medium relative z-10 drop-shadow-[0_1px_1px_rgba(0,0,0,1)]">${name}</span>
                 `;
             }
@@ -2313,46 +2327,84 @@ const apiKey = "";
             });
 
             // Adjust width of track rows and ruler based on total duration to allow scrolling
-            const scrollWidth = (totalDuration * timelineZoomScale) + 200;
+            const videoEl = document.getElementById('uploadedVideoPreview');
+            let effectiveDuration = totalDuration;
+            if (videoEl && !isNaN(videoEl.duration) && videoEl.duration > 0) {
+                effectiveDuration = Math.max(effectiveDuration, videoEl.duration);
+            }
+            if (effectiveDuration <= 0) effectiveDuration = 120;
+
+            const scrollWidth = Math.max(1200, (effectiveDuration * timelineZoomScale) + 200);
             
             const rulerWrapper = document.getElementById('timelineRulerWrapper');
-            rulerWrapper.style.minWidth = `${scrollWidth}px`;
-            rulerWrapper.style.width = '100%'; // Stretches to fill container if clips are shorter
+            if (rulerWrapper) {
+                rulerWrapper.style.minWidth = `${scrollWidth}px`;
+                rulerWrapper.style.width = '100%';
+            }
             
             const rowsContainer = document.getElementById('trackRowsContainer');
-            rowsContainer.style.minWidth = `${scrollWidth}px`;
-            rowsContainer.style.width = '100%';
+            if (rowsContainer) {
+                rowsContainer.style.minWidth = `${scrollWidth}px`;
+                rowsContainer.style.width = '100%';
+            }
             
             // Clean up old hardcoded widths on individual rows
             textRow.style.width = '';
             videoRow.style.width = '';
             audioRow.style.width = '';
 
-            document.getElementById('timelineClipSummary').textContent = `${timelineSegments.length} ឈុតនៅលើ Timeline`;
-            document.getElementById('playerTotalTime').textContent = formatCapCutTimecode(totalDuration);
+            const summaryEl = document.getElementById('timelineClipSummary');
+            if (summaryEl) {
+                summaryEl.textContent = timelineSegments.length > 0 ? `${timelineSegments.length} ឈុតនៅលើ Timeline` : '1 វីដេអូលើ Timeline';
+            }
+            const totalTimeEl = document.getElementById('playerTotalTime');
+            if (totalTimeEl) {
+                totalTimeEl.textContent = formatCapCutTimecode(effectiveDuration);
+            }
             
-            renderTimelineRuler(totalDuration + 60); // give 60s buffer space
+            renderTimelineRuler(effectiveDuration + 30);
         }
 
         function renderTimelineRuler(totalSecs) {
             const shortTicks = document.getElementById('rulerShortTicks');
             const longTicks = document.getElementById('rulerLongTicks');
             const labelsContainer = document.getElementById('rulerTimeLabels');
+            if (!labelsContainer) return;
             
-            const pxPerSec = timelineZoomScale;
+            const pxPerSec = Math.max(1, timelineZoomScale);
             
-            // 1 sec ticks
-            shortTicks.style.backgroundImage = `repeating-linear-gradient(to right, transparent, transparent ${pxPerSec - 1}px, #3a3a46 ${pxPerSec - 1}px, #3a3a46 ${pxPerSec}px)`;
+            // Adaptive step for labels so they never collide or overlap at any zoom scale
+            let labelStep = 5;
+            if (pxPerSec < 2) {
+                labelStep = 60; // 1 min steps when zoomed out
+            } else if (pxPerSec < 4) {
+                labelStep = 30; // 30 sec steps
+            } else if (pxPerSec < 8) {
+                labelStep = 15; // 15 sec steps
+            } else if (pxPerSec < 14) {
+                labelStep = 10; // 10 sec steps
+            } else {
+                labelStep = 5;  // 5 sec steps
+            }
+
+            // 1 sec or small ticks
+            const shortTickStep = (pxPerSec < 4) ? Math.max(1, Math.round(labelStep / 5)) : 1;
+            const shortPx = Math.max(2, shortTickStep * pxPerSec);
+            if (shortTicks) {
+                shortTicks.style.backgroundImage = `repeating-linear-gradient(to right, transparent, transparent ${shortPx - 1}px, #3a3a46 ${shortPx - 1}px, #3a3a46 ${shortPx}px)`;
+            }
             
-            // 5 sec ticks
-            const fiveSecPx = pxPerSec * 5;
-            longTicks.style.backgroundImage = `repeating-linear-gradient(to right, transparent, transparent ${fiveSecPx - 1}px, #5a5a6a ${fiveSecPx - 1}px, #5a5a6a ${fiveSecPx}px)`;
+            // Major ticks
+            const longPx = labelStep * pxPerSec;
+            if (longTicks) {
+                longTicks.style.backgroundImage = `repeating-linear-gradient(to right, transparent, transparent ${longPx - 1}px, #5a5a6a ${longPx - 1}px, #5a5a6a ${longPx}px)`;
+            }
             
             labelsContainer.innerHTML = '';
             
-            // Generate labels for every 5 seconds up to totalSecs
-            const maxSeconds = Math.max(120, totalSecs); // at least 2 mins
-            for (let s = 0; s <= maxSeconds; s += 5) {
+            // Generate labels with adaptive step
+            const maxSeconds = Math.max(120, totalSecs);
+            for (let s = 0; s <= maxSeconds; s += labelStep) {
                 const span = document.createElement('span');
                 span.className = `absolute -translate-x-1/2 ${s === 0 ? 'text-[#00e5cc] font-semibold' : ''}`;
                 span.style.left = `${s * pxPerSec}px`;
