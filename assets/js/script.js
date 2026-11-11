@@ -1671,6 +1671,10 @@ const apiKey = "";
             return `[អត្ថបទ AI]\nបានបង្កើតសាច់រឿងជោគជ័យ។`;
         }
 
+        function getEffectiveModel() {
+            return localStorage.getItem('khmer_studio_gemini_model') || 'gemini-1.5-flash';
+        }
+
         async function callGeminiTextAPI(systemPrompt, userPrompt) {
             const activeKey = getEffectiveApiKey();
             const apiUrl = `http://localhost:5050/api/generate`;
@@ -1678,6 +1682,7 @@ const apiKey = "";
             if (activeKey && activeKey.trim() !== '') {
                 const payload = {
                     api_key: activeKey.trim(),
+                    model: getEffectiveModel(),
                     system_prompt: systemPrompt,
                     user_prompt: userPrompt
                 };
@@ -2287,6 +2292,9 @@ const apiKey = "";
             document.addEventListener('mouseup', () => {
                 isDraggingPlayhead = false;
             });
+            if (typeof updateGoogleConnectionUI === 'function') {
+                updateGoogleConnectionUI();
+            }
         });
 
         function formatCapCutTimecode(totalSeconds) {
@@ -2658,10 +2666,84 @@ const apiKey = "";
             }
         }
 
+        function updateGoogleConnectionUI() {
+            const key = getEffectiveApiKey();
+            const badge = document.getElementById('googleApiStatusBadge');
+            const headerDot = document.getElementById('headerGoogleStatusDot');
+            const headerText = document.getElementById('headerGoogleStatusText');
+            const isConnected = !!(key && key.trim() !== '');
+
+            if (badge) {
+                if (isConnected) {
+                    badge.className = 'text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30';
+                    badge.innerHTML = '🟢 បានភ្ជាប់ជោគជ័យ (Connected)';
+                } else {
+                    badge.className = 'text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/30';
+                    badge.innerHTML = '🔴 មិនទាន់ភ្ជាប់ (Disconnected)';
+                }
+            }
+
+            if (headerDot) {
+                headerDot.className = isConnected ? 'w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]' : 'w-2 h-2 rounded-full bg-amber-400';
+            }
+            if (headerText) {
+                headerText.textContent = isConnected ? 'Google Connected' : 'Connect Google';
+            }
+        }
+
+        async function testGoogleApiKey() {
+            const keyInput = document.getElementById('customApiKeyInput');
+            const modelSelect = document.getElementById('geminiModelSelect');
+            const key = (keyInput ? keyInput.value : '').trim();
+            const model = modelSelect ? modelSelect.value : 'gemini-1.5-flash';
+
+            if (!key) {
+                showToast('សូមបញ្ចូល Google Gemini API Key ជាមុនសិន!', 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('testApiKeyBtn');
+            const icon = document.getElementById('testApiKeyIcon');
+            const text = document.getElementById('testApiKeyText');
+
+            if (btn) btn.disabled = true;
+            if (icon) icon.className = 'fa-solid fa-spinner fa-spin text-blue-400';
+            if (text) text.textContent = 'កំពុងតភ្ជាប់ទៅ Google...';
+
+            try {
+                const response = await fetch('http://localhost:5050/api/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ api_key: key, model: model })
+                });
+
+                if (response.ok) {
+                    localStorage.setItem('khmer_studio_custom_api_key', key);
+                    localStorage.setItem('khmer_studio_gemini_model', model);
+                    updateGoogleConnectionUI();
+                    showToast('🎉 បានភ្ជាប់ជាមួយ Google Gemini AI ជោគជ័យ ១០០%!', 'success');
+                } else {
+                    const err = await response.json().catch(() => ({}));
+                    const msg = err?.error?.message || `Error ${response.status}: API Key មិនត្រឹមត្រូវ`;
+                    showToast(`ការតភ្ជាប់បរាជ័យ៖ ${msg}`, 'error');
+                }
+            } catch (err) {
+                showToast('មិនអាចទាក់ទង Backend Server បានទេ សូមពិនិត្យមើល server.py', 'error');
+            } finally {
+                if (btn) btn.disabled = false;
+                if (icon) icon.className = 'fa-solid fa-plug-circle-bolt text-blue-400';
+                if (text) text.textContent = 'សាកល្បងតភ្ជាប់ (Test Connection)';
+            }
+        }
+
         function toggleApiModal() {
             const modal = document.getElementById('apiModal');
             if (modal.classList.contains('hidden')) {
-                document.getElementById('customApiKeyInput').value = localStorage.getItem('khmer_studio_custom_api_key') || '';
+                const keyInput = document.getElementById('customApiKeyInput');
+                if (keyInput) keyInput.value = localStorage.getItem('khmer_studio_custom_api_key') || '';
+                const modelSelect = document.getElementById('geminiModelSelect');
+                if (modelSelect) modelSelect.value = localStorage.getItem('khmer_studio_gemini_model') || 'gemini-1.5-flash';
+                updateGoogleConnectionUI();
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');
             } else {
@@ -2682,9 +2764,16 @@ const apiKey = "";
         }
 
         function saveCustomApiKey() {
-            localStorage.setItem('khmer_studio_custom_api_key', document.getElementById('customApiKeyInput').value.trim());
+            const keyInput = document.getElementById('customApiKeyInput');
+            const modelSelect = document.getElementById('geminiModelSelect');
+            const key = (keyInput ? keyInput.value : '').trim();
+            const model = modelSelect ? modelSelect.value : 'gemini-1.5-flash';
+
+            localStorage.setItem('khmer_studio_custom_api_key', key);
+            localStorage.setItem('khmer_studio_gemini_model', model);
+            updateGoogleConnectionUI();
             toggleApiModal();
-            showToast('បានរក្សាទុក API Key!');
+            showToast(key ? 'បានរក្សាទុក Google API Key និងបានភ្ជាប់ជោគជ័យ!' : 'បានជម្រះ API Key!', 'success');
         }
 
         let toastTimeout = null;

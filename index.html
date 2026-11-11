@@ -88,8 +88,10 @@
             
             <div class="w-1"></div>
             
-            <button onclick="toggleApiModal()" class="w-8 h-8 rounded-full hover:bg-white/5 flex items-center justify-center transition-colors" title="API Settings">
-                <i class="fa-solid fa-gear text-[16px] text-slate-400"></i>
+            <button onclick="toggleApiModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#1c1d22] hover:bg-[#25252c] transition-colors text-[11px] font-bold text-slate-200 border border-[#2b2b33]" title="កំណត់ Google Gemini API">
+                <i class="fa-brands fa-google text-[#4285F4] text-[13px]"></i>
+                <span id="headerGoogleStatusText">Google AI</span>
+                <span id="headerGoogleStatusDot" class="w-2 h-2 rounded-full bg-amber-400"></span>
             </button>
             
             <div class="w-px h-5 bg-[#2b2b33] mx-3"></div>
@@ -1385,56 +1387,83 @@
 
                     <!-- GEMINI API Group -->
                     <div class="mb-10 relative z-10">
-                        <div class="flex items-center gap-3 mb-4 ml-1">
-                            <div class="w-8 h-8 rounded-full bg-[#00e5cc]/10 flex items-center justify-center border border-[#00e5cc]/20">
-                                <i class="fa-solid fa-robot text-[#00e5cc] text-[14px]"></i>
+                        <div class="flex items-center justify-between mb-4 ml-1">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500/20 via-red-500/10 to-yellow-500/20 flex items-center justify-center border border-white/10 shadow-sm">
+                                    <i class="fa-brands fa-google text-lg text-white"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-white text-[14px] font-extrabold tracking-wide flex items-center gap-2">
+                                        Google Gemini AI Studio
+                                        <span id="googleApiStatusBadge" class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/30">
+                                            🔴 មិនទាន់ភ្ជាប់ (Disconnected)
+                                        </span>
+                                    </h3>
+                                    <p class="text-[11px] text-[#788294]">តភ្ជាប់ទៅកាន់ម៉ូដែល AI របស់ Google ដោយផ្ទាល់ដើម្បីបង្កើតសម្រាយរឿង និងនិទានរឿងពិតៗ</p>
+                                </div>
                             </div>
-                            <h3 class="text-[#00e5cc] text-[12px] font-extrabold tracking-[0.2em] uppercase drop-shadow-[0_0_8px_rgba(0,229,204,0.3)]">Google Gemini AI</h3>
+
+                            <!-- Direct Button to Google AI Studio -->
+                            <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-[12px] flex items-center gap-2 shadow-md hover:shadow-blue-500/25 transition-all">
+                                <i class="fa-solid fa-arrow-up-right-from-square text-[11px]"></i>
+                                <span>យក API Key ពី Google (ឥតគិតថ្លៃ)</span>
+                            </a>
                         </div>
                         
                         <div class="bg-[#20202b] border border-[#2e2e3a] rounded-2xl p-6 hover:border-[#00e5cc]/40 transition-colors shadow-lg relative group">
                             <!-- Gradient Top Border -->
-                            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#00e5cc] to-purple-500 rounded-t-2xl opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#4285F4] via-[#EA4335] via-[#FBBC05] to-[#34A853] rounded-t-2xl opacity-70 group-hover:opacity-100 transition-opacity"></div>
                             
-                            <div class="flex items-start justify-between mb-4 mt-1">
-                                <div>
-                                    <span class="text-[15px] font-extrabold text-white block mb-1.5 flex items-center gap-2">
-                                        API Key Configuration
-                                    </span>
-                                    <p class="text-[12px] text-[#9ca3af] leading-relaxed max-w-md">
-                                        បញ្ចូល Gemini API Key របស់លោកអ្នកនៅទីនេះ ដើម្បីដំណើរការមុខងារ សម្រាយរឿង និងបកប្រែដោយស្វ័យប្រវត្តិ។
-                                    </p>
+                            <!-- Steps Helper Banner -->
+                            <div class="bg-[#15151c] rounded-xl p-3.5 mb-5 border border-white/5 flex items-start gap-3">
+                                <i class="fa-solid fa-circle-info text-blue-400 mt-0.5 text-sm"></i>
+                                <div class="text-[11.5px] text-[#9ca3af] leading-relaxed">
+                                    <span class="text-white font-bold block mb-1">របៀបភ្ជាប់ជាមួយ Google Gemini (៣ ជំហានងាយៗ)៖</span>
+                                    ១. ចុចប៊ូតុងពណ៌ខៀវខាងលើ <b class="text-blue-400">«យក API Key ពី Google»</b> ដើម្បីបើកទំព័រ Google AI Studio<br>
+                                    ២. ចុចលើប៊ូតុង <b class="text-white">«Create API key»</b> រួច Copy Key នោះ (ផ្តើមដោយ <code class="text-[#00e5cc]">AIzaSy...</code>)<br>
+                                    ៣. យកមក Paste ចូលប្រអប់ខាងក្រោម រួចចុច <b class="text-emerald-400">«សាកល្បងតភ្ជាប់ (Test Connection)»</b>
                                 </div>
-                                <span class="text-[10px] font-extrabold text-amber-300 bg-amber-400/10 px-2.5 py-1.5 rounded-lg border border-amber-400/20 flex items-center gap-2 shadow-sm">
-                                    <span class="relative flex h-2 w-2">
-                                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                                      <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-                                    </span>
-                                    REQUIRED
-                                </span>
                             </div>
-                            
-                            <div class="relative mt-6 mb-6 group/input">
-                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                    <div class="w-8 h-8 rounded-lg bg-[#2b2b36] flex items-center justify-center group-focus-within/input:bg-[#00e5cc]/10 group-focus-within/input:text-[#00e5cc] text-[#6b7280] transition-colors border border-transparent group-focus-within/input:border-[#00e5cc]/30">
-                                        <i class="fa-solid fa-key text-[13px]"></i>
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                <div class="md:col-span-2 space-y-1.5">
+                                    <label class="block text-[11px] font-bold text-slate-300">Google Gemini API Key</label>
+                                    <div class="relative group/input">
+                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <i class="fa-solid fa-key text-[13px] text-[#788294] group-focus-within/input:text-[#00e5cc] transition-colors"></i>
+                                        </div>
+                                        <input id="customApiKeyInput" type="password" placeholder="បិទភ្ជាប់ API Key ទីនេះ (AIzaSy...)" class="w-full bg-[#15151c] border border-[#2b2b36] rounded-xl py-3 pl-11 pr-10 text-[12.5px] text-white focus:outline-none focus:border-[#00e5cc] focus:ring-1 focus:ring-[#00e5cc]/30 transition-all font-mono">
+                                        <button class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#6b7280] hover:text-white transition-colors" onclick="togglePasswordVisibility('customApiKeyInput', this)">
+                                            <i class="fa-solid fa-eye text-[13px]"></i>
+                                        </button>
                                     </div>
                                 </div>
-                                <input id="customApiKeyInput" type="password" placeholder="ឧទាហរណ៍៖ AIzaSyD..." class="w-full bg-[#15151c] border border-[#2b2b36] rounded-xl py-3.5 pl-14 pr-4 text-[13px] text-white focus:outline-none focus:border-[#00e5cc] focus:ring-2 focus:ring-[#00e5cc]/20 transition-all placeholder:text-[#4b5563] shadow-inner font-mono font-medium">
-                                <button class="absolute inset-y-0 right-0 pr-4 flex items-center text-[#6b7280] hover:text-white transition-colors" onclick="togglePasswordVisibility('customApiKeyInput', this)">
-                                    <i class="fa-solid fa-eye text-[14px]"></i>
-                                </button>
+
+                                <div class="space-y-1.5">
+                                    <label class="block text-[11px] font-bold text-slate-300">ម៉ូដែល AI (AI Model)</label>
+                                    <select id="geminiModelSelect" class="w-full bg-[#15151c] border border-[#2b2b36] rounded-xl py-3 px-3 text-[12px] text-white focus:outline-none focus:border-[#00e5cc] transition-all cursor-pointer font-medium">
+                                        <option value="gemini-1.5-flash">Gemini 1.5 Flash (លឿន & ណែនាំ)</option>
+                                        <option value="gemini-2.0-flash">Gemini 2.0 Flash (ជំនាន់ចុងក្រោយ)</option>
+                                        <option value="gemini-1.5-pro">Gemini 1.5 Pro (ឆ្លាតវៃស៊ីជម្រៅ)</option>
+                                    </select>
+                                </div>
                             </div>
                             
-                            <div class="flex justify-end gap-3 pt-4 border-t border-[#2b2b36]">
-                                <button onclick="toggleApiModal()" class="px-6 py-2.5 rounded-xl bg-[#252530] hover:bg-[#2b2b36] border border-[#323240] transition-colors text-[12px] font-bold text-white shadow-sm">
-                                    បិទផ្ទាំង (Cancel)
+                            <div class="flex items-center justify-between pt-4 border-t border-[#2b2b36]">
+                                <button onclick="testGoogleApiKey()" id="testApiKeyBtn" class="px-5 py-2.5 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 text-blue-300 hover:text-white transition-all text-[12px] font-bold flex items-center gap-2">
+                                    <i id="testApiKeyIcon" class="fa-solid fa-plug-circle-bolt text-blue-400"></i>
+                                    <span id="testApiKeyText">សាកល្បងតភ្ជាប់ (Test Connection)</span>
                                 </button>
-                                <button onclick="saveCustomApiKey()" class="group/btn px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#00e5cc] to-[#00b3a0] hover:from-[#00f2d8] hover:to-[#00ccb6] text-[#051124] transition-all text-[12px] font-extrabold shadow-[0_0_15px_rgba(0,229,204,0.3)] hover:shadow-[0_0_25px_rgba(0,229,204,0.5)] hover:-translate-y-0.5 flex items-center gap-2 overflow-hidden relative">
-                                    <div class="absolute inset-0 bg-white/20 -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite] skew-x-12"></div>
-                                    <i class="fa-solid fa-check group-hover/btn:scale-125 transition-transform relative z-10"></i> 
-                                    <span class="relative z-10">រក្សាទុក (Save)</span>
-                                </button>
+
+                                <div class="flex items-center gap-3">
+                                    <button onclick="toggleApiModal()" class="px-5 py-2.5 rounded-xl bg-[#252530] hover:bg-[#2b2b36] border border-[#323240] transition-colors text-[12px] font-bold text-white shadow-sm">
+                                        បិទផ្ទាំង (Cancel)
+                                    </button>
+                                    <button onclick="saveCustomApiKey()" class="group/btn px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#00e5cc] to-[#00b3a0] hover:from-[#00f2d8] hover:to-[#00ccb6] text-[#051124] transition-all text-[12px] font-extrabold shadow-[0_0_15px_rgba(0,229,204,0.3)] hover:shadow-[0_0_25px_rgba(0,229,204,0.5)] flex items-center gap-2 overflow-hidden relative">
+                                        <i class="fa-solid fa-check relative z-10"></i> 
+                                        <span class="relative z-10">រក្សាទុក (Save)</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
