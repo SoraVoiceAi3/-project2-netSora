@@ -637,7 +637,7 @@
                         </button>
 
                         <!-- Card 3: BGM -->
-                        <button onclick="showToast('មុខងារបន្ថែម BGM កំពុងរៀបចំ...')" class="bg-[#18181c] border border-[#2b2b33] hover:border-blue-500/50 rounded-xl p-3.5 flex flex-col items-start gap-3 transition-colors text-left group relative overflow-hidden">
+                        <button onclick="addAutoBGMTrack()" class="bg-[#18181c] border border-[#2b2b33] hover:border-blue-500/50 rounded-xl p-3.5 flex flex-col items-start gap-3 transition-colors text-left group relative overflow-hidden">
                             <div class="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                             <div class="w-9 h-9 rounded-xl bg-[#222228] group-hover:bg-blue-500/20 transition-colors flex items-center justify-center relative z-10 shadow-sm">
                                 <i class="fa-solid fa-music text-blue-400 text-[16px] group-hover:scale-110 transition-transform"></i>
@@ -723,20 +723,27 @@
                     <div class="space-y-1.5">
                         <div class="flex items-center justify-between px-1">
                             <label class="block text-[10px] font-bold text-[#788294] uppercase tracking-wider">អត្ថបទដើម ឬកូដ Subtitle (.SRT)</label>
-                            <button onclick="document.getElementById('transInput').value = ''" class="text-[10px] text-rose-500/70 hover:text-rose-400 transition-colors flex items-center gap-1 font-semibold">
-                                <i class="fa-solid fa-eraser"></i> ជម្រះអត្ថបទ
-                            </button>
+                            <div class="flex items-center gap-2">
+                                <input type="file" id="transFileInput" accept=".srt,.txt,.vtt" class="hidden" onchange="handleTransFileUpload(event)">
+                                <button onclick="document.getElementById('transFileInput').click()" class="text-[10px] text-[#00e5cc] hover:text-teal-300 transition-colors flex items-center gap-1 font-bold bg-[#00e5cc]/10 px-2.5 py-1 rounded-lg border border-[#00e5cc]/30 cursor-pointer">
+                                    <i class="fa-solid fa-file-arrow-up"></i> <span>Upload ឯកសារ (.SRT / .TXT 10h+)</span>
+                                </button>
+                                <button onclick="clearTransInput()" class="text-[10px] text-rose-500/70 hover:text-rose-400 transition-colors flex items-center gap-1 font-semibold">
+                                    <i class="fa-solid fa-eraser"></i> ជម្រះ
+                                </button>
+                            </div>
                         </div>
+                        <div id="transFileStatus" class="hidden text-[10px] text-emerald-400 bg-emerald-500/10 px-2.5 py-1.5 rounded-xl border border-emerald-500/20 mb-1 items-center justify-between"></div>
                         <div class="relative">
-                            <textarea id="transInput" rows="5" placeholder="Paste អត្ថបទភាសាអង់គ្លេស ចិន ថៃ កូរ៉េ បារាំង ជប៉ុន ឬកូដ .SRT ទីនេះ..." class="w-full bg-[#121216] border border-[#2b2b33] hover:border-[#00e5cc]/30 focus:border-[#00e5cc] text-slate-200 text-[11.5px] rounded-xl p-3.5 font-mono leading-relaxed resize-y transition-colors shadow-inner custom-scrollbar outline-none focus:ring-1 focus:ring-[#00e5cc]/30"></textarea>
+                            <textarea id="transInput" rows="6" placeholder="Paste អត្ថបទភាសាអង់គ្លេស ចិន ថៃ កូរ៉េ ឬកូដ .SRT ទីនេះ... (គាំទ្ររឿងវែងរាប់សិបម៉ោង ជាមួយ Google Gemini)" class="w-full bg-[#121216] border border-[#2b2b33] hover:border-[#00e5cc]/30 focus:border-[#00e5cc] text-slate-200 text-[11.5px] rounded-xl p-3.5 font-mono leading-relaxed resize-y transition-colors shadow-inner custom-scrollbar outline-none focus:ring-1 focus:ring-[#00e5cc]/30"></textarea>
                         </div>
                     </div>
 
                     <!-- Direct Translate Button inside Form -->
-                    <button onclick="handleGenerate()" class="group w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-500 hover:to-sky-400 text-white font-extrabold text-[12px] flex items-center justify-center gap-2.5 shadow-[0_0_15px_rgba(14,165,233,0.4)] hover:shadow-[0_0_25px_rgba(14,165,233,0.6)] transition-all hover:-translate-y-0.5 overflow-hidden relative">
+                    <button onclick="handleGenerate()" class="group w-full py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-500 hover:to-sky-400 text-white font-extrabold text-[12.5px] flex items-center justify-center gap-2.5 shadow-[0_0_20px_rgba(14,165,233,0.4)] hover:shadow-[0_0_30px_rgba(14,165,233,0.6)] transition-all hover:-translate-y-0.5 overflow-hidden relative cursor-pointer">
                         <div class="absolute inset-0 bg-white/20 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] skew-x-12"></div>
-                        <i class="fa-solid fa-language text-[16px] group-hover:scale-110 transition-transform relative z-10"></i>
-                        <span class="tracking-wide relative z-10 drop-shadow-md">ចាប់ផ្តើមបកប្រែ (Translate)</span>
+                        <i class="fa-solid fa-language text-[17px] group-hover:scale-110 transition-transform relative z-10"></i>
+                        <span class="tracking-wide relative z-10 drop-shadow-md">ចាប់ផ្តើមបកប្រែដោយ Google Gemini AI</span>
                     </button>
 
                     <!-- Translate Extensions -->

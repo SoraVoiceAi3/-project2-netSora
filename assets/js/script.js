@@ -1712,6 +1712,126 @@ const apiKey = "";
             return generateSmartKhmerFallback(currentTab, userPrompt);
         }
 
+        function handleTransFileUpload(e) {
+            const file = e.target.files?.[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const text = event.target.result;
+                const transInput = document.getElementById('transInput');
+                if (transInput) transInput.value = text;
+
+                const statusBox = document.getElementById('transFileStatus');
+                if (statusBox) {
+                    const fileSizeKB = (file.size / 1024).toFixed(1);
+                    const srtMatches = text.match(/\d{2}:\d{2}:\d{2},\d{3}/g);
+                    const srtCount = srtMatches ? Math.floor(srtMatches.length / 2) : 0;
+                    
+                    let estHours = '';
+                    if (srtCount > 0) {
+                        estHours = ` (~ ${(srtCount / 400).toFixed(1)} ម៉ោងសាច់រឿង, ${srtCount.toLocaleString()} ឈុត Subtitle)`;
+                    } else {
+                        const words = text.split(/\s+/).length;
+                        estHours = ` (~ ${(words / 8000).toFixed(1)} ម៉ោងសាច់រឿង, ${words.toLocaleString()} ពាក្យ)`;
+                    }
+
+                    statusBox.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-file-lines text-emerald-400"></i>
+                            <span class="font-bold text-white">${file.name}</span> (${fileSizeKB} KB) ${estHours}
+                        </div>
+                        <span class="text-[9px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-bold">READY</span>
+                    `;
+                    statusBox.classList.remove('hidden');
+                    statusBox.classList.add('flex');
+                }
+                showToast(`បានបញ្ចូលឯកសារ "${file.name}" រួចរាល់! អាចចាប់ផ្តើមបកប្រែបាន។`, 'success');
+            };
+            reader.readAsText(file, 'utf-8');
+        }
+
+        function clearTransInput() {
+            const input = document.getElementById('transInput');
+            if (input) input.value = '';
+            const statusBox = document.getElementById('transFileStatus');
+            if (statusBox) {
+                statusBox.classList.add('hidden');
+                statusBox.classList.remove('flex');
+                statusBox.innerHTML = '';
+            }
+            const fileInput = document.getElementById('transFileInput');
+            if (fileInput) fileInput.value = '';
+            showToast('បានជម្រះអត្ថបទបកប្រែ');
+        }
+
+        async function translateLongStoryWithGemini(fullText, sourceLang, format, tone) {
+            const isSRT = /\d{2}:\d{2}:\d{2},\d{3}\s*-->\s*\d{2}:\d{2}:\d{2},\d{3}/.test(fullText);
+            let chunks = [];
+
+            if (isSRT) {
+                const srtBlocks = fullText.split(/\r?\n\r?\n/).map(b => b.trim()).filter(Boolean);
+                const chunkSize = 80;
+                for (let i = 0; i < srtBlocks.length; i += chunkSize) {
+                    chunks.push(srtBlocks.slice(i, i + chunkSize).join('\n\n'));
+                }
+            } else {
+                const paragraphs = fullText.split(/\r?\n\r?\n/).map(p => p.trim()).filter(Boolean);
+                let currentChunk = '';
+                for (const p of paragraphs) {
+                    if ((currentChunk.length + p.length) > 3500) {
+                        chunks.push(currentChunk.trim());
+                        currentChunk = p + '\n\n';
+                    } else {
+                        currentChunk += p + '\n\n';
+                    }
+                }
+                if (currentChunk.trim()) chunks.push(currentChunk.trim());
+            }
+
+            if (chunks.length <= 1) {
+                const systemPrompt = `អ្នកគឺជាអ្នកបកប្រែរឿងភាពយន្ត និង Subtitle ដ៏ជំនាញបំផុតនៅកម្ពុជា។ សូមបកប្រែមកជាភាសាខ្មែរធម្មជាតិ ពីរោះ និងមិនឆ្គង។ ប្រសិនបើជាទម្រង់ .SRT ត្រូវរក្សាលេខរៀង និងម៉ោង (Timecode) ឱ្យនៅដដែល ១០០%។`;
+                const userPrompt = `បកប្រែអត្ថបទខាងក្រោមមកជាភាសាខ្មែរ (${format}, ${tone})៖\n\n${fullText}`;
+                return await callGeminiTextAPI(systemPrompt, userPrompt);
+            }
+
+            showToast(`កំពុងចាប់ផ្តើមបកប្រែសាច់រឿងវែង (${chunks.length} វគ្គ)...`, 'info');
+            const translatedChunks = [];
+
+            for (let i = 0; i < chunks.length; i++) {
+                const percent = Math.round(((i + 1) / chunks.length) * 100);
+                showToast(`កំពុងបកប្រែដោយ Google AI: វគ្គទី ${i + 1}/${chunks.length} (${percent}%)...`, 'info');
+
+                const systemPrompt = `អ្នកគឺជាអ្នកបកប្រែរឿងភាពយន្ត និង Subtitle ដ៏ជំនាញបំផុតនៅកម្ពុជា។ នេះជាផ្នែកទី ${i + 1} នៃ ${chunks.length} នៃសាច់រឿងវែង។ សូមបកប្រែមកជាភាសាខ្មែរធម្មជាតិ ពីរោះ និងមិនឆ្គង។ ប្រសិនបើជាទម្រង់ .SRT ត្រូវរក្សាលេខរៀង និងម៉ោង (Timecode) ឱ្យនៅដដែល ១០០% ដោយមិនលុបម៉ោងចោលឡើយ។`;
+                const userPrompt = `បកប្រែផ្នែកទី ${i + 1} នេះមកជាភាសាខ្មែរ (${format}, ${tone})៖\n\n${chunks[i]}`;
+
+                try {
+                    const chunkResult = await callGeminiTextAPI(systemPrompt, userPrompt);
+                    translatedChunks.push(chunkResult);
+                } catch (e) {
+                    console.warn(`Chunk ${i+1} translation error:`, e);
+                    translatedChunks.push(chunks[i]);
+                }
+            }
+
+            return translatedChunks.join('\n\n');
+        }
+
+        function addAutoBGMTrack() {
+            const tone = document.getElementById('recapTone')?.value || 'cinematic';
+            let bgmName = 'Epic_Cinematic_BGM.mp3';
+            if (tone.includes('រន្ធត់') || tone.includes('Thriller') || tone.includes('Scary')) {
+                bgmName = 'Suspense_Horror_Dark_BGM.mp3';
+            } else if (tone.includes('កម្សត់') || tone.includes('Emotional') || tone.includes('Sad')) {
+                bgmName = 'Emotional_Piano_Dramatic_BGM.mp3';
+            } else if (tone.includes('Action') || tone.includes('សកម្មភាព')) {
+                bgmName = 'Fast_Paced_Action_War_BGM.mp3';
+            }
+
+            appendFakeClipToTimeline('audio', { url: '', name: `🎵 ${bgmName}`, durationFormatted: '03:45' });
+            showToast(`បានបន្ថែមភ្លេងកំដរអារម្មណ៍ "${bgmName}" ចូល Timeline!`, 'success');
+        }
+
         function handleProRecapVoice() {
             autoNarrateAfterGenerate = true;
             handleGenerate();
@@ -1753,17 +1873,13 @@ const apiKey = "";
 
             } else if (currentTab === 'translate') {
                 const sourceLang = document.getElementById('transSourceLang')?.value || 'ភាសាអង់គ្លេស';
-                const format = document.getElementById('transFormat')?.value || 'សម្រាយរឿង';
-                const tone = document.getElementById('transTone')?.value || 'ធម្មជាតិ';
                 const input = (document.getElementById('transInput')?.value || '').trim();
 
                 if (!input) {
-                    showToast('សូមបញ្ចូលអត្ថបទ ឬកូដ Subtitle ដែលត្រូវបកប្រែជាមុនសិន!', 'warning');
+                    showToast('សូមបញ្ចូលអត្ថបទ ឬ Upload ឯកសារ Subtitle ដែលត្រូវបកប្រែជាមុនសិន!', 'warning');
                     return;
                 }
                 historyTitle = `បកប្រែ (${sourceLang.split(' ')[0]})`;
-                systemPrompt = `អ្នកគឺជាអ្នកបកប្រែរឿងភាពយន្ត និង Subtitle ដ៏ជំនាញបំផុតនៅកម្ពុជា។ សូមបកប្រែមកជាភាសាខ្មែរធម្មជាតិ ពីរោះ និងមិនឆ្គង។ ប្រសិនបើជាទម្រង់ .SRT ត្រូវរក្សាលេខរៀង និងម៉ោងឱ្យនៅដដែល។`;
-                userPrompt = `បកប្រែអត្ថបទខាងក្រោមមកជាភាសាខ្មែរ (${format}, ${tone})៖\n\n${input}`;
 
             } else if (currentTab === 'narrate') {
                 const voice = document.getElementById('narrateVoice')?.value || 'Kore';
@@ -1805,10 +1921,20 @@ const apiKey = "";
 
             setLoadingState(true);
             try {
-                const resultText = await callGeminiTextAPI(systemPrompt, userPrompt);
+                let resultText = '';
+                if (currentTab === 'translate') {
+                    const sourceLang = document.getElementById('transSourceLang')?.value || 'ភាសាអង់គ្លេស';
+                    const format = document.getElementById('transFormat')?.value || 'សម្រាយរឿង';
+                    const tone = document.getElementById('transTone')?.value || 'ធម្មជាតិ';
+                    const input = (document.getElementById('transInput')?.value || '').trim();
+                    resultText = await translateLongStoryWithGemini(input, sourceLang, format, tone);
+                } else {
+                    resultText = await callGeminiTextAPI(systemPrompt, userPrompt);
+                }
+
                 const badgeNames = {
                     recap: 'សម្រាយរឿង AI',
-                    translate: 'បកប្រែរឿង',
+                    translate: 'បកប្រែរឿង (Google AI)',
                     narrate: 'និទានរឿង',
                     create: 'តែងរឿងថ្មី'
                 };
