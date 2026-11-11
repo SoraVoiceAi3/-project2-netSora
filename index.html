@@ -611,26 +611,26 @@
                     
                     <div class="grid grid-cols-2 gap-3">
                         <!-- Card 1: Start Recapping -->
-                        <button onclick="handleGenerate()" class="bg-[#18181c] border border-[#2b2b33] hover:border-[#00e5cc]/50 rounded-xl p-3.5 flex flex-col items-start gap-3 transition-colors text-left group relative overflow-hidden">
+                        <button id="generateBtn" onclick="handleGenerate()" class="bg-[#18181c] border border-[#2b2b33] hover:border-[#00e5cc]/50 rounded-xl p-3.5 flex flex-col items-start gap-3 transition-colors text-left group relative overflow-hidden">
                             <div class="absolute inset-0 bg-gradient-to-br from-[#00e5cc]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                             <div class="w-9 h-9 rounded-xl bg-[#222228] group-hover:bg-[#00e5cc]/20 transition-colors flex items-center justify-center relative z-10 shadow-sm">
                                 <i class="fa-solid fa-wand-magic-sparkles text-[#00e5cc] text-[16px] group-hover:scale-110 transition-transform"></i>
                             </div>
                             <div class="relative z-10">
-                                <div class="text-slate-100 font-extrabold text-[12px] tracking-wide mb-1">ចាប់ផ្តើមសម្រាយរឿង</div>
+                                <div id="generateBtnText" class="text-slate-100 font-extrabold text-[12px] tracking-wide mb-1">ចាប់ផ្តើមសម្រាយរឿង</div>
                                 <div class="text-[#788294] text-[9.5px] font-medium leading-relaxed group-hover:text-slate-300 transition-colors">វិភាគវីដេអូ និងបង្កើតស្គ្រីបស្វ័យប្រវត្តិ</div>
                             </div>
                         </button>
                         
                         <!-- Card 2: Pro Recap Voice -->
-                        <button onclick="showToast('មុខងារសម្រាយរឿងបែបអាជីពកំពុងរៀបចំ...')" class="bg-[#18181c] border border-[#2b2b33] hover:border-purple-500/50 rounded-xl p-3.5 flex flex-col items-start gap-3 transition-colors text-left group relative overflow-hidden">
+                        <button onclick="handleProRecapVoice()" class="bg-[#18181c] border border-[#2b2b33] hover:border-purple-500/50 rounded-xl p-3.5 flex flex-col items-start gap-3 transition-colors text-left group relative overflow-hidden">
                             <div class="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                             <div class="w-9 h-9 rounded-xl bg-[#222228] group-hover:bg-purple-500/20 transition-colors flex items-center justify-center relative z-10 shadow-sm">
                                 <i class="fa-solid fa-microphone-lines text-purple-400 text-[16px] group-hover:scale-110 transition-transform"></i>
                             </div>
                             <div class="relative z-10">
                                 <div class="text-slate-100 font-extrabold text-[12px] tracking-wide mb-1">សម្រាយរឿងបែបអាជីព</div>
-                                <div class="text-[#788294] text-[9.5px] font-medium leading-relaxed group-hover:text-slate-300 transition-colors">សំឡេង AI ដូចគេបញ្ចូលសំឡេងពិតៗ</div>
+                                <div class="text-[#788294] text-[9.5px] font-medium leading-relaxed group-hover:text-slate-300 transition-colors">បង្កើតស្គ្រីប + បញ្ចូលសំឡេង AI អូតូ</div>
                             </div>
                         </button>
 

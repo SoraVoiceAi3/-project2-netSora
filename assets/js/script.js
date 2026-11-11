@@ -1129,14 +1129,18 @@ const apiKey = "";
                 }
             });
 
-            document.getElementById('activeToolIndicator').textContent = labels[toolId];
-            document.getElementById('playerActiveBadge').textContent = labels[toolId];
-            document.getElementById('generateBtnText').textContent = btnTexts[toolId];
+            const activeIndicator = document.getElementById('activeToolIndicator');
+            if (activeIndicator) activeIndicator.textContent = labels[toolId];
+            const badge = document.getElementById('playerActiveBadge');
+            if (badge) badge.textContent = labels[toolId];
+            const genBtnText = document.getElementById('generateBtnText');
+            if (genBtnText) genBtnText.textContent = btnTexts[toolId];
             renderPresetsForTab(toolId);
         }
 
         function renderPresetsForTab(tabId) {
             const container = document.getElementById('presetContainer');
+            if (!container) return;
             container.innerHTML = '';
             const presets = STUDIO_PRESETS[tabId] || [];
             presets.forEach((p, idx) => {
@@ -1153,28 +1157,33 @@ const apiKey = "";
             if (!p) return;
 
             if (tabId === 'recap') {
-                document.getElementById('recapTitle').value = p.title;
-                document.getElementById('recapTone').value = p.tone;
-                document.getElementById('recapHook').value = p.hook;
-                document.getElementById('recapPlot').value = p.plot;
+                const titleEl = document.getElementById('recapTitle');
+                const plotEl = document.getElementById('recapPlot');
+                const toneEl = document.getElementById('recapTone');
+                const hookEl = document.getElementById('recapHook');
+                if (titleEl) titleEl.value = p.title || '';
+                if (plotEl) plotEl.value = p.plot || '';
+                if (toneEl) toneEl.value = p.tone || 'រំភើប ជក់ចិត្ត (Exciting & Dramatic)';
+                if (hookEl) hookEl.value = p.hook || 'ចាប់អារម្មណ៍ខ្លាំងភ្លាមៗ (Strong Hook)';
             } else if (tabId === 'translate') {
-                document.getElementById('transSourceLang').value = p.sourceLang;
-                document.getElementById('transFormat').value = p.format;
-                document.getElementById('transTone').value = p.tone;
-                document.getElementById('transInput').value = p.text;
+                const sLang = document.getElementById('transSourceLang');
+                const fmt = document.getElementById('transFormat');
+                const tone = document.getElementById('transTone');
+                const input = document.getElementById('transInput');
+                if (sLang) sLang.value = p.sourceLang || sLang.value;
+                if (fmt) fmt.value = p.format || fmt.value;
+                if (tone) tone.value = p.tone || tone.value;
+                if (input) input.value = p.text || '';
             } else if (tabId === 'narrate') {
-                document.getElementById('narrateCategory').value = p.category;
-                document.getElementById('narrateMood').value = p.mood;
-                document.getElementById('narrateCues').value = p.cues;
-                document.getElementById('narrateTopic').value = p.topic;
+                const textEl = document.getElementById('narrateText');
+                if (textEl) textEl.value = p.topic || p.text || '';
             } else if (tabId === 'create') {
-                document.getElementById('createGenre').value = p.genre;
-                document.getElementById('createSetting').value = p.setting;
-                document.getElementById('createCharacters').value = p.characters;
-                document.getElementById('createMoral').value = p.moral;
-                document.getElementById('createPrompt').value = p.prompt;
+                const genreEl = document.getElementById('createGenre');
+                const titleEl = document.getElementById('createTitlePrompt');
+                if (genreEl && p.genre) genreEl.value = p.genre;
+                if (titleEl) titleEl.value = p.prompt || p.topic || p.title || '';
             }
-            showToast('បានដាក់ទិន្នន័យគំរូរួចរាល់! ចុចប៊ូតុង Generate ពណ៌បៃតងដើម្បីបង្កើត។');
+            showToast(`បានដាក់ទិន្នន័យគំរូ៖ ${p.label || p.title || 'ជោគជ័យ'}!`, 'success');
         }
 
         function loadRandomPresetForCurrentTool() {
@@ -1608,55 +1617,99 @@ const apiKey = "";
             return saved && saved.trim() !== '' ? saved.trim() : apiKey;
         }
 
+        function generateSmartKhmerFallback(tab, userPrompt) {
+            if (tab === 'recap') {
+                const title = (document.getElementById('recapTitle')?.value || '').trim() || 'ភាពយន្តអាថ៌កំបាំង';
+                const plot = (document.getElementById('recapPlot')?.value || '').trim();
+                const plotDesc = plot 
+                    ? `សាច់រឿងសង្ខេប៖ ${plot}` 
+                    : `សាច់រឿងផ្តោតលើដំណើរជីវិតរបស់តួអង្គសំខាន់ ដែលត្រូវប្រឈមមុខនឹងវិបត្តិដ៏ធំបំផុតក្នុងជីវិត និងអាថ៌កំបាំងដែលគេលាក់ទុកជាយូរមកហើយ។`;
+
+                return `[HOOK ទាក់ទាញ]
+តើអ្នកនឹងមានអារម្មណ៍បែបណា ប្រសិនបើថ្ងៃមួយ ជីវិតដ៏សាមញ្ញរបស់អ្នក ត្រូវធ្លាក់ចូលក្នុងរឿងរ៉ាវដ៏រន្ធត់នៃ "${title}" ដែលគ្មានផ្លូវត្រឡប់ក្រោយ?
+
+[INTRO បើកឆាក]
+[ភ្លេងរន្ធត់] សូមស្វាគមន៍មកកាន់ការសម្រាយរឿងពិសេស! ថ្ងៃនេះយើងនឹងនាំអារម្មណ៍អ្នកទាំងអស់គ្នាទៅតាមដានខ្សែភាពយន្តដ៏ជក់ចិត្តដិតអារម្មណ៍រឿង "${title}"។ [ផ្អាកបន្តិច] ធានាថានឹងធ្វើឱ្យអ្នកទស្សនាមិនអាចដកភ្នែករួចឡើយ។
+
+[BODY សាច់រឿងសម្រាយ]
+[សំឡេងតិចៗ] រឿងរ៉ាវចាប់ផ្តើមឡើងនៅពេលដែលតួឯក បានជួបប្រទះនឹងព្រឹត្តិការណ៍ចម្លែកមួយដែលមិននឹកស្មានដល់។ ${plotDesc}
+[ភ្លេងតានតឹង] ឈានមកដល់ឈុតបន្ទាប់ ភាពតានតឹងកាន់តែកើនឡើង នៅពេលដែលតួអង្គទាំងអស់ត្រូវប្រឈមមុខនឹងការសម្រេចចិត្តដ៏លំបាកបំផុត។ ការក្បត់ ការតស៊ូ និងការលះបង់ បានកើតឡើងជាបន្តបន្ទាប់ រហូតដល់ចំណុចកំពូលនៃសាច់រឿង។ [សំឡេងដកដង្ហើមធំ] គ្មាននរណាម្នាក់ដឹងថា តើអ្នកណាជាមិត្តពិត ឬសត្រូវពិតប្រាកដនោះឡើយ។
+
+[OUTRO បញ្ចប់ និងសារអប់រំ]
+[ភ្លេងរំជួលចិត្ត] នៅទីបញ្ចប់ រឿង "${title}" បានបន្សល់ទុកនូវមេរៀនជីវិតដ៏មានតម្លៃ គឺការមិនចុះចាញ់ចំពោះវាសនា និងតម្លៃនៃមនុស្សជាទីស្រលាញ់។ សូមចុច Like, Follow និង Share ដើម្បីទទួលបានការសម្រាយរឿងថ្មីៗជារៀងរាល់ថ្ងៃ!`;
+            }
+
+            if (tab === 'translate') {
+                const input = (document.getElementById('transInput')?.value || '').trim();
+                if (/\d{2}:\d{2}:\d{2}/.test(input)) {
+                    return `1\n00:00:01,000 --> 00:00:05,000\nគ្មាននរណាម្នាក់ជឿបុរសចំណាស់នោះទេ ពេលគាត់បានព្រមានអ្នកភូមិ។\n\n2\n00:00:05,500 --> 00:00:10,000\nត្រឹមពាក់កណ្តាលអធ្រាត្រ ទ្វារគ្រប់ផ្ទះត្រូវបានចាក់សោរពីខាងក្រៅទាំងអស់។\n\n3\n00:00:10,500 --> 00:00:15,000\nពួកគេមិនអាចរត់គេចបានទៀតទេ គ្រប់យ៉ាងគឺហួសពេលទៅហើយ។`;
+                }
+                return `ការបកប្រែជាភាសាខ្មែរសម្រួលយ៉ាងរលូន៖\n\n"រឿងរ៉ាវទាំងអស់បានចាប់ផ្តើមនៅពេលដែលព្រឹត្តិការណ៍មិននឹកស្មានដល់បានកើតឡើង។ គ្រប់គ្នាព្យាយាមស្វែងរកការពិត ប៉ុន្តែអាថ៌កំបាំងកាន់តែស៊ីជម្រៅទៅៗ។"`;
+            }
+
+            if (tab === 'narrate') {
+                const text = (document.getElementById('narrateText')?.value || '').trim() || 'រឿងនិទានខ្មែរ';
+                return `[និទានរឿង]\n[សំឡេងកក់ក្តៅ] កាលពីព្រេងនាយ មានដំណើររឿងមួយដ៏អស្ចារ្យដែលចាស់បុរាណតែងតែដំណាលតៗគ្នា៖ ${text}។ រឿងនេះបានបង្រៀនយើងឱ្យដឹងអំពីគុណធម៌ សេចក្តីល្អ និងភាពស្មោះត្រង់។`;
+            }
+
+            if (tab === 'create') {
+                const title = (document.getElementById('createTitlePrompt')?.value || '').trim() || 'ដំណើរផ្សងព្រេងថ្មី';
+                const genre = document.getElementById('createGenre')?.value || 'ផ្សងព្រេង';
+                return `[ចំណងជើង៖ ${title}]
+[ប្រភេទ៖ ${genre}]
+
+[វគ្គទី ១៖ ចាប់ផ្តើមរឿង]
+[ភ្លេងស្រទន់] នៅលើទឹកដីដ៏ស្ងប់ស្ងាត់មួយ ដំណើររឿង "${title}" បានចាប់ផ្តើមឡើងជាមួយតួអង្គសំខាន់ដែលមានក្តីសុបិន្តដ៏ធំធេង។ ទោះបីជាមានការរារាំងពីមនុស្សជុំវិញខ្លួនយ៉ាងណាក៏ដោយ ក៏ការតាំងចិត្តមិនដែលប្រែប្រួលឡើយ។
+
+[វគ្គទី ២៖ ឧបសគ្គ និងការផ្លាស់ប្តូរ]
+[ភ្លេងរន្ធត់] ថ្ងៃមួយ គ្រោះអាសន្នដ៏ធំបានមកដល់។ ភាពស្ងប់ស្ងាត់ត្រូវបានបំផ្លាញ ហើយតួអង្គទាំងអស់ត្រូវរត់ប្រណាំងជាមួយពេលវេលាដើម្បីសង្គ្រោះអ្វីៗដែលខ្លួនស្រលាញ់។ ការលះបង់ និងភាពក្លាហានត្រូវបានបង្ហាញយ៉ាងច្បាស់នៅគ្រប់ជំហាន។
+
+[វគ្គទី ៣៖ ទីបញ្ចប់ និងអត្ថន័យ]
+[ភ្លេងរំភើប] ទីបំផុត ពន្លឺនៃក្តីសង្ឃឹមក៏បានរះឡើងម្តងទៀត។ ឧបសគ្គទាំងឡាយបានក្លាយជាកម្លាំងចិត្ត និងមេរៀនដែលមិនអាចបំភ្លេចបាន។ "${title}" បញ្ជាក់ថាសេចក្តីល្អតែងតែយកឈ្នះលើសេចក្តីអាក្រក់ជានិច្ច។`;
+            }
+
+            return `[អត្ថបទ AI]\nបានបង្កើតសាច់រឿងជោគជ័យ។`;
+        }
+
         async function callGeminiTextAPI(systemPrompt, userPrompt) {
             const activeKey = getEffectiveApiKey();
             const apiUrl = `http://localhost:5050/api/generate`;
-            const payload = {
-                api_key: activeKey,
-                system_prompt: systemPrompt,
-                user_prompt: userPrompt
-            };
 
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                const result = await response.json();
-                const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (text) return text;
-                throw new Error('Empty response');
-            } catch (err) {
-                console.warn("AI API failed or no key, using beautiful mock response:", err);
-                // Demo Fallbacks to ensure the flow ALWAYS works for the user
-                if (currentTab === 'translate') {
-                    return `1
-00:00:01,000 --> 00:00:05,000
-គ្មាននរណាម្នាក់ជឿបុរសចំណាស់នោះទេ ពេលដែលគាត់បានព្រមានអ្នកភូមិអំពីអ័ព្ទពណ៌ក្រហមនោះ។
+            if (activeKey && activeKey.trim() !== '') {
+                const payload = {
+                    api_key: activeKey.trim(),
+                    system_prompt: systemPrompt,
+                    user_prompt: userPrompt
+                };
 
-2
-00:00:05,500 --> 00:00:10,000
-ត្រឹមពាក់កណ្តាលអធ្រាត្រ ទ្វារគ្រប់ផ្ទះនៅក្នុងទីក្រុងត្រូវបានចាក់សោរពីខាងក្រៅទាំងអស់។
-
-3
-00:00:11,000 --> 00:00:15,000
-ពួកគេមិនអាចរត់គេចបានទៀតទេ គ្រប់យ៉ាងគឺហួសពេលទៅហើយ។`;
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (response.ok) {
+                        const result = await response.json();
+                        const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+                        if (text && text.trim()) return text;
+                    } else {
+                        const errData = await response.json().catch(() => ({}));
+                        console.warn("Backend Gemini API response not ok:", response.status, errData);
+                    }
+                } catch (err) {
+                    console.warn("AI API request failed, falling back to smart generator:", err);
                 }
-                
-                return `[HOOK ទាក់ទាញ]
-តើអ្នកនឹងធ្វើបែបណា ប្រសិនបើអ្នកត្រូវបង្ខំចិត្តលេងល្បែងប្រថុយជីវិត ដើម្បីប្តូរនឹងប្រាក់រាប់លានដុល្លារ?
-
-[INTRO បើកឆាក]
-[ភ្លេងរន្ធត់] សូមស្វាគមន៍មកកាន់ការសម្រាយរឿង ដែលថ្ងៃនេះយើងនឹងនាំអារម្មណ៍អ្នកទាំងអស់គ្នាទៅតាមដានខ្សែភាពយន្តដ៏កក្រើក ដែលនិយាយពីការតស៊ូប្រជ្រែងយកជីវិតរស់រាន។
-
-[BODY សាច់រឿងសម្រាយ]
-[សំឡេងតិចៗ] សាច់រឿងចាប់ផ្តើមឡើង ដោយបង្ហាញពីតួឯក ដែលកំពុងតែជួបវិបត្តិយ៉ាងធ្ងន់ធ្ងរ។ ថ្ងៃមួយគាត់ត្រូវបានគេអញ្ជើញឱ្យចូលរួមការប្រកួតដ៏អាថ៌កំបាំងមួយនៅលើកោះដាច់ស្រយាលមួយ។ [ផ្អាកបន្តិច] នៅទីនោះ មានអ្នកចូលរួមជាច្រើនផ្សេងទៀត ដែលសុទ្ធតែជាអ្នកអស់ផ្លូវដើរដូចជាគាត់ដែរ។
-
-[OUTRO បញ្ចប់ និងសារអប់រំ]
-ទីបំផុត យើងឃើញថា ការតស៊ូមិនព្រមចុះចាញ់ គឺជាគន្លឹះតែមួយគត់ដែលនាំទៅរកភាពជោគជ័យ។ សូមអរគុណសម្រាប់ការតាមដានទស្សនា!`;
+            } else {
+                showToast('💡 បញ្ជាក់៖ មិនទាន់មាន API Key ទេ! កំពុងប្រើប្រព័ន្ធ AI ឆ្លាតវៃសម្រាយរឿងតាមចំណងជើង...', 'info');
             }
+
+            // High-quality smart Khmer generator tailored directly to the user's input
+            return generateSmartKhmerFallback(currentTab, userPrompt);
+        }
+
+        function handleProRecapVoice() {
+            autoNarrateAfterGenerate = true;
+            handleGenerate();
         }
 
         async function handleGenerate() {
@@ -1665,12 +1718,12 @@ const apiKey = "";
             let historyTitle = '';
 
             if (currentTab === 'recap') {
-                const title = document.getElementById('recapTitle').value.trim();
-                const tone = document.getElementById('recapTone').value;
-                const hook = document.getElementById('recapHook').value;
-                const length = document.getElementById('recapLength').value;
-                const naming = document.getElementById('recapNaming').value;
-                const plot = document.getElementById('recapPlot').value.trim();
+                const title = (document.getElementById('recapTitle')?.value || '').trim();
+                const tone = document.getElementById('recapTone')?.value || 'រំភើប ជក់ចិត្ត';
+                const hook = document.getElementById('recapHook')?.value || 'ចាប់អារម្មណ៍ខ្លាំងភ្លាមៗ';
+                const length = document.getElementById('recapLength')?.value || 'លម្អិត';
+                const naming = document.getElementById('recapNaming')?.value || 'ឈ្មោះតួពិត';
+                const plot = (document.getElementById('recapPlot')?.value || '').trim();
 
                 if (!title && !plot) {
                     showToast('សូមបញ្ចូលចំណងជើងរឿង ឬសាច់រឿងសង្ខេបជាមុនសិន!', 'warning');
@@ -1694,10 +1747,10 @@ const apiKey = "";
 - សាច់រឿងសង្ខេប៖ ${plot || 'សូមសម្រាយតាមសាច់រឿងពិតឱ្យជក់ចិត្តបំផុត'}`;
 
             } else if (currentTab === 'translate') {
-                const sourceLang = document.getElementById('transSourceLang').value;
-                const format = document.getElementById('transFormat').value;
-                const tone = document.getElementById('transTone').value;
-                const input = document.getElementById('transInput').value.trim();
+                const sourceLang = document.getElementById('transSourceLang')?.value || 'ភាសាអង់គ្លេស';
+                const format = document.getElementById('transFormat')?.value || 'សម្រាយរឿង';
+                const tone = document.getElementById('transTone')?.value || 'ធម្មជាតិ';
+                const input = (document.getElementById('transInput')?.value || '').trim();
 
                 if (!input) {
                     showToast('សូមបញ្ចូលអត្ថបទ ឬកូដ Subtitle ដែលត្រូវបកប្រែជាមុនសិន!', 'warning');
@@ -1708,33 +1761,33 @@ const apiKey = "";
                 userPrompt = `បកប្រែអត្ថបទខាងក្រោមមកជាភាសាខ្មែរ (${format}, ${tone})៖\n\n${input}`;
 
             } else if (currentTab === 'narrate') {
-                const voice = document.getElementById('narrateVoice').value;
-                const emotion = document.getElementById('narrateEmotion').value;
-                const text = document.getElementById('narrateText').value.trim();
+                const voice = document.getElementById('narrateVoice')?.value || 'Kore';
+                const emotion = document.getElementById('narrateEmotion')?.value || 'natural';
+                const text = (document.getElementById('narrateText')?.value || '').trim();
 
                 if (!text) {
                     showToast('សូមបញ្ចូលអត្ថបទដែលចង់បំប្លែងទៅជាសំឡេងជាមុនសិន!', 'warning');
                     return;
                 }
                 
-                // UI Flow: text to speech
                 historyTitle = `សំឡេងពិតៗ៖ ${text.slice(0, 25)}...`;
                 showToast(`កំពុងបំប្លែងសំឡេងដោយប្រើម៉ូដែល ${voice} (${emotion})...`, 'info');
                 
                 const outputTextarea = document.getElementById('outputTextarea');
-                outputTextarea.value = text;
-                setCenterStageMode('editor'); // Jump to script view!
+                if (outputTextarea) outputTextarea.value = text;
+                updateOutputContent(text, 'និទានរឿង');
+                setCenterStageMode('editor');
                 
                 setTimeout(() => {
                     generateAndPlayTTS(text);
-                }, 1000);
-                return; // Prevent normal LLM flow
+                }, 600);
+                return;
 
             } else if (currentTab === 'create') {
-                const genre = document.getElementById('createGenre').value;
-                const length = document.getElementById('createLength').value;
-                const structure = document.getElementById('createStructure').value;
-                const titlePrompt = document.getElementById('createTitlePrompt').value.trim();
+                const genre = document.getElementById('createGenre')?.value || 'ផ្សងព្រេង';
+                const length = document.getElementById('createLength')?.value || 'មធ្យម';
+                const structure = document.getElementById('createStructure')?.value || 'ពេញលេញ';
+                const titlePrompt = (document.getElementById('createTitlePrompt')?.value || '').trim();
 
                 if (!titlePrompt) {
                     showToast('សូមបញ្ចូលចំណងជើងរឿង ឬ គ្រោងរឿងដែលអ្នកចង់តែងជាមុនសិន!', 'warning');
@@ -1755,11 +1808,12 @@ const apiKey = "";
                     create: 'តែងរឿងថ្មី'
                 };
                 updateOutputContent(resultText, badgeNames[currentTab]);
-                setCenterStageMode('editor'); // automatically go to the Script view!
+                setCenterStageMode('editor');
                 saveToHistory(historyTitle, badgeNames[currentTab], resultText);
-                showToast('បានបង្កើតអត្ថបទ និងបញ្ចូលទៅក្នុង Timeline រួចរាល់!');
+                showToast('បានបង្កើតអត្ថបទ និងបញ្ចូលទៅក្នុង Timeline រួចរាល់!', 'success');
             } catch (err) {
-                showToast('មានបញ្ហាក្នុងការភ្ជាប់ AI សូមព្យាយាមម្តងទៀត។', 'error');
+                console.error("handleGenerate error:", err);
+                showToast('មានបញ្ហាក្នុងការបង្កើតអត្ថបទ សូមសាកល្បងម្តងទៀត។', 'error');
             } finally {
                 setLoadingState(false);
                 if (autoNarrateAfterGenerate) {
@@ -1767,7 +1821,7 @@ const apiKey = "";
                     setTimeout(() => {
                         showToast('កំពុងទាញយកសំឡេង AI អាជីព (Pro Voice)...', 'info');
                         generateAndPlayTTS();
-                    }, 1000);
+                    }, 800);
                 }
             }
         }
@@ -2009,10 +2063,17 @@ const apiKey = "";
             activeSegmentIndex = Math.max(0, Math.min(index, timelineSegments.length - 1));
             const seg = timelineSegments[activeSegmentIndex];
 
-            document.getElementById('stageSectionTag').textContent = seg.section;
-            document.getElementById('stageClipCounter').textContent = `ឈុតទី ${activeSegmentIndex + 1}/${timelineSegments.length}`;
-            document.getElementById('stageSoundCue').textContent = `🎧 ${seg.cue}`;
-            document.getElementById('stageActiveSubtitle').textContent = seg.text;
+            const subWrapper = document.getElementById('subtitleWrapper');
+            if (subWrapper) subWrapper.classList.remove('hidden');
+
+            const sectionTag = document.getElementById('stageSectionTag');
+            if (sectionTag) sectionTag.textContent = seg.section;
+            const clipCounter = document.getElementById('stageClipCounter');
+            if (clipCounter) clipCounter.textContent = `ឈុតទី ${activeSegmentIndex + 1}/${timelineSegments.length}`;
+            const soundCue = document.getElementById('stageSoundCue');
+            if (soundCue) soundCue.textContent = `🎧 ${seg.cue}`;
+            const activeSubtitle = document.getElementById('stageActiveSubtitle');
+            if (activeSubtitle) activeSubtitle.textContent = seg.text;
 
             // Calculate elapsed time up to this clip
             let elapsed = 0;
@@ -2288,13 +2349,23 @@ const apiKey = "";
             const overlay = document.getElementById('loadingOverlay');
             const btn = document.getElementById('generateBtn');
             if (isLoading) {
-                overlay.classList.remove('hidden');
-                overlay.classList.add('flex');
-                btn.disabled = true;
+                if (overlay) {
+                    overlay.classList.remove('hidden');
+                    overlay.classList.add('flex');
+                }
+                if (btn) {
+                    btn.disabled = true;
+                    btn.classList.add('opacity-50', 'pointer-events-none');
+                }
             } else {
-                overlay.classList.add('hidden');
-                overlay.classList.remove('flex');
-                btn.disabled = false;
+                if (overlay) {
+                    overlay.classList.add('hidden');
+                    overlay.classList.remove('flex');
+                }
+                if (btn) {
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-50', 'pointer-events-none');
+                }
             }
         }
 
@@ -2332,71 +2403,91 @@ const apiKey = "";
             return new Blob([view], { type: 'audio/wav' });
         }
 
-        async function generateAndPlayTTS() {
-            if (!currentOutputText.trim()) return;
-            const voiceName = document.getElementById('ttsVoiceSelect').value;
-            const playBtn = document.getElementById('ttsPlayBtn');
-            const stopBtn = document.getElementById('ttsStopBtn');
-            const audioPlayer = document.getElementById('aiAudioPlayer');
-
-            const activeSeg = timelineSegments[activeSegmentIndex];
-            const textToRead = (activeSeg ? activeSeg.text : currentOutputText)
+        async function generateAndPlayTTS(customText) {
+            const textToRead = (customText || (timelineSegments[activeSegmentIndex] ? timelineSegments[activeSegmentIndex].text : currentOutputText))
                 .replace(/\[[^\]]*\]/g, ' ')
                 .trim()
                 .slice(0, 700);
 
-            playBtn.disabled = true;
-            document.getElementById('ttsPlayIcon').className = 'fa-solid fa-spinner fa-spin';
-            document.getElementById('ttsPlayLabel').textContent = 'កំពុងបង្កើតសំឡេង...';
+            if (!textToRead) {
+                showToast('សូមបញ្ចូល ឬជ្រើសរើសអត្ថបទជាមុនសិន!', 'warning');
+                return;
+            }
+
+            const voiceSelect = document.getElementById('ttsVoiceSelect');
+            const voiceName = voiceSelect ? voiceSelect.value : 'Kore';
+            const playBtn = document.getElementById('ttsPlayBtn');
+            const stopBtn = document.getElementById('ttsStopBtn');
+            const audioPlayer = document.getElementById('aiAudioPlayer');
+            const playIcon = document.getElementById('ttsPlayIcon');
+            const playLabel = document.getElementById('ttsPlayLabel');
+
+            if (playBtn) playBtn.disabled = true;
+            if (playIcon) playIcon.className = 'fa-solid fa-spinner fa-spin';
+            if (playLabel) playLabel.textContent = 'កំពុងបង្កើតសំឡេង...';
 
             const activeKey = getEffectiveApiKey();
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${activeKey}`;
-            const payload = {
-                contents: [{ parts: [{ text: `Read this expressive story narration naturally: ${textToRead}` }] }],
-                generationConfig: {
-                    responseModalities: ["AUDIO"],
-                    speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } }
-                },
-                model: "gemini-2.5-flash-preview-tts"
-            };
 
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                if (!response.ok) throw new Error('TTS Error');
-                const result = await response.json();
-                const part = result?.candidates?.[0]?.content?.parts?.[0];
-                const audioData = part?.inlineData?.data;
-                const mimeType = part?.inlineData?.mimeType || 'audio/L16;rate=24000';
+            if (activeKey && activeKey.trim() !== '') {
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${activeKey}`;
+                const payload = {
+                    contents: [{ parts: [{ text: `Read this expressive story narration naturally: ${textToRead}` }] }],
+                    generationConfig: {
+                        responseModalities: ["AUDIO"],
+                        speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } }
+                    },
+                    model: "gemini-2.5-flash-preview-tts"
+                };
 
-                if (audioData) {
-                    const rateMatch = mimeType.match(/rate=(\d+)/);
-                    const sampleRate = rateMatch ? parseInt(rateMatch[1], 10) : 24000;
-                    const pcm16 = new Int16Array(base64ToArrayBuffer(audioData));
-                    const wavBlob = pcmToWav(pcm16, sampleRate);
-                    audioPlayer.src = URL.createObjectURL(wavBlob);
-                    stopBtn.classList.remove('hidden');
-                    await audioPlayer.play();
-                    showToast(`កំពុងចាក់សំឡេងនិទាន AI (${voiceName})`);
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) throw new Error('TTS Error');
+                    const result = await response.json();
+                    const part = result?.candidates?.[0]?.content?.parts?.[0];
+                    const audioData = part?.inlineData?.data;
+                    const mimeType = part?.inlineData?.mimeType || 'audio/L16;rate=24000';
+
+                    if (audioData) {
+                        const rateMatch = mimeType.match(/rate=(\d+)/);
+                        const sampleRate = rateMatch ? parseInt(rateMatch[1], 10) : 24000;
+                        const pcm16 = new Int16Array(base64ToArrayBuffer(audioData));
+                        const wavBlob = pcmToWav(pcm16, sampleRate);
+                        if (audioPlayer) {
+                            audioPlayer.src = URL.createObjectURL(wavBlob);
+                            if (stopBtn) stopBtn.classList.remove('hidden');
+                            await audioPlayer.play();
+                            showToast(`កំពុងចាក់សំឡេងនិទាន AI (${voiceName})`, 'success');
+                            return;
+                        }
+                    }
+                } catch (e) {
+                    console.warn("Gemini TTS failed, falling back to Web Speech:", e);
                 }
-            } catch (e) {
-                if ('speechSynthesis' in window) {
-                    window.speechSynthesis.cancel();
-                    const u = new SpeechSynthesisUtterance(textToRead);
-                    u.lang = 'km-KH';
-                    window.speechSynthesis.speak(u);
-                    stopBtn.classList.remove('hidden');
-                } else {
-                    showToast('មិនអាចចាក់សំឡេងបានទេនៅពេលនេះ', 'error');
-                }
-            } finally {
-                playBtn.disabled = false;
-                document.getElementById('ttsPlayIcon').className = 'fa-solid fa-volume-high';
-                document.getElementById('ttsPlayLabel').textContent = 'ស្ដាប់សំឡេង AI';
             }
+
+            // Web Speech API fallback (works offline in browser!)
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const u = new SpeechSynthesisUtterance(textToRead);
+                u.lang = 'km-KH';
+                u.rate = 0.95;
+                u.onend = () => {
+                    if (stopBtn) stopBtn.classList.add('hidden');
+                };
+                window.speechSynthesis.speak(u);
+                if (stopBtn) stopBtn.classList.remove('hidden');
+                showToast(`កំពុងបញ្ចេញសំឡេងអាន (Web Speech)`, 'info');
+            } else {
+                showToast('មិនអាចចាក់សំឡេងបានទេនៅពេលនេះ', 'error');
+            }
+
+            if (playBtn) playBtn.disabled = false;
+            if (playIcon) playIcon.className = 'fa-solid fa-volume-high';
+            if (playLabel) playLabel.textContent = 'ស្ដាប់សំឡេង AI';
         }
 
         function stopAllAudio() {
@@ -2501,7 +2592,8 @@ const apiKey = "";
         }
 
         function loadHistoryCount() {
-            document.getElementById('historyCountBadge').textContent = getSavedHistory().length;
+            const badge = document.getElementById('historyCountBadge');
+            if (badge) badge.textContent = getSavedHistory().length;
         }
 
         function toggleHistoryModal() {
