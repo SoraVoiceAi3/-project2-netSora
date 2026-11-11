@@ -563,7 +563,7 @@
                     </div>
 
                     <!-- Direct Google Gemini Connection Status Pill -->
-                    <div id="recapGoogleStatusBox" onclick="toggleApiModal()" class="cursor-pointer px-3 py-2 rounded-xl border flex items-center justify-between transition-all bg-[#14151b] border-amber-500/30 hover:border-amber-400 group shadow-sm" title="ចុចទីនេះដើម្បីភ្ជាប់ Google Gemini API Key">
+                    <div id="recapGoogleStatusBox" onclick="toggleApiModal('apikeys')" class="cursor-pointer px-3 py-2 rounded-xl border flex items-center justify-between transition-all bg-[#14151b] border-amber-500/30 hover:border-amber-400 group shadow-sm" title="ចុចទីនេះដើម្បីភ្ជាប់ Google Gemini API Key">
                         <div class="flex items-center gap-2">
                             <i id="recapGoogleStatusIcon" class="fa-brands fa-google text-[#4285F4] text-xs"></i>
                             <span id="recapGoogleStatusText" class="text-[11px] text-amber-300 font-bold">Google AI: មិនទាន់ភ្ជាប់ (Connect)</span>
@@ -658,7 +658,7 @@
                 <!-- FORM 2: បកប្រែរឿង (TRANSLATE STORY & SRT) -->
                 <div id="toolForm-translate" class="space-y-3.5 hidden pt-1">
                     <!-- Direct Google Gemini Connection Status Pill for Translation -->
-                    <div id="transGoogleStatusBox" onclick="toggleApiModal()" class="cursor-pointer px-3 py-2 rounded-xl border flex items-center justify-between transition-all bg-[#14151b] border-amber-500/30 hover:border-amber-400 group shadow-sm mb-2" title="ចុចទីនេះដើម្បីភ្ជាប់ Google Gemini API Key">
+                    <div id="transGoogleStatusBox" onclick="toggleApiModal('apikeys')" class="cursor-pointer px-3 py-2 rounded-xl border flex items-center justify-between transition-all bg-[#14151b] border-amber-500/30 hover:border-amber-400 group shadow-sm mb-2" title="ចុចទីនេះដើម្បីភ្ជាប់ Google Gemini API Key">
                         <div class="flex items-center gap-2">
                             <i id="transGoogleStatusIcon" class="fa-brands fa-google text-[#4285F4] text-xs"></i>
                             <span id="transGoogleStatusText" class="text-[11px] text-amber-300 font-bold">Google AI: មិនទាន់ភ្ជាប់ (Connect)</span>
@@ -1304,11 +1304,16 @@
                         <div class="text-[10px] font-extrabold text-[#5a5a6a] uppercase tracking-[0.15em]">System</div>
                     </div>
                     
-                    <button id="setTab-general" onclick="switchSettingsTab('general')" class="settings-sidebar-btn group flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-[#9ca3af] hover:bg-white/5 hover:text-white transition-all duration-300 text-[13px] font-semibold w-full text-left relative overflow-hidden border border-transparent hover:border-white/10 cursor-pointer">
-                        <div class="w-8 h-8 rounded-[10px] bg-gradient-to-br from-[#4a4a5a] to-[#2a2a35] flex items-center justify-center shadow-inner border border-white/10 group-hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] transition-all">
-                            <i class="fa-solid fa-sliders text-[12px] text-[#d1d5db] group-hover:text-white group-hover:scale-110 transition-transform"></i>
+                    <!-- Selected Tab (General default active) -->
+                    <button id="setTab-general" onclick="switchSettingsTab('general')" class="settings-sidebar-btn flex items-center justify-between px-3.5 py-3 rounded-xl bg-gradient-to-r from-[#00e5cc]/20 via-[#00e5cc]/5 to-transparent text-white font-extrabold border-l-[4px] border-[#00e5cc] transition-all text-[13px] w-full text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] relative overflow-hidden group cursor-pointer">
+                        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 pointer-events-none"></div>
+                        <div class="flex items-center gap-3.5 relative z-10">
+                            <div class="w-8 h-8 rounded-[10px] bg-gradient-to-br from-[#00e5cc] to-[#009988] flex items-center justify-center shadow-[0_0_15px_rgba(0,229,204,0.5)] border border-white/30 relative">
+                                <div class="absolute inset-0 bg-white/20 rounded-[10px] opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <i class="fa-solid fa-sliders text-[13px] text-[#051124] drop-shadow-md group-hover:scale-110 transition-transform"></i>
+                            </div>
+                            <span class="tracking-wide drop-shadow-sm text-[#00e5cc]">General</span>
                         </div>
-                        <span class="relative z-10 tracking-wide">General</span>
                     </button>
                     
                     <button id="setTab-appearance" onclick="switchSettingsTab('appearance')" class="settings-sidebar-btn group flex items-center justify-between px-3.5 py-3 rounded-xl text-[#9ca3af] hover:bg-white/5 hover:text-white transition-all duration-300 text-[13px] font-semibold w-full text-left relative overflow-hidden border border-transparent hover:border-white/10 cursor-pointer">
@@ -1328,15 +1333,12 @@
                         <div class="text-[10px] font-extrabold text-[#5a5a6a] uppercase tracking-[0.15em]">AI Studio</div>
                     </div>
                     
-                    <!-- Selected Tab (API Keys default active) -->
-                    <button id="setTab-apikeys" onclick="switchSettingsTab('apikeys')" class="settings-sidebar-btn flex items-center justify-between px-3.5 py-3 rounded-xl bg-gradient-to-r from-[#00e5cc]/20 via-[#00e5cc]/5 to-transparent text-white font-extrabold border-l-[4px] border-[#00e5cc] transition-all text-[13px] w-full text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] relative overflow-hidden group cursor-pointer">
-                        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 pointer-events-none"></div>
+                    <button id="setTab-apikeys" onclick="switchSettingsTab('apikeys')" class="settings-sidebar-btn group flex items-center justify-between px-3.5 py-3 rounded-xl text-[#9ca3af] hover:bg-white/5 hover:text-white transition-all duration-300 text-[13px] font-semibold w-full text-left relative overflow-hidden border border-transparent hover:border-white/10 cursor-pointer">
                         <div class="flex items-center gap-3.5 relative z-10">
-                            <div class="w-8 h-8 rounded-[10px] bg-gradient-to-br from-[#00e5cc] to-[#009988] flex items-center justify-center shadow-[0_0_15px_rgba(0,229,204,0.5)] border border-white/30 relative">
-                                <div class="absolute inset-0 bg-white/20 rounded-[10px] opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                <i class="fa-solid fa-key text-[13px] text-[#051124] drop-shadow-md group-hover:rotate-12 group-hover:scale-110 transition-transform"></i>
+                            <div class="w-8 h-8 rounded-[10px] bg-gradient-to-br from-[#3b82f6] to-[#1d4ed8] flex items-center justify-center shadow-inner border border-white/20 group-hover:shadow-[0_0_15px_rgba(59,130,246,0.4)] transition-all">
+                                <i class="fa-solid fa-key text-[12px] text-white group-hover:rotate-12 group-hover:scale-110 transition-transform"></i>
                             </div>
-                            <span class="tracking-wide drop-shadow-sm text-[#00e5cc]">API Keys</span>
+                            <span class="tracking-wide">API Keys</span>
                         </div>
                     </button>
                     
@@ -1385,7 +1387,7 @@
                     <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.02] pointer-events-none"></div>
 
                     <!-- ==================== PANEL 1: API KEYS ==================== -->
-                    <div id="setPanel-apikeys" class="settings-content-panel relative z-10 space-y-8">
+                    <div id="setPanel-apikeys" class="settings-content-panel hidden relative z-10 space-y-8">
                         <div>
                             <div class="flex items-center justify-between mb-4 ml-1">
                                 <div class="flex items-center gap-3">
@@ -1596,7 +1598,7 @@
                     </div>
 
                     <!-- ==================== PANEL 3: GENERAL SETTINGS ==================== -->
-                    <div id="setPanel-general" class="settings-content-panel hidden relative z-10 space-y-6">
+                    <div id="setPanel-general" class="settings-content-panel relative z-10 space-y-6">
                         <div class="border-b border-[#282834] pb-4">
                             <h3 class="text-white text-base font-extrabold flex items-center gap-2">
                                 <i class="fa-solid fa-sliders text-blue-400"></i>

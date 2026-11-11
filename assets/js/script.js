@@ -2924,7 +2924,7 @@ const apiKey = "";
             }
         }
 
-        function toggleApiModal() {
+        function toggleApiModal(targetTab = 'general') {
             const modal = document.getElementById('apiModal');
             if (!modal) return;
             if (modal.classList.contains('hidden') || modal.style.display === 'none') {
@@ -2936,9 +2936,10 @@ const apiKey = "";
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');
                 modal.style.display = 'flex';
-                setTimeout(() => {
-                    if (keyInput) keyInput.focus();
-                }, 100);
+                
+                // Stand on General by default, or specific tab requested
+                const tabToOpen = (typeof targetTab === 'string' && targetTab) ? targetTab : 'general';
+                switchSettingsTab(tabToOpen);
             } else {
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
