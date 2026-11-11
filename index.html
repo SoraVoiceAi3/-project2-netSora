@@ -411,10 +411,11 @@
                 </div>
 
                 <!-- MODE A: Visual Player Stage -->
-                <div id="centerVisualStage" class="w-full h-full flex flex-col justify-between p-4 relative">
-                    <!-- Optional Uploaded Video/Image Preview -->
-                    <video id="uploadedVideoPreview" class="hidden absolute inset-0 w-full h-full object-contain bg-black z-0" playsinline></video>
-                    <img id="uploadedImagePreview" class="hidden absolute inset-0 w-full h-full object-contain bg-black z-0" alt="Uploaded Media">
+                <div id="centerVisualStage" class="w-full h-full flex items-center justify-center p-3 relative overflow-hidden">
+                    <div id="playerAspectRatioBox" class="relative w-full h-full max-w-full flex flex-col justify-between p-3 bg-black rounded-xl transition-all duration-500 overflow-hidden">
+                        <!-- Optional Uploaded Video/Image Preview -->
+                        <video id="uploadedVideoPreview" class="hidden absolute inset-0 w-full h-full object-contain bg-black z-0" playsinline></video>
+                        <img id="uploadedImagePreview" class="hidden absolute inset-0 w-full h-full object-contain bg-black z-0" alt="Uploaded Media">
 
                     <!-- Center Scene Visualizer / Active Story Paragraph -->
                     <div id="subtitleWrapper" class="relative z-10 my-auto max-w-xl mx-auto text-center px-6 py-5 rounded-2xl bg-black border border-[#2b2b33] shadow-xl hidden transition-all duration-500">
@@ -439,6 +440,7 @@
                                 <span class="font-medium">.TXT</span>
                             </button>
                         </div>
+                    </div>
                     </div>
                     <audio id="aiAudioPlayer" class="hidden"></audio>
                 </div>
@@ -505,8 +507,8 @@
                     </button>
                     
                     <!-- Quality Selector (New) -->
-                    <div onclick="showToast('ជម្រើសគុណភាពបង្ហាញ (1080P/4K)', 'info')" class="px-2.5 py-1.5 rounded-md bg-[#1f1f27] hover:bg-[#2b2b36] text-slate-300 cursor-pointer transition-colors shadow-sm flex items-center gap-1.5">
-                        <span class="font-bold">1080P</span> <i class="fa-solid fa-caret-down text-[10px]"></i>
+                    <div id="playerQualityBadge" onclick="toggleApiModal('general')" class="px-2.5 py-1.5 rounded-md bg-[#1f1f27] hover:bg-[#2b2b36] text-slate-300 cursor-pointer transition-colors shadow-sm flex items-center gap-1.5 font-bold font-mono text-[11px]" title="ប្តូរកម្រិតគុណភាព Export ក្នុង Settings">
+                        <span id="playerQualityText">1080P</span> <i class="fa-solid fa-caret-down text-[10px]"></i>
                     </div>
 
                     <!-- Ratio Selector -->
@@ -1272,7 +1274,7 @@
     </div>
 
     <div id="apiModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 transition-all duration-300">
-        <div class="bg-[#13131a] w-full max-w-4xl h-[580px] rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col overflow-hidden border border-[#2b2b36] relative group/modal">
+        <div class="bg-[#13131a] w-full max-w-4xl h-[640px] max-h-[92vh] rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col overflow-hidden border border-[#2b2b36] relative group/modal">
             
             <!-- Modal Background Glow -->
             <div class="absolute -top-40 -right-40 w-96 h-96 bg-[#00e5cc]/10 rounded-full blur-[100px] pointer-events-none transition-opacity duration-700 opacity-50 group-hover/modal:opacity-80"></div>
@@ -1381,7 +1383,7 @@
                 </div>
 
                 <!-- Main Content Area -->
-                <div class="flex-1 bg-[#1a1a24] p-10 overflow-y-auto custom-scrollbar relative">
+                <div class="flex-1 bg-[#1a1a24] p-7 md:p-8 pb-16 overflow-y-auto custom-scrollbar relative">
                     
                     <!-- Subtle Background Grid -->
                     <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.02] pointer-events-none"></div>
@@ -1599,67 +1601,141 @@
 
                     <!-- ==================== PANEL 3: GENERAL SETTINGS ==================== -->
                     <div id="setPanel-general" class="settings-content-panel relative z-10 space-y-6">
-                        <div class="border-b border-[#282834] pb-4">
-                            <h3 class="text-white text-base font-extrabold flex items-center gap-2">
-                                <i class="fa-solid fa-sliders text-blue-400"></i>
-                                General Settings (ការកំណត់ទូទៅ)
-                            </h3>
-                            <p class="text-[11px] text-[#788294] mt-0.5">គ្រប់គ្រងគម្រោង ការរក្សាទុកស្វ័យប្រវត្តិ និងទំហំវីដេអូ</p>
+                        <div class="border-b border-[#282834] pb-4 flex items-center justify-between">
+                            <div>
+                                <h3 class="text-white text-base font-extrabold flex items-center gap-2">
+                                    <div class="w-7 h-7 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center text-xs">
+                                        <i class="fa-solid fa-sliders"></i>
+                                    </div>
+                                    General Settings (ការកំណត់ទូទៅ)
+                                </h3>
+                                <p class="text-[11px] text-[#788294] mt-0.5">គ្រប់គ្រងគម្រោង ការរក្សាទុកស្វ័យប្រវត្តិ ទំហំវីដេអូ និងគុណភាព Export</p>
+                            </div>
+                            <span class="text-[10px] font-mono text-[#00e5cc] bg-[#00e5cc]/10 px-2.5 py-1 rounded-full border border-[#00e5cc]/30">Live Sync</span>
                         </div>
 
                         <div class="space-y-4">
-                            <!-- Option 1: Auto-save -->
-                            <div class="p-4 rounded-xl bg-[#181822] border border-[#2b2b36] flex items-center justify-between">
-                                <div>
-                                    <div class="text-[12.5px] font-bold text-white">រក្សាទុកការងារស្វ័យប្រវត្តិ (Auto-save)</div>
-                                    <div class="text-[11px] text-[#8e8e98]">រក្សាទុកការកែសម្រួល Timeline និង Script រៀងរាល់ ៣០ វិនាទីម្តង</div>
+                            <!-- Section 1: Project Metadata -->
+                            <div class="p-4 rounded-2xl bg-[#181822] border border-[#2b2b36] shadow-sm space-y-3">
+                                <div class="flex items-center gap-2 text-[12px] font-bold text-slate-200">
+                                    <i class="fa-solid fa-folder-open text-[#00e5cc] text-xs"></i>
+                                    <span>ព័ត៌មានគម្រោង (Project Information)</span>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                                    <div class="space-y-1.5">
+                                        <label class="block text-[10.5px] font-bold text-[#8e8e98]">ឈ្មោះគម្រោង (Project Title)</label>
+                                        <input type="text" id="genProjectTitle" placeholder="គម្រោងសម្រាយរឿងទី ១..." class="w-full bg-[#121218] border border-[#2e2e3a] focus:border-[#00e5cc] rounded-xl px-3.5 py-2.5 text-xs text-white outline-none font-medium transition-colors" onchange="saveGeneralProjectInfo()">
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <label class="block text-[10.5px] font-bold text-[#8e8e98]">ឈ្មោះអ្នកនិពន្ធ ឬ Channel</label>
+                                        <input type="text" id="genAuthorName" placeholder="Sora Movie Recap..." class="w-full bg-[#121218] border border-[#2e2e3a] focus:border-[#00e5cc] rounded-xl px-3.5 py-2.5 text-xs text-white outline-none font-medium transition-colors" onchange="saveGeneralProjectInfo()">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Section 2: Auto-save Toggle -->
+                            <div class="p-4 rounded-2xl bg-[#181822] border border-[#2b2b36] shadow-sm flex items-center justify-between">
+                                <div class="space-y-0.5">
+                                    <div class="text-[12.5px] font-bold text-white flex items-center gap-2">
+                                        <i class="fa-solid fa-cloud-arrow-up text-[#00e5cc] text-xs"></i>
+                                        <span>រក្សាទុកការងារស្វ័យប្រវត្តិ (Smart Auto-save)</span>
+                                    </div>
+                                    <div id="genAutoSaveStatusText" class="text-[11px] text-[#8e8e98]">
+                                        <span class="text-emerald-400 font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> បើកដំណើរការ (រក្សាទុកស្វ័យប្រវត្តិរៀងរាល់ 30 វិនាទី)</span>
+                                    </div>
                                 </div>
                                 <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" id="genAutoSaveToggle" class="sr-only peer" checked>
+                                    <input type="checkbox" id="genAutoSaveToggle" class="sr-only peer" checked onchange="toggleAutoSaveSetting(this.checked)">
                                     <div class="w-11 h-6 bg-[#2a2a35] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#00e5cc]"></div>
                                 </label>
                             </div>
 
-                            <!-- Option 2: Default Ratio -->
-                            <div class="p-4 rounded-xl bg-[#181822] border border-[#2b2b36] flex items-center justify-between">
-                                <div>
-                                    <div class="text-[12.5px] font-bold text-white">ទំហំវីដេអូលំនាំដើម (Default Aspect Ratio)</div>
-                                    <div class="text-[11px] text-[#8e8e98]">ជ្រើសរើសទំហំវីដេអូសម្រាប់ YouTube ឬ TikTok</div>
+                            <!-- Section 3: Visual Aspect Ratio Cards -->
+                            <div class="p-4 rounded-2xl bg-[#181822] border border-[#2b2b36] shadow-sm space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <div class="text-[12px] font-bold text-slate-200 flex items-center gap-2">
+                                        <i class="fa-solid fa-crop-simple text-[#00e5cc] text-xs"></i>
+                                        <span>ទំហំវីដេអូលំនាំដើម (Aspect Ratio)</span>
+                                    </div>
+                                    <span class="text-[10px] text-[#8e8e98]">ប្តូរហើយ ផ្ទាំង Player កណ្តាលនឹងប្តូរតាមភ្លាម</span>
                                 </div>
-                                <select id="genDefaultRatio" class="bg-[#121218] border border-[#2e2e3a] text-slate-200 text-[11.5px] rounded-lg px-3 py-1.5 outline-none cursor-pointer">
-                                    <option value="16:9">16:9 (YouTube Landscape)</option>
-                                    <option value="9:16">9:16 (TikTok / Reels Vertical)</option>
-                                </select>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <!-- 16:9 Landscape Card -->
+                                    <div id="ratioCard-16_9" onclick="setAspectRatio('16:9')" class="ratio-card active p-3.5 rounded-xl border-2 border-[#00e5cc] bg-[#20202b] cursor-pointer transition-all hover:bg-[#252535] group shadow-md shadow-[#00e5cc]/10">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-6 h-4 rounded-sm border-2 border-[#00e5cc] flex items-center justify-center">
+                                                    <div class="w-2 h-1 bg-[#00e5cc] rounded-xs"></div>
+                                                </div>
+                                                <span class="text-[12.5px] font-black text-white">16:9 ផ្ដេក (Landscape)</span>
+                                            </div>
+                                            <span class="text-[9.5px] font-bold px-2 py-0.5 rounded bg-red-600/20 text-red-400 border border-red-500/30">YouTube / FB</span>
+                                        </div>
+                                        <div class="text-[10.5px] text-[#8e8e98]">សម្រាប់ផលិតវីដេអូសម្រាយរឿងខ្នាតវែងលើ YouTube, Web និង Facebook</div>
+                                    </div>
+
+                                    <!-- 9:16 Vertical Card -->
+                                    <div id="ratioCard-9_16" onclick="setAspectRatio('9:16')" class="ratio-card p-3.5 rounded-xl border border-[#2b2b36] bg-[#181822] cursor-pointer transition-all hover:bg-[#252535] group">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-4 h-6 rounded-sm border-2 border-slate-500 group-hover:border-[#00e5cc] flex items-center justify-center">
+                                                    <div class="w-1 h-2 bg-slate-500 group-hover:bg-[#00e5cc] rounded-xs"></div>
+                                                </div>
+                                                <span class="text-[12.5px] font-black text-white">9:16 បញ្ឈរ (Vertical)</span>
+                                            </div>
+                                            <span class="text-[9.5px] font-bold px-2 py-0.5 rounded bg-cyan-600/20 text-cyan-300 border border-cyan-500/30">TikTok / Reels</span>
+                                        </div>
+                                        <div class="text-[10.5px] text-[#8e8e98]">សម្រាប់ផលិតវីដេអូសម្រាយរឿងខ្លីៗ TikTok, YouTube Shorts, Reels</div>
+                                    </div>
+                                </div>
                             </div>
 
-                            <!-- Option 3: Export Resolution -->
-                            <div class="p-4 rounded-xl bg-[#181822] border border-[#2b2b36] flex items-center justify-between">
+                            <!-- Section 4: Export Resolution Pills -->
+                            <div class="p-4 rounded-2xl bg-[#181822] border border-[#2b2b36] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
                                 <div>
-                                    <div class="text-[12.5px] font-bold text-white">កម្រិតរូបភាពពេល Export (Video Resolution)</div>
-                                    <div class="text-[11px] text-[#8e8e98]">កម្រិតច្បាស់ពេលទាញយកវីដេអូសម្រាយរឿង</div>
+                                    <div class="text-[12.5px] font-bold text-white flex items-center gap-2">
+                                        <i class="fa-solid fa-display text-[#00e5cc] text-xs"></i>
+                                        <span>កម្រិតរូបភាពពេល Export (Video Resolution)</span>
+                                    </div>
+                                    <div class="text-[11px] text-[#8e8e98]">កម្រិតច្បាស់ពេលទាញយកវីដេអូសម្រាយរឿង (ប្តូរស្លាកក្រោម Player អូតូ)</div>
                                 </div>
-                                <select id="genExportRes" class="bg-[#121218] border border-[#2e2e3a] text-slate-200 text-[11.5px] rounded-lg px-3 py-1.5 outline-none cursor-pointer">
-                                    <option value="1080p">1080p Full HD (60fps - ណែនាំ)</option>
-                                    <option value="4k">4K Ultra HD (30fps)</option>
-                                    <option value="720p">720p HD</option>
-                                </select>
+                                <div class="flex items-center gap-2">
+                                    <button id="resPill-1080p" onclick="setExportResolution('1080p')" class="res-pill px-4 py-2 rounded-xl bg-[#00e5cc]/15 border-2 border-[#00e5cc] text-[#00e5cc] font-extrabold text-[11.5px] cursor-pointer transition-all shadow-[0_0_12px_rgba(0,229,204,0.3)]">
+                                        1080P FHD (60fps)
+                                    </button>
+                                    <button id="resPill-4k" onclick="setExportResolution('4k')" class="res-pill px-4 py-2 rounded-xl bg-[#181822] border border-[#2b2b36] text-slate-300 font-bold text-[11.5px] cursor-pointer hover:border-slate-500 transition-all">
+                                        4K UHD
+                                    </button>
+                                    <button id="resPill-720p" onclick="setExportResolution('720p')" class="res-pill px-4 py-2 rounded-xl bg-[#181822] border border-[#2b2b36] text-slate-300 font-bold text-[11.5px] cursor-pointer hover:border-slate-500 transition-all">
+                                        720P HD
+                                    </button>
+                                </div>
                             </div>
 
-                            <!-- Danger Zone -->
-                            <div class="p-4 rounded-xl bg-rose-950/20 border border-rose-500/30 flex items-center justify-between">
+                            <!-- Section 5: Danger Zone -->
+                            <div class="p-4 rounded-2xl bg-rose-950/20 border border-rose-500/30 flex items-center justify-between">
                                 <div>
-                                    <div class="text-[12.5px] font-bold text-rose-300">សម្អាតទិន្នន័យគម្រោង (Reset Project)</div>
-                                    <div class="text-[11px] text-[#8e8e98]">លុបសម្ភារៈលើ Timeline និងអត្ថបទចាស់ៗចេញទាំងអស់</div>
+                                    <div class="text-[12.5px] font-bold text-rose-300 flex items-center gap-2">
+                                        <i class="fa-solid fa-triangle-exclamation text-rose-400"></i>
+                                        <span>សម្អាតទិន្នន័យគម្រោង (Reset Workspace)</span>
+                                    </div>
+                                    <div class="text-[11px] text-[#8e8e98]">លុបសម្ភារៈលើ Timeline និងអត្ថបទចាស់ៗចេញដើម្បីចាប់ផ្តើមគម្រោងថ្មី</div>
                                 </div>
-                                <button onclick="resetWorkspaceData()" class="px-3.5 py-1.5 rounded-lg bg-rose-600/30 hover:bg-rose-600 border border-rose-500/50 text-rose-200 hover:text-white text-[11px] font-bold transition-all cursor-pointer">
-                                    Reset Workspace
+                                <button onclick="resetWorkspaceData()" class="px-4 py-2 rounded-xl bg-rose-600/30 hover:bg-rose-600 border border-rose-500/50 text-rose-200 hover:text-white text-[11px] font-bold transition-all shadow-sm cursor-pointer flex items-center gap-1.5">
+                                    <i class="fa-solid fa-trash-can text-xs"></i> Reset Workspace
                                 </button>
                             </div>
                         </div>
 
-                        <div class="flex justify-end pt-2">
-                            <button onclick="showToast('បានរក្សាទុកការកំណត់ទូទៅ!', 'success')" class="px-6 py-2.5 rounded-xl bg-[#00e5cc] text-black font-extrabold text-[12px] cursor-pointer">
-                                រក្សាទុក
+                        <!-- Sticky Clean Footer -->
+                        <div class="flex items-center justify-between pt-4 border-t border-[#2b2b36]">
+                            <div class="text-[11px] text-[#8e8e98] flex items-center gap-1.5">
+                                <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                                <span>ការកំណត់ត្រូវបានរក្សាទុកក្នុងកុំព្យូទ័ររបស់អ្នកដោយស្វ័យប្រវត្តិ</span>
+                            </div>
+                            <button onclick="saveAllGeneralSettings()" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#00e5cc] to-[#00b3a0] hover:from-[#00f2d8] hover:to-[#00ccb6] text-[#051124] font-extrabold text-[12px] shadow-[0_0_20px_rgba(0,229,204,0.4)] flex items-center gap-2 transition-all cursor-pointer">
+                                <i class="fa-solid fa-check"></i>
+                                <span>រក្សាទុកទាំងអស់ (Save All)</span>
                             </button>
                         </div>
                     </div>

@@ -2426,6 +2426,9 @@ const apiKey = "";
             if (typeof updateGoogleConnectionUI === 'function') {
                 updateGoogleConnectionUI();
             }
+            if (typeof initGeneralSettings === 'function') {
+                initGeneralSettings();
+            }
         });
 
         function formatCapCutTimecode(totalSeconds) {
@@ -3062,6 +3065,137 @@ const apiKey = "";
                 renderTimelineSegments();
                 showToast('បានសម្អាត Workspace រួចរាល់!', 'info');
             }
+        }
+
+        // ==================== GENERAL SETTINGS LIVE LOGIC ====================
+        let autoSaveIntervalTimer = null;
+
+        function setAspectRatio(ratio) {
+            localStorage.setItem('khmer_studio_ratio', ratio);
+            const ratioBtnText = document.getElementById('ratioBtnText');
+            if (ratioBtnText) ratioBtnText.textContent = ratio;
+
+            const ratioBox = document.getElementById('playerAspectRatioBox');
+            if (ratioBox) {
+                if (ratio === '9:16') {
+                    ratioBox.className = 'relative max-w-[320px] w-full h-full aspect-[9/16] mx-auto flex flex-col justify-between p-3 bg-[#0a0a0e] rounded-2xl border-2 border-[#00e5cc]/40 shadow-[0_0_35px_rgba(0,229,204,0.2)] transition-all duration-500 overflow-hidden';
+                } else {
+                    ratioBox.className = 'relative w-full h-full aspect-video max-w-full flex flex-col justify-between p-3 bg-black rounded-xl border border-white/5 shadow-inner transition-all duration-500 overflow-hidden';
+                }
+            }
+
+            // Update Settings cards
+            document.querySelectorAll('.ratio-card').forEach(card => {
+                card.className = 'ratio-card p-3.5 rounded-xl border border-[#2b2b36] bg-[#181822] cursor-pointer transition-all hover:bg-[#252535] group';
+            });
+            const activeCard = document.getElementById(`ratioCard-${ratio.replace(':', '_')}`);
+            if (activeCard) {
+                activeCard.className = 'ratio-card active p-3.5 rounded-xl border-2 border-[#00e5cc] bg-[#20202b] cursor-pointer transition-all hover:bg-[#252535] group shadow-md shadow-[#00e5cc]/10';
+            }
+        }
+
+        function toggleAspectRatio() {
+            const currentRatio = localStorage.getItem('khmer_studio_ratio') || '16:9';
+            const nextRatio = currentRatio === '16:9' ? '9:16' : '16:9';
+            setAspectRatio(nextRatio);
+            showToast(`បានប្តូរទំហំវីដេអូទៅជា ${nextRatio} (${nextRatio === '16:9' ? 'YouTube ផ្ដេក' : 'TikTok បញ្ឈរ'})!`, 'success');
+        }
+
+        function setExportResolution(res) {
+            localStorage.setItem('khmer_studio_export_res', res);
+            const qualityText = document.getElementById('playerQualityText');
+            if (qualityText) qualityText.textContent = res.toUpperCase();
+
+            // Update pills
+            document.querySelectorAll('.res-pill').forEach(pill => {
+                pill.className = 'res-pill px-4 py-2 rounded-xl bg-[#181822] border border-[#2b2b36] text-slate-300 font-bold text-[11.5px] cursor-pointer hover:border-slate-500 transition-all';
+            });
+            const activePill = document.getElementById(`resPill-${res.toLowerCase()}`);
+            if (activePill) {
+                activePill.className = 'res-pill px-4 py-2 rounded-xl bg-[#00e5cc]/15 border-2 border-[#00e5cc] text-[#00e5cc] font-extrabold text-[11.5px] cursor-pointer transition-all shadow-[0_0_12px_rgba(0,229,204,0.3)]';
+            }
+        }
+
+        function toggleAutoSaveSetting(enable) {
+            const isChecked = typeof enable === 'boolean' ? enable : document.getElementById('genAutoSaveToggle')?.checked;
+            localStorage.setItem('khmer_studio_autosave', isChecked ? 'true' : 'false');
+
+            const icon = document.getElementById('topAutoSaveIcon');
+            const text = document.getElementById('topAutoSaveText');
+            const statusLabel = document.getElementById('genAutoSaveStatusText');
+
+            if (isChecked) {
+                if (icon) icon.className = 'fa-solid fa-cloud-arrow-up text-[#00e5cc] animate-pulse';
+                if (text) text.textContent = 'Auto-saved';
+                if (statusLabel) {
+                    statusLabel.innerHTML = '<span class="text-emerald-400 font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> បើកដំណើរការ (រក្សាទុកស្វ័យប្រវត្តិរៀងរាល់ 30 វិនាទី)</span>';
+                }
+                startAutoSaveTimer();
+                showToast('បានបើកដំណើរការ Auto-save ស្វ័យប្រវត្តិ!', 'success');
+            } else {
+                if (icon) icon.className = 'fa-solid fa-cloud-slash text-slate-500';
+                if (text) text.textContent = 'Manual Save';
+                if (statusLabel) {
+                    statusLabel.innerHTML = '<span class="text-slate-500 font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-xmark"></i> បានបិទ (មិនរក្សាទុកស្វ័យប្រវត្តិ)</span>';
+                }
+                stopAutoSaveTimer();
+                showToast('បានបិទ Auto-save!', 'info');
+            }
+        }
+
+        function startAutoSaveTimer() {
+            if (autoSaveIntervalTimer) clearInterval(autoSaveIntervalTimer);
+            autoSaveIntervalTimer = setInterval(() => {
+                if (currentOutputText) {
+                    localStorage.setItem('khmer_studio_last_script', currentOutputText);
+                    const title = document.getElementById('recapTitle')?.value || '';
+                    if (title) localStorage.setItem('khmer_studio_last_title', title);
+                }
+            }, 30000);
+        }
+
+        function stopAutoSaveTimer() {
+            if (autoSaveIntervalTimer) {
+                clearInterval(autoSaveIntervalTimer);
+                autoSaveIntervalTimer = null;
+            }
+        }
+
+        function saveGeneralProjectInfo() {
+            const title = document.getElementById('genProjectTitle')?.value || '';
+            const author = document.getElementById('genAuthorName')?.value || '';
+            localStorage.setItem('khmer_studio_project_title', title);
+            localStorage.setItem('khmer_studio_author_name', author);
+        }
+
+        function saveAllGeneralSettings() {
+            saveGeneralProjectInfo();
+            const ratio = localStorage.getItem('khmer_studio_ratio') || '16:9';
+            const res = localStorage.getItem('khmer_studio_export_res') || '1080p';
+            toggleApiModal();
+            showToast(`បានរក្សាទុកការកំណត់ទូទៅរួចរាល់! (${ratio}, ${res.toUpperCase()})`, 'success');
+        }
+
+        function initGeneralSettings() {
+            // 1. Ratio
+            const savedRatio = localStorage.getItem('khmer_studio_ratio') || '16:9';
+            setAspectRatio(savedRatio);
+
+            // 2. Resolution
+            const savedRes = localStorage.getItem('khmer_studio_export_res') || '1080p';
+            setExportResolution(savedRes);
+
+            // 3. AutoSave
+            const autoSaveEnabled = localStorage.getItem('khmer_studio_autosave') !== 'false';
+            const autoSaveToggle = document.getElementById('genAutoSaveToggle');
+            if (autoSaveToggle) autoSaveToggle.checked = autoSaveEnabled;
+            if (autoSaveEnabled) startAutoSaveTimer();
+
+            // 4. Project Info
+            const projectTitle = document.getElementById('genProjectTitle');
+            if (projectTitle) projectTitle.value = localStorage.getItem('khmer_studio_project_title') || '';
+            const authorName = document.getElementById('genAuthorName');
+            if (authorName) authorName.value = localStorage.getItem('khmer_studio_author_name') || '';
         }
 
         let toastTimeout = null;
