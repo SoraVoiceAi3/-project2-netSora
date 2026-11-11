@@ -1619,14 +1619,15 @@ const apiKey = "";
 
         function generateSmartKhmerFallback(tab, userPrompt) {
             if (tab === 'recap') {
-                const title = (document.getElementById('recapTitle')?.value || '').trim() || 'ភាពយន្តអាថ៌កំបាំង';
+                const rawTitle = (document.getElementById('recapTitle')?.value || '').trim();
+                const title = cleanMovieTitle(rawTitle) || 'រឿងអាថ៌កំបាំងដែលគេលាក់ទុក';
                 const plot = (document.getElementById('recapPlot')?.value || '').trim();
                 const plotDesc = plot 
                     ? `សាច់រឿងសង្ខេប៖ ${plot}` 
                     : `សាច់រឿងផ្តោតលើដំណើរជីវិតរបស់តួអង្គសំខាន់ ដែលត្រូវប្រឈមមុខនឹងវិបត្តិដ៏ធំបំផុតក្នុងជីវិត និងអាថ៌កំបាំងដែលគេលាក់ទុកជាយូរមកហើយ។`;
 
                 return `[HOOK ទាក់ទាញ]
-តើអ្នកនឹងមានអារម្មណ៍បែបណា ប្រសិនបើថ្ងៃមួយ ជីវិតដ៏សាមញ្ញរបស់អ្នក ត្រូវធ្លាក់ចូលក្នុងរឿងរ៉ាវដ៏រន្ធត់នៃ "${title}" ដែលគ្មានផ្លូវត្រឡប់ក្រោយ?
+តើអ្នកនឹងមានអារម្មណ៍បែបណា ប្រសិនបើថ្ងៃមួយ ជីវិតដ៏សាមញ្ញរបស់អ្នក ត្រូវធ្លាក់ចូលក្នុងរឿងរ៉ាវដ៏រន្ធត់នៃខ្សែភាពយន្ត "${title}" ដែលគ្មានផ្លូវត្រឡប់ក្រោយ?
 
 [INTRO បើកឆាក]
 [ភ្លេងរន្ធត់] សូមស្វាគមន៍មកកាន់ការសម្រាយរឿងពិសេស! ថ្ងៃនេះយើងនឹងនាំអារម្មណ៍អ្នកទាំងអស់គ្នាទៅតាមដានខ្សែភាពយន្តដ៏ជក់ចិត្តដិតអារម្មណ៍រឿង "${title}"។ [ផ្អាកបន្តិច] ធានាថានឹងធ្វើឱ្យអ្នកទស្សនាមិនអាចដកភ្នែករួចឡើយ។
@@ -2092,13 +2093,17 @@ const apiKey = "";
                     `;
                 }
                 
+                const clipLabel = (importedMediaFiles[idx] && importedMediaFiles[idx].name) 
+                    ? importedMediaFiles[idx].name 
+                    : (importedMediaFiles[0] ? importedMediaFiles[0].name : `Scene-${idx+1}.mp4`);
+
                 videoClip.innerHTML = `
                     ${bgIcons}
                     <div class="absolute inset-y-0 left-0 pl-2.5 pr-4 flex items-center max-w-[55%] z-10 pointer-events-none overflow-hidden bg-gradient-to-r from-[#181822] via-[#181822]/90 to-transparent">
                         <span class="font-mono text-[12px] font-bold text-[#f5f5f5] truncate">${timeString}</span>
                     </div>
                     <div class="absolute inset-y-0 right-0 pr-2.5 pl-4 flex items-center justify-end max-w-[40%] z-10 pointer-events-none overflow-hidden bg-gradient-to-l from-[#181822] via-[#181822]/90 to-transparent">
-                        <span class="text-[11px] text-[#8e8e98] truncate font-sans">f49754109760_Part-${idx+1}.mp4</span>
+                        <span class="text-[11px] text-[#8e8e98] truncate font-sans">${clipLabel}</span>
                     </div>
                 `;
                 videoClip.onclick = (e) => { e.stopPropagation(); selectTimelineSegment(idx); };
@@ -2793,6 +2798,16 @@ const apiKey = "";
             }
         }
 
+        function cleanMovieTitle(raw) {
+            if (!raw) return '';
+            let cleaned = raw.replace(/_?[pP]art\s*\d+.*$/i, "").replace(/\.[^/.]+$/, "").trim();
+            // If it's purely digits or hex hash (like camera timestamps or video ids 61591907003601, f49754109760)
+            if (/^\d+$/.test(cleaned) || /^[a-f0-9]{10,}$/i.test(cleaned)) {
+                return '';
+            }
+            return cleaned;
+        }
+
         function updateGoogleConnectionUI() {
             const key = getEffectiveApiKey();
             const badge = document.getElementById('googleApiStatusBadge');
@@ -2815,6 +2830,46 @@ const apiKey = "";
             }
             if (headerText) {
                 headerText.textContent = isConnected ? 'Google Connected' : 'Connect Google';
+            }
+
+            // Update Recap panel status pill
+            const recapBox = document.getElementById('recapGoogleStatusBox');
+            const recapText = document.getElementById('recapGoogleStatusText');
+            const recapBtn = document.getElementById('recapGoogleStatusBtn');
+            if (recapBox && recapText && recapBtn) {
+                if (isConnected) {
+                    recapBox.className = 'cursor-pointer px-3 py-2 rounded-xl border flex items-center justify-between transition-all bg-emerald-950/20 border-emerald-500/40 hover:border-emerald-400 group shadow-sm';
+                    recapText.className = 'text-[11px] text-emerald-400 font-bold';
+                    recapText.innerHTML = '<i class="fa-solid fa-circle-check mr-1 text-emerald-400"></i> Google AI: ភ្ជាប់ជោគជ័យ (Connected 🟢)';
+                    recapBtn.className = 'text-[10px] text-emerald-300 font-bold group-hover:underline';
+                    recapBtn.textContent = 'កែប្រែ Key';
+                } else {
+                    recapBox.className = 'cursor-pointer px-3 py-2 rounded-xl border flex items-center justify-between transition-all bg-[#14151b] border-amber-500/30 hover:border-amber-400 group shadow-sm';
+                    recapText.className = 'text-[11px] text-amber-300 font-bold';
+                    recapText.innerHTML = '<i class="fa-brands fa-google mr-1 text-[#4285F4]"></i> Google AI: មិនទាន់ភ្ជាប់ (Connect)';
+                    recapBtn.className = 'text-[10px] text-blue-400 font-bold group-hover:underline';
+                    recapBtn.textContent = 'ភ្ជាប់ Key';
+                }
+            }
+
+            // Update Translate panel status pill
+            const transBox = document.getElementById('transGoogleStatusBox');
+            const transText = document.getElementById('transGoogleStatusText');
+            const transBtn = document.getElementById('transGoogleStatusBtn');
+            if (transBox && transText && transBtn) {
+                if (isConnected) {
+                    transBox.className = 'cursor-pointer px-3 py-2 rounded-xl border flex items-center justify-between transition-all bg-emerald-950/20 border-emerald-500/40 hover:border-emerald-400 group shadow-sm mb-2';
+                    transText.className = 'text-[11px] text-emerald-400 font-bold';
+                    transText.innerHTML = '<i class="fa-solid fa-circle-check mr-1 text-emerald-400"></i> Google AI: ភ្ជាប់ជោគជ័យ (Connected 🟢)';
+                    transBtn.className = 'text-[10px] text-emerald-300 font-bold group-hover:underline';
+                    transBtn.textContent = 'កែប្រែ Key';
+                } else {
+                    transBox.className = 'cursor-pointer px-3 py-2 rounded-xl border flex items-center justify-between transition-all bg-[#14151b] border-amber-500/30 hover:border-amber-400 group shadow-sm mb-2';
+                    transText.className = 'text-[11px] text-amber-300 font-bold';
+                    transText.innerHTML = '<i class="fa-brands fa-google mr-1 text-[#4285F4]"></i> Google AI: មិនទាន់ភ្ជាប់ (Connect)';
+                    transBtn.className = 'text-[10px] text-blue-400 font-bold group-hover:underline';
+                    transBtn.textContent = 'ភ្ជាប់ Key';
+                }
             }
         }
 
@@ -3000,7 +3055,8 @@ const apiKey = "";
             setTimeout(() => {
                 const titleInput = document.getElementById('recapTitle');
                 if (titleInput && !titleInput.value && activeTimelineElement && activeTimelineElement.dataset.name) {
-                    titleInput.value = activeTimelineElement.dataset.name.replace(/\.[^/.]+$/, "");
+                    const cleaned = cleanMovieTitle(activeTimelineElement.dataset.name);
+                    if (cleaned) titleInput.value = cleaned;
                 }
 
                 if (action === 'recap' || action === 'pro-voice') {
@@ -3084,8 +3140,10 @@ const apiKey = "";
                 openToolInInspector('recap');
                 const titleInput = document.getElementById('recapTitle');
                 if (titleInput) {
-                    // Use the first part's name as base title
-                    titleInput.value = videoFiles[0].name.replace(/_?[pP]art\s*\d+.*$/, "").replace(/\.[^/.]+$/, "").trim();
+                    // Use clean movie title from video name if not pure digits
+                    const raw = videoFiles[0].name.replace(/_?[pP]art\s*\d+.*$/i, "").replace(/\.[^/.]+$/, "").trim();
+                    const cleaned = cleanMovieTitle(raw);
+                    if (cleaned) titleInput.value = cleaned;
                 }
                 const plotInput = document.getElementById('recapPlot');
                 if (plotInput && !plotInput.value) {
