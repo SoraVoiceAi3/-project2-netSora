@@ -5,6 +5,23 @@ const apiKey = "";
         let currentOutputText = '';
         let previousScriptSnapshot = '';
         let timelineZoomScale = 10; // Default px per second (Adaptive 1 - 40)
+        let timelineVideoClips = []; // Multi-clip sequential video track (CapCut Desktop)
+        let activeVideoClipIndex = 0;
+
+        function formatMinSec(totalSecs) {
+            const total = Math.max(0, Math.floor(totalSecs || 0));
+            const mins = Math.floor(total / 60);
+            const secs = total % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function formatCapCutTimecode(totalSeconds) {
+            const total = Math.max(0, totalSeconds || 0);
+            const hrs = String(Math.floor(total / 3600)).padStart(2, '0');
+            const mins = String(Math.floor((total % 3600) / 60)).padStart(2, '0');
+            const secs = String(Math.floor(total % 60)).padStart(2, '0');
+            return `${hrs}:${mins}:${secs}:00`;
+        }
 
         function updatePlayheadPosition(timeInSeconds) {
             const playhead = document.getElementById('timelinePlayhead');
@@ -14,11 +31,211 @@ const apiKey = "";
             }
         }
 
+        function recalculateTimelineClips() {
+            let accum = 0;
+            for (let i = 0; i < timelineVideoClips.length; i++) {
+                const c = timelineVideoClips[i];
+                c.startTime = accum;
+                c.endTime = accum + c.duration;
+                accum += c.duration;
+            }
+            return accum;
+        }
+
+        function updateTimelineMetrics(totalDuration) {
+            const totalSecs = Math.max(120, totalDuration || 120);
+            const totalPx = Math.max(1200, (totalSecs + 30) * timelineZoomScale);
+
+            const rulerWrapper = document.getElementById('timelineRulerWrapper');
+            if (rulerWrapper) rulerWrapper.style.minWidth = `${totalPx}px`;
+            const rowsContainer = document.getElementById('trackRowsContainer');
+            if (rowsContainer) rowsContainer.style.minWidth = `${totalPx}px`;
+
+            const totalTimeEl = document.getElementById('playerTotalTime');
+            if (totalTimeEl) totalTimeEl.textContent = formatCapCutTimecode(totalDuration);
+
+            const summaryEl = document.getElementById('timelineClipSummary');
+            if (summaryEl) {
+                summaryEl.textContent = timelineVideoClips.length > 0 
+                    ? `${timelineVideoClips.length} វីដេអូតគ្នា (${formatMinSec(totalDuration)})` 
+                    : `${timelineSegments.length} ឈុតនៅលើ Timeline`;
+            }
+
+            if (typeof renderTimelineRuler === 'function') {
+                renderTimelineRuler(totalSecs + 30);
+            }
+        }
+
+        function switchActiveVideoClip(newIndex, targetClipLocalTime = 0, autoPlay = false) {
+            if (newIndex < 0 || newIndex >= timelineVideoClips.length) return;
+            activeVideoClipIndex = newIndex;
+            const clip = timelineVideoClips[newIndex];
+            const videoEl = document.getElementById('uploadedVideoPreview');
+            if (!videoEl) return;
+
+            const nameEl = document.getElementById('detailProjectName');
+            if (nameEl) nameEl.textContent = clip.name;
+
+            // Highlight active clip on timeline
+            document.querySelectorAll('#trackRow-video .timeline-clip').forEach((el, idx) => {
+                if (idx === newIndex) {
+                    el.classList.add('border-[#00e5cc]', 'ring-1', 'ring-[#00e5cc]', 'shadow-[0_0_12px_rgba(0,229,204,0.35)]');
+                    el.classList.remove('border-[#2d3248]');
+                    activeTimelineElement = el;
+                } else {
+                    el.classList.remove('border-[#00e5cc]', 'ring-1', 'ring-[#00e5cc]', 'shadow-[0_0_12px_rgba(0,229,204,0.35)]');
+                    el.classList.add('border-[#2d3248]');
+                }
+            });
+
+            // Set video source and seek
+            if (videoEl.src !== clip.url) {
+                videoEl.src = clip.url;
+                videoEl.onloadedmetadata = () => {
+                    videoEl.currentTime = Math.max(0, Math.min(videoEl.duration || clip.duration, targetClipLocalTime));
+                    if (autoPlay) {
+                        videoEl.play().catch(e => console.log('Autoplay next clip error:', e));
+                    }
+                };
+            } else {
+                videoEl.currentTime = Math.max(0, Math.min(videoEl.duration || clip.duration, targetClipLocalTime));
+                if (autoPlay && videoEl.paused) {
+                    videoEl.play().catch(e => console.log('Play error:', e));
+                }
+            }
+        }
+
+        function renderTimelineVideoClips() {
+            const videoRow = document.getElementById('trackRow-video');
+            if (!videoRow) return;
+            videoRow.innerHTML = '';
+
+            const emptyState = document.getElementById('timelineEmptyState');
+            const tracksContainer = document.getElementById('trackRowsContainer');
+            if (emptyState) emptyState.classList.add('opacity-0');
+            if (tracksContainer) tracksContainer.classList.remove('opacity-0', 'pointer-events-none');
+
+            const totalDuration = recalculateTimelineClips();
+
+            timelineVideoClips.forEach((clip, index) => {
+                const clipEl = document.createElement('div');
+                clipEl.id = clip.id;
+                clipEl.dataset.isFake = 'true';
+                clipEl.dataset.clipId = clip.id;
+                clipEl.dataset.type = 'video';
+                clipEl.dataset.baseWidth = clip.duration;
+
+                const isSelected = (index === activeVideoClipIndex);
+
+                clipEl.className = `timeline-clip h-[42px] rounded-lg flex items-center justify-between px-2 shrink-0 border relative overflow-hidden bg-gradient-to-r from-[#1c2033] via-[#181b2c] to-[#141624] text-slate-200 shadow-md transition-all cursor-pointer group select-none ${isSelected ? 'border-[#00e5cc] ring-1 ring-[#00e5cc] shadow-[0_0_12px_rgba(0,229,204,0.35)]' : 'border-[#2d3248] hover:border-[#00e5cc]'}`;
+                clipEl.style.width = `${Math.max(40, timelineZoomScale * clip.duration)}px`;
+
+                const thumbHtml = clip.thumbnail 
+                    ? `<div class="w-10 h-7 rounded bg-black/60 border border-white/20 overflow-hidden shrink-0 flex items-center justify-center mr-2 shadow-sm"><img src="${clip.thumbnail}" class="w-full h-full object-cover" alt="Thumb"></div>`
+                    : `<div class="w-7 h-7 rounded bg-[#00e5cc]/15 text-[#00e5cc] border border-[#00e5cc]/30 flex items-center justify-center shrink-0 mr-2"><i class="fa-solid fa-film text-[11px]"></i></div>`;
+
+                const startStr = formatMinSec(clip.startTime);
+                const endStr = formatMinSec(clip.endTime);
+
+                clipEl.innerHTML = `
+                    <div class="absolute top-0 left-0 right-0 h-[3px] opacity-25 pointer-events-none" style="background-image: repeating-linear-gradient(to right, #fff, #fff 4px, transparent 4px, transparent 10px);"></div>
+                    <div class="absolute bottom-0 left-0 right-0 h-[3px] opacity-25 pointer-events-none" style="background-image: repeating-linear-gradient(to right, #fff, #fff 4px, transparent 4px, transparent 10px);"></div>
+                    <div class="flex items-center min-w-0 z-10 pointer-events-none">
+                        ${thumbHtml}
+                        <div class="flex flex-col min-w-0 pr-2">
+                            <span class="text-white text-[11px] font-bold truncate max-w-[170px] leading-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">${clip.name}</span>
+                            <span class="text-slate-400 text-[9px] font-mono leading-tight">Part ${index + 1} • ${startStr} - ${endStr}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1.5 z-10 shrink-0 pointer-events-none">
+                        <span class="px-1.5 py-0.5 rounded bg-black/60 text-[#00e5cc] font-mono text-[9.5px] font-bold border border-white/10 shadow-sm">${clip.durationFormatted}</span>
+                    </div>
+                `;
+
+                clipEl.onclick = (e) => {
+                    e.stopPropagation();
+                    const tracksArea = document.getElementById('timelineTracksArea');
+                    if (tracksArea) {
+                        const rect = tracksArea.getBoundingClientRect();
+                        const clickX = e.clientX - rect.left + tracksArea.scrollLeft;
+                        seekTimelineToPx(clickX);
+                    }
+                };
+
+                makeClipResizable(clipEl);
+                videoRow.appendChild(clipEl);
+            });
+
+            updateTimelineMetrics(totalDuration);
+        }
+
+        function addVideoClipToTimeline(media) {
+            let dur = 120;
+            if (media.duration && !isNaN(media.duration) && media.duration > 0) {
+                dur = media.duration;
+            } else if (media.durationFormatted) {
+                const parts = media.durationFormatted.split(':');
+                if (parts.length === 2) {
+                    dur = parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+                }
+            }
+            if (dur < 3) dur = 3;
+
+            const clipId = 'vclip_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+            const clipObj = {
+                id: clipId,
+                mediaId: media.id,
+                media: media,
+                name: media.name,
+                url: media.url,
+                thumbnail: media.thumbnail,
+                duration: dur,
+                durationFormatted: media.durationFormatted || formatMinSec(dur),
+                startTime: 0,
+                endTime: dur
+            };
+
+            timelineVideoClips.push(clipObj);
+            renderTimelineVideoClips();
+
+            const videoEl = document.getElementById('uploadedVideoPreview');
+            setupVideoTimelineSync(videoEl, media);
+
+            if (timelineVideoClips.length === 1 || !videoEl.src) {
+                switchActiveVideoClip(0, 0, false);
+            }
+
+            showToast(`➕ បានបន្ថែមវីដេអូតគ្នា៖ "${media.name}" (ឈុតទី ${timelineVideoClips.length})`, 'success');
+        }
+
         function seekTimelineToPx(x) {
             const safeX = Math.max(0, x);
             const time = safeX / (timelineZoomScale || 10);
-            const videoEl = document.getElementById('uploadedVideoPreview');
             
+            if (timelineVideoClips.length > 0) {
+                let targetIdx = 0;
+                for (let i = 0; i < timelineVideoClips.length; i++) {
+                    if (time >= timelineVideoClips[i].startTime && time < timelineVideoClips[i].endTime) {
+                        targetIdx = i;
+                        break;
+                    }
+                    if (i === timelineVideoClips.length - 1) {
+                        targetIdx = i;
+                    }
+                }
+
+                const targetClip = timelineVideoClips[targetIdx];
+                const localOffset = Math.max(0, Math.min(targetClip.duration, time - targetClip.startTime));
+                
+                switchActiveVideoClip(targetIdx, localOffset, false);
+                
+                const curTimeEl = document.getElementById('playerCurrentTime');
+                if (curTimeEl) curTimeEl.textContent = formatCapCutTimecode(time);
+                updatePlayheadPosition(time);
+                return;
+            }
+
+            const videoEl = document.getElementById('uploadedVideoPreview');
             if (videoEl && videoEl.src && !videoEl.classList.contains('hidden') && !isNaN(videoEl.duration) && videoEl.duration > 0) {
                 const clampedTime = Math.max(0, Math.min(videoEl.duration, time));
                 videoEl.currentTime = clampedTime;
@@ -34,45 +251,54 @@ const apiKey = "";
 
         function handleZoomChange() {
             const slider = document.getElementById('timelineZoomSlider');
-            if (slider) {
-                timelineZoomScale = Math.max(1, parseInt(slider.value, 10) || 10);
+            if (!slider) return;
+            timelineZoomScale = Math.max(1, parseInt(slider.value, 10) || 10);
 
-                // Update width of ALL media clips on timeline immediately
-                document.querySelectorAll('.timeline-clip').forEach(clip => {
-                    const baseW = parseFloat(clip.dataset.baseWidth) || 60;
-                    const newW = Math.max(40, timelineZoomScale * baseW);
-                    clip.style.width = `${newW}px`;
-                });
+            let totalSecs = 120;
+            let curGlobalTime = 0;
 
-                // Calculate current project / video time
+            if (timelineVideoClips.length > 0) {
+                totalSecs = recalculateTimelineClips();
+                const activeClip = timelineVideoClips[activeVideoClipIndex] || timelineVideoClips[0];
                 const videoEl = document.getElementById('uploadedVideoPreview');
-                let totalSecs = 120;
-                let curTime = 0;
+                const localTime = (videoEl && !isNaN(videoEl.currentTime)) ? videoEl.currentTime : 0;
+                curGlobalTime = (activeClip ? activeClip.startTime : 0) + localTime;
+
+                timelineVideoClips.forEach(clip => {
+                    const el = document.getElementById(clip.id);
+                    if (el) {
+                        el.style.width = `${Math.max(40, timelineZoomScale * clip.duration)}px`;
+                    }
+                });
+            } else {
+                const videoEl = document.getElementById('uploadedVideoPreview');
                 if (videoEl && !isNaN(videoEl.duration) && videoEl.duration > 0) {
                     totalSecs = videoEl.duration;
-                    curTime = videoEl.currentTime || 0;
+                    curGlobalTime = videoEl.currentTime || 0;
                 } else if (timelineSegments && timelineSegments.length > 0) {
                     totalSecs = timelineSegments.reduce((acc, s) => acc + (s.duration || 5), 0);
                     let acc = 0;
                     for (let i = 0; i < activeSegmentIndex; i++) acc += (timelineSegments[i].duration || 5);
-                    curTime = acc;
+                    curGlobalTime = acc;
                 }
 
-                // Re-render ruler with adaptive tick intervals
-                if (typeof renderTimelineRuler === 'function') {
-                    renderTimelineRuler(totalSecs + 30);
-                }
-
-                // Expand container width so scroll area matches zoomed clips
-                const totalPx = Math.max(1200, (totalSecs + 30) * timelineZoomScale);
-                const rulerWrapper = document.getElementById('timelineRulerWrapper');
-                if (rulerWrapper) rulerWrapper.style.minWidth = `${totalPx}px`;
-                const rowsContainer = document.getElementById('trackRowsContainer');
-                if (rowsContainer) rowsContainer.style.minWidth = `${totalPx}px`;
-
-                // Update playhead position to stay at exact same second
-                updatePlayheadPosition(curTime);
+                document.querySelectorAll('.timeline-clip').forEach(clip => {
+                    const baseW = parseFloat(clip.dataset.baseWidth) || 60;
+                    clip.style.width = `${Math.max(40, timelineZoomScale * baseW)}px`;
+                });
             }
+
+            if (typeof renderTimelineRuler === 'function') {
+                renderTimelineRuler(totalSecs + 30);
+            }
+
+            const totalPx = Math.max(1200, (totalSecs + 30) * timelineZoomScale);
+            const rulerWrapper = document.getElementById('timelineRulerWrapper');
+            if (rulerWrapper) rulerWrapper.style.minWidth = `${totalPx}px`;
+            const rowsContainer = document.getElementById('trackRowsContainer');
+            if (rowsContainer) rowsContainer.style.minWidth = `${totalPx}px`;
+
+            updatePlayheadPosition(curGlobalTime);
         }
 
         function changeZoom(delta) {
@@ -1489,16 +1715,21 @@ const apiKey = "";
 
             // Sync playhead and timecode smoothly during video playback
             videoEl.ontimeupdate = () => {
-                const cur = videoEl.currentTime;
-                const curTimeEl = document.getElementById('playerCurrentTime');
-                if (curTimeEl) curTimeEl.textContent = formatCapCutTimecode(cur);
+                let globalTime = videoEl.currentTime;
+                if (timelineVideoClips.length > 0) {
+                    const activeClip = timelineVideoClips[activeVideoClipIndex] || timelineVideoClips[0];
+                    if (activeClip) globalTime = activeClip.startTime + videoEl.currentTime;
+                }
 
-                updatePlayheadPosition(cur);
+                const curTimeEl = document.getElementById('playerCurrentTime');
+                if (curTimeEl) curTimeEl.textContent = formatCapCutTimecode(globalTime);
+
+                updatePlayheadPosition(globalTime);
 
                 // Auto-scroll timeline smoothly if playhead goes past viewport
                 const tracksArea = document.getElementById('timelineTracksArea');
                 if (tracksArea) {
-                    const playheadPx = cur * timelineZoomScale;
+                    const playheadPx = globalTime * timelineZoomScale;
                     const viewLeft = tracksArea.scrollLeft;
                     const viewRight = viewLeft + tracksArea.clientWidth;
                     if (playheadPx > viewRight - 60) {
@@ -1520,12 +1751,22 @@ const apiKey = "";
             };
 
             videoEl.onended = () => {
-                const icon = document.getElementById('playerPlayIcon');
-                if (icon) icon.className = 'fa-solid fa-play text-[15px] ml-0.5';
-                videoEl.currentTime = 0;
-                updatePlayheadPosition(0);
-                const curTimeEl = document.getElementById('playerCurrentTime');
-                if (curTimeEl) curTimeEl.textContent = formatCapCutTimecode(0);
+                if (timelineVideoClips.length > 0 && activeVideoClipIndex < timelineVideoClips.length - 1) {
+                    // Seamlessly advance to NEXT video clip in timeline!
+                    switchActiveVideoClip(activeVideoClipIndex + 1, 0, true);
+                    showToast(`▶ កំពុងចាក់បន្តទៅឈុតទី ${activeVideoClipIndex + 1} (${timelineVideoClips[activeVideoClipIndex].name})`, 'info');
+                } else {
+                    const icon = document.getElementById('playerPlayIcon');
+                    if (icon) icon.className = 'fa-solid fa-play text-[15px] ml-0.5';
+                    if (timelineVideoClips.length > 0) {
+                        switchActiveVideoClip(0, 0, false);
+                    } else {
+                        videoEl.currentTime = 0;
+                    }
+                    updatePlayheadPosition(0);
+                    const curTimeEl = document.getElementById('playerCurrentTime');
+                    if (curTimeEl) curTimeEl.textContent = formatCapCutTimecode(0);
+                }
             };
         }
 
@@ -1540,18 +1781,12 @@ const apiKey = "";
             if (nameEl) nameEl.textContent = media.name;
 
             if (media.type.startsWith('video/')) {
-                videoEl.src = media.url;
-                videoEl.classList.remove('hidden');
-                imgEl.classList.add('hidden');
+                if (videoEl) videoEl.classList.remove('hidden');
+                if (imgEl) imgEl.classList.add('hidden');
                 setCenterStageMode('stage');
                 
-                // Clear previous video clips on the video track to prevent stacking duplicates
-                const videoRow = document.getElementById('trackRow-video');
-                if (videoRow) videoRow.innerHTML = '';
-
-                appendFakeClipToTimeline('video', media);
-                setupVideoTimelineSync(videoEl, media);
-                showToast(`បានទាញវីដេអូ "${media.name}" ចូល Player និង Timeline!`);
+                // Add sequentially to multi-clip timeline like CapCut Desktop!
+                addVideoClipToTimeline(media);
             } else if (media.type.startsWith('image/')) {
                 imgEl.src = media.url;
                 imgEl.classList.remove('hidden');
@@ -2460,6 +2695,15 @@ const apiKey = "";
         }
 
         function stepTimelineClip(delta) {
+            if (timelineVideoClips.length > 0) {
+                const newIdx = Math.max(0, Math.min(timelineVideoClips.length - 1, activeVideoClipIndex + delta));
+                switchActiveVideoClip(newIdx, 0, false);
+                updatePlayheadPosition(timelineVideoClips[newIdx].startTime);
+                const curTimeEl = document.getElementById('playerCurrentTime');
+                if (curTimeEl) curTimeEl.textContent = formatCapCutTimecode(timelineVideoClips[newIdx].startTime);
+                showToast(`⏮ រំកិលទៅកាន់៖ ${timelineVideoClips[newIdx].name} (Part ${newIdx + 1})`, 'info');
+                return;
+            }
             const videoEl = document.getElementById('uploadedVideoPreview');
             if (videoEl && videoEl.src && !videoEl.classList.contains('hidden') && !isNaN(videoEl.duration) && videoEl.duration > 0) {
                 const targetTime = Math.max(0, Math.min(videoEl.duration, videoEl.currentTime + (delta * 5)));
@@ -2977,6 +3221,32 @@ const apiKey = "";
 
         function deleteSelectedClip() {
             saveTimelineSnapshot('Delete Clip');
+
+            // 1. If a multi-clip video on timeline is selected
+            if (timelineVideoClips.length > 0 && activeTimelineElement) {
+                const clipId = activeTimelineElement.dataset?.clipId;
+                const foundIndex = timelineVideoClips.findIndex(c => c.id === clipId);
+                if (foundIndex !== -1) {
+                    const removed = timelineVideoClips.splice(foundIndex, 1)[0];
+                    activeVideoClipIndex = Math.max(0, Math.min(timelineVideoClips.length - 1, activeVideoClipIndex));
+                    
+                    renderTimelineVideoClips();
+                    
+                    if (timelineVideoClips.length > 0) {
+                        switchActiveVideoClip(activeVideoClipIndex, 0, false);
+                    } else {
+                        const videoEl = document.getElementById('uploadedVideoPreview');
+                        if (videoEl) {
+                            videoEl.src = '';
+                            videoEl.classList.add('hidden');
+                        }
+                        updateTimelineMetrics(120);
+                    }
+                    showToast(`🗑️ បានលុបវីដេអូ "${removed.name}" ចេញពី Timeline`, 'info');
+                    return;
+                }
+            }
+
             if (activeTimelineElement && activeTimelineElement.dataset.isFake === 'true') {
                 activeTimelineElement.remove();
                 activeTimelineElement = null;
