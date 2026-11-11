@@ -6078,59 +6078,90 @@ Khmer AI Story Studio v3.5 PRO - Designed for Creators`;
         function handleBatchAiFlow() {
             const videoFiles = importedMediaFiles.filter(m => m.type.startsWith('video/'));
             if (videoFiles.length === 0) {
-                showToast('សូម Import វីដេអូសិន ដើម្បីអាចបញ្ជា AI កាត់តរឿងទាំងមូលបាន!', 'warning');
+                showToast('សូម Import វីដេអូជាមុនសិន ដើម្បីអាចផ្គុំ និងកាត់តរឿងទាំងមូលបាន!', 'warning');
                 return;
             }
 
             const steps = [
-                "កំពុងរៀបចំវីដេអូទាំងអស់បញ្ចូលទៅក្នុង Timeline...",
-                "កំពុងលុបសំឡេងដើមនៃវីដេអូទាំងអស់ (Muting original audio)...",
-                "កំពុងទាញយករូបភាពពីគ្រប់ឈុតឆាកទាំងអស់...",
-                "កំពុងវិភាគសាច់រឿងរួម និងរៀបចំរចនាសម្ព័ន្ធស្គ្រីប...",
-                "កំពុងរៀបចំ BGM និងសរសេរអត្ថបទសម្រាយរឿង..."
+                `កំពុងតម្រៀបវីដេអូទាំង ${videoFiles.length} ឈុតតាមលំដាប់ Part (1, 2, 3...)...`,
+                "កំពុងបញ្ចូលឈុតទាំងអស់តម្រៀបតគ្នាក្នុង Timeline (Multi-Clip Sequence)...",
+                "កំពុងធ្វើសមកាលកម្មក្បាល Playhead និងម៉ោងសរុបនៃខ្សែភាពយន្ត...",
+                "កំពុងកែសម្រួលមាត្រដ្ឋាន Zoom ឱ្យត្រូវនឹងប្រវែងអេក្រង់...",
+                "រួចរាល់! ខ្សែភាពយន្តទាំងមូលត្រូវបានផ្គុំលើ Timeline យ៉ាងរលូន"
             ];
 
             simulateAiProgress("Sora AI កំពុងកាត់តរឿងទាំងមូល", steps, () => {
-                // 1. Sort files to ensure correct order
-                videoFiles.sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true, sensitivity: 'base'}));
+                // 1. Sort files to ensure natural numerical order (Part-1, Part-2, ..., Part-15)
+                videoFiles.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
                 
-                // 2. Append all videos to timeline and mute them
-                let totalDuration = 0;
-                videoFiles.forEach(media => {
-                    const clip = appendFakeClipToTimeline('video', media);
-                    if (clip) {
-                        // Add mute icon visual
-                        clip.innerHTML += `<div class="absolute bottom-1 right-1 text-rose-500 bg-black/60 rounded px-1 flex items-center justify-center pointer-events-none shadow-sm"><i class="fa-solid fa-volume-xmark text-[10px]"></i></div>`;
-                    }
-                    if (media.durationFormatted) {
+                // 2. Clear old video clips
+                timelineVideoClips = [];
+                
+                // 3. Populate timelineVideoClips with each video file
+                videoFiles.forEach((media, idx) => {
+                    let dur = 120;
+                    if (media.duration && !isNaN(media.duration) && media.duration > 0) {
+                        dur = media.duration;
+                    } else if (media.durationFormatted) {
                         const parts = media.durationFormatted.split(':');
-                        totalDuration += (parseInt(parts[0]) * 60 + parseInt(parts[1]));
-                    } else {
-                        totalDuration += 120; // fallback 2 mins
+                        if (parts.length === 2) {
+                            dur = parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+                        }
                     }
+                    if (dur < 3) dur = 3;
+
+                    timelineVideoClips.push({
+                        id: 'vclip_' + Date.now() + '_' + idx + '_' + Math.floor(Math.random() * 1000),
+                        mediaId: media.id,
+                        media: media,
+                        name: media.name,
+                        url: media.url,
+                        thumbnail: media.thumbnail,
+                        duration: dur,
+                        durationFormatted: media.durationFormatted || formatMinSec(dur),
+                        startTime: 0,
+                        endTime: dur
+                    });
                 });
 
-                // 3. Add one long BGM track underneath
-                const bgmDurationStr = `${Math.floor(totalDuration/60)}:${(totalDuration%60).toString().padStart(2, '0')}`;
-                appendFakeClipToTimeline('audio', { url: '', name: 'AI_Epic_Cinematic_BGM.mp3', durationFormatted: bgmDurationStr });
-                
-                showToast(`បានបញ្ចូលវីដេអូចំនួន ${videoFiles.length} ចូល Timeline និងបិទសំឡេងដើមរួចរាល់!`, 'success');
+                // 4. Render all video clips consecutively on the track!
+                renderTimelineVideoClips();
 
-                // 4. Fill generic plot and trigger Recap + Pro Voice
-                openToolInInspector('recap');
+                // 5. Setup player with Part 1
+                const videoEl = document.getElementById('uploadedVideoPreview');
+                const imgEl = document.getElementById('uploadedImagePreview');
+                if (videoEl) {
+                    videoEl.classList.remove('hidden');
+                    setupVideoTimelineSync(videoEl, videoFiles[0]);
+                }
+                if (imgEl) imgEl.classList.add('hidden');
+                setCenterStageMode('stage');
+
+                switchActiveVideoClip(0, 0, false);
+
+                // 6. Automatically calculate best Zoom Scale to fit entire movie nicely on timeline
+                const totalDur = recalculateTimelineClips();
+                const tracksArea = document.getElementById('timelineTracksArea');
+                const availableW = (tracksArea ? tracksArea.clientWidth : 1000) - 80;
+                let autoScale = 10;
+                if (totalDur > 0) {
+                    autoScale = Math.max(1, Math.min(40, Math.floor(availableW / totalDur)));
+                }
+                const zoomSlider = document.getElementById('timelineZoomSlider');
+                if (zoomSlider) {
+                    zoomSlider.value = autoScale;
+                }
+                timelineZoomScale = autoScale;
+                handleZoomChange();
+
+                // 7. Update movie title in details
                 const titleInput = document.getElementById('recapTitle');
                 if (titleInput) {
-                    // Use clean movie title from video name if not pure digits
                     const raw = videoFiles[0].name.replace(/_?[pP]art\s*\d+.*$/i, "").replace(/\.[^/.]+$/, "").trim();
                     const cleaned = cleanMovieTitle(raw);
                     if (cleaned) titleInput.value = cleaned;
                 }
-                const plotInput = document.getElementById('recapPlot');
-                if (plotInput && !plotInput.value) {
-                    plotInput.value = "វីដេអូខ្នាតវែងនេះនិយាយពីខ្សែជីវិតតស៊ូរបស់តួឯក ដែលត្រូវឆ្លងកាត់ឧបសគ្គជាច្រើនតាំងពីដើមដល់ចប់។";
-                }
-                
-                autoNarrateAfterGenerate = true; // Pro Voice automatically
-                setTimeout(() => handleGenerate(), 1000);
+
+                showToast(`🎉 បានផ្គុំ និងកាត់តរឿងទាំងមូលចំនួន ${videoFiles.length} ឈុតតគ្នាជោគជ័យ! (${formatCapCutTimecode(totalDur)})`, 'success');
             });
         }
