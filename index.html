@@ -1084,84 +1084,17 @@
         <!-- 2. Timeline Tracks Workspace (Left Track Headers + Right Scrollable Clips & Playhead) -->
         <div class="flex-1 flex min-h-0 relative overflow-hidden bg-[#111115]">
             
-            <!-- Left Track Header Column (AUTHENTIC CAPCUT TRACK HEADERS: V1, T1, A1) -->
-            <div class="w-[195px] bg-[#111115] border-r border-[#1a1a20] flex flex-col justify-between py-0 shrink-0 z-20">
+            <!-- Left Track Header Column (Clean CapCut Desktop Timeline 01) -->
+            <div class="w-[185px] bg-[#111115] border-r border-[#1a1a20] flex flex-col justify-between py-0 shrink-0 z-20">
                 <!-- Ruler Spacer Header -->
-                <div class="h-6 px-3 flex items-center justify-between border-b border-[#1a1a20] text-[10px] text-slate-500 font-bold tracking-wider uppercase">
-                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-layer-group text-slate-400 text-[10px]"></i> Tracks</span>
-                    <span id="timelineTotalTracksBadge" class="text-[9px] px-1.5 py-0.2 rounded bg-white/5 font-mono text-slate-400">3 Tracks</span>
-                </div>
+                <div class="h-6 px-3 flex items-center border-b border-[#1a1a20]"></div>
 
-                <!-- 3 Authentic CapCut Track Headers Aligned with Tracks -->
-                <div class="flex-1 flex flex-col justify-start gap-0 px-2 pt-2">
-                    <!-- Track Header 1: Video V1 -->
-                    <div class="h-11 flex items-center justify-between px-2.5 rounded-lg bg-[#161722] border border-[#232435] shadow-sm">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-film text-[#00e5cc] text-[12px]"></i>
-                            <div>
-                                <div class="text-[11px] font-extrabold text-white leading-tight">Video V1</div>
-                                <div class="text-[9px] text-slate-400">មេឌៀ & ប្លង់រឿង</div>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-1 text-slate-400">
-                            <button id="trackEye-video" onclick="toggleTrackVisibility('video')" class="w-6 h-6 rounded hover:bg-white/10 hover:text-white flex items-center justify-center transition-colors cursor-pointer" title="បិទ/បើកវីដេអូ">
-                                <i class="fa-regular fa-eye text-[11px]"></i>
-                            </button>
-                            <button id="trackLock-video" onclick="toggleTrackLock('video')" class="w-6 h-6 rounded hover:bg-white/10 hover:text-white flex items-center justify-center transition-colors cursor-pointer" title="ចាក់សោ Track">
-                                <i class="fa-solid fa-lock-open text-[10px]"></i>
-                            </button>
-                            <button id="trackMute-video" onclick="toggleTrackMute('video')" class="w-6 h-6 rounded hover:bg-white/10 hover:text-white flex items-center justify-center transition-colors cursor-pointer" title="បិទសំឡេងដើម">
-                                <i class="fa-solid fa-volume-high text-[11px]"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Track Header 2: Text T1 -->
-                    <div class="h-11 flex items-center justify-between px-2.5 rounded-lg bg-[#161722] border border-[#232435] shadow-sm mt-1.5">
-                        <div class="flex items-center gap-2">
-                            <div class="w-4 h-4 rounded bg-amber-400/20 text-amber-300 font-black text-[10px] flex items-center justify-center">T</div>
-                            <div>
-                                <div class="text-[11px] font-extrabold text-white leading-tight">Text T1</div>
-                                <div class="text-[9px] text-slate-400">អក្សរ & Subtitle</div>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-1 text-slate-400">
-                            <button id="trackEye-text" onclick="toggleTrackVisibility('text')" class="w-6 h-6 rounded hover:bg-white/10 hover:text-white flex items-center justify-center transition-colors cursor-pointer" title="បិទ/បើក Subtitle">
-                                <i class="fa-regular fa-eye text-[11px]"></i>
-                            </button>
-                            <button id="trackLock-text" onclick="toggleTrackLock('text')" class="w-6 h-6 rounded hover:bg-white/10 hover:text-white flex items-center justify-center transition-colors cursor-pointer" title="ចាក់សោ Track">
-                                <i class="fa-solid fa-lock-open text-[10px]"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Track Header 3: Audio A1 -->
-                    <div class="h-11 flex items-center justify-between px-2.5 rounded-lg bg-[#161722] border border-[#232435] shadow-sm mt-1.5">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-waveform-lines text-indigo-400 text-[12px]"></i>
-                            <div>
-                                <div class="text-[11px] font-extrabold text-white leading-tight">Audio A1</div>
-                                <div class="text-[9px] text-slate-400">សំឡេង AI & BGM</div>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-1 text-slate-400">
-                            <button id="trackMute-audio" onclick="toggleTrackMute('audio')" class="w-6 h-6 rounded hover:bg-white/10 hover:text-white flex items-center justify-center transition-colors cursor-pointer" title="បិទ/បើកសំឡេង">
-                                <i class="fa-solid fa-volume-high text-[11px]"></i>
-                            </button>
-                            <button id="trackLock-audio" onclick="toggleTrackLock('audio')" class="w-6 h-6 rounded hover:bg-white/10 hover:text-white flex items-center justify-center transition-colors cursor-pointer" title="ចាក់សោ Track">
-                                <i class="fa-solid fa-lock-open text-[10px]"></i>
-                            </button>
-                            <button id="trackSolo-audio" onclick="toggleTrackSolo('audio')" class="w-6 h-6 rounded hover:bg-white/10 hover:text-white flex items-center justify-center transition-colors cursor-pointer" title="Solo Track">
-                                <i class="fa-solid fa-headphones text-[10px]"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <!-- Clean Track Space -->
+                <div class="flex-1"></div>
 
                 <!-- Bottom Drop Bar Left Label -->
-                <div class="h-6 px-3 flex items-center justify-between text-[10px] text-[#788294] border-t border-[#1a1a20]">
-                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-film text-[#00e5cc] text-[9px]"></i> Timeline 01</span>
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <div class="h-6 px-2.5 flex items-center text-[10px] text-[#788294] border-t border-[#1a1a20]">
+                    <i class="fa-solid fa-film mr-1.5"></i> Timeline 01
                 </div>
             </div>
 
