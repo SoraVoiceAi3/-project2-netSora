@@ -510,8 +510,9 @@
                     </div>
 
                     <!-- Ratio Selector -->
-                    <button onclick="showToast('កំណត់ទំហំផ្ទាំងវីដេអូ (Ratio)', 'info')" class="px-2.5 py-1.5 rounded-md bg-[#1f1f27] hover:bg-[#2b2b36] text-slate-300 transition-colors shadow-sm">
-                        Ratio
+                    <button onclick="toggleAspectRatio()" id="ratioBtn" class="px-2.5 py-1.5 rounded-md bg-[#1f1f27] hover:bg-[#2b2b36] text-slate-300 transition-colors shadow-sm font-bold flex items-center gap-1.5 cursor-pointer" title="ប្តូរទំហំវីដេអូ (16:9 YouTube / 9:16 TikTok)">
+                        <i class="fa-solid fa-crop-simple text-[11px] text-[#00e5cc]"></i>
+                        <span id="ratioBtnText">16:9</span>
                     </button>
                 </div>
             </div>
