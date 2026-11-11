@@ -2111,14 +2111,16 @@ const apiKey = "";
 
                 // 3. Audio/Voiceover Clip (CapCut Waveform Dark Style)
                 const audioClip = document.createElement('div');
-                audioClip.className = `timeline-clip shrink-0 h-[32px] rounded-sm text-[#0a2046] relative overflow-hidden cursor-pointer ${isSelected ? 'border border-white ring-1 ring-white/50' : 'border border-[#2a3850]'}`;
+                const audioTrackHeight = (window.currentTimelineDensity === 'compact') ? 'h-[26px]' : 'h-[32px]';
+                audioClip.className = `timeline-clip shrink-0 ${audioTrackHeight} rounded-sm text-[#0a2046] relative overflow-hidden cursor-pointer ${isSelected ? 'border border-white ring-1 ring-white/50' : 'border border-[#2a3850]'}`;
                 audioClip.style.backgroundColor = '#182335';
                 audioClip.style.width = `${widthPx}px`;
                 
-                // SVG Waveform Background Layer (Teal/Cyan)
+                // SVG Waveform Background Layer with dynamic theme accent stroke
                 const waveform = document.createElement('div');
                 waveform.className = 'absolute inset-0 opacity-80 pointer-events-none';
-                waveform.style.backgroundImage = `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none' viewBox='0 0 100 20'><path d='M0,10 L2,5 L4,15 L6,8 L8,12 L10,3 L12,17 L14,9 L16,11 L18,6 L20,14 L22,4 L24,16 L26,8 L28,12 L30,5 L32,15 L34,7 L36,13 L38,4 L40,16 L42,9 L44,11 L46,6 L48,14 L50,2 L52,18 L54,8 L56,12 L58,5 L60,15 L62,7 L64,13 L66,4 L68,16 L70,9 L72,11 L74,6 L76,14 L78,3 L80,17 L82,8 L84,12 L86,5 L88,15 L90,7 L92,13 L94,4 L96,16 L98,9 L100,10' fill='none' stroke='%2300e5cc' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'/></svg>")`;
+                const currentWaveStroke = encodeURIComponent(window.currentStudioThemeAccent || '#00e5cc');
+                waveform.style.backgroundImage = `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none' viewBox='0 0 100 20'><path d='M0,10 L2,5 L4,15 L6,8 L8,12 L10,3 L12,17 L14,9 L16,11 L18,6 L20,14 L22,4 L24,16 L26,8 L28,12 L30,5 L32,15 L34,7 L36,13 L38,4 L40,16 L42,9 L44,11 L46,6 L48,14 L50,2 L52,18 L54,8 L56,12 L58,5 L60,15 L62,7 L64,13 L66,4 L68,16 L70,9 L72,11 L74,6 L76,14 L78,3 L80,17 L82,8 L84,12 L86,5 L88,15 L90,7 L92,13 L94,4 L96,16 L98,9 L100,10' fill='none' stroke='${currentWaveStroke}' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'/></svg>")`;
                 waveform.style.backgroundSize = '50px 80%';
                 waveform.style.backgroundPosition = 'center';
                 waveform.style.backgroundRepeat = 'repeat-x';
@@ -2428,6 +2430,9 @@ const apiKey = "";
             }
             if (typeof initGeneralSettings === 'function') {
                 initGeneralSettings();
+            }
+            if (typeof initAppearanceSettings === 'function') {
+                initAppearanceSettings();
             }
         });
 
@@ -3037,23 +3042,398 @@ const apiKey = "";
             showToast('បានរក្សាទុកការកំណត់ Voice Engine ជោគជ័យ!', 'success');
         }
 
-        function applyThemePreset(preset) {
-            document.querySelectorAll('.theme-card').forEach(card => {
-                card.classList.remove('active', 'border-2', 'border-[#00e5cc]', 'border-[#3b82f6]', 'border-[#10b981]', 'border-[#a855f7]');
-                card.classList.add('border', 'border-[#2b2b36]');
-            });
+        // ==================== APPEARANCE & THEMES ENGINE ====================
+        const STUDIO_THEMES = {
+            capcut: {
+                id: 'capcut',
+                name: 'Cyber CapCut',
+                khmerName: 'ខៀវបៃតង CapCut ដើម',
+                accent: '#00e5cc',
+                accentHover: '#00c4ae',
+                accentRgb: '0, 229, 204',
+                accentTint: 'rgba(0, 229, 204, 0.12)',
+                glowShadow: '0 0 16px rgba(0, 229, 204, 0.45)',
+                badge: 'Teal ស្តង់ដារ (Default)'
+            },
+            midnight: {
+                id: 'midnight',
+                name: 'Midnight Blue',
+                khmerName: 'ខៀវរាត្រី Midnight Blue',
+                accent: '#3b82f6',
+                accentHover: '#2563eb',
+                accentRgb: '59, 130, 246',
+                accentTint: 'rgba(59, 130, 246, 0.12)',
+                glowShadow: '0 0 16px rgba(59, 130, 246, 0.45)',
+                badge: 'Electric Blue'
+            },
+            emerald: {
+                id: 'emerald',
+                name: 'Emerald Matrix',
+                khmerName: 'បៃតងត្បូង Emerald Matrix',
+                accent: '#10b981',
+                accentHover: '#059669',
+                accentRgb: '16, 185, 129',
+                accentTint: 'rgba(16, 185, 129, 0.12)',
+                glowShadow: '0 0 16px rgba(16, 185, 129, 0.45)',
+                badge: 'Forest Matrix Neon'
+            },
+            purple: {
+                id: 'purple',
+                name: 'Royal Amethyst',
+                khmerName: 'ស្វាយប្រណិត Royal Amethyst',
+                accent: '#a855f7',
+                accentHover: '#9333ea',
+                accentRgb: '168, 85, 247',
+                accentTint: 'rgba(168, 85, 247, 0.12)',
+                glowShadow: '0 0 16px rgba(168, 85, 247, 0.45)',
+                badge: 'Velvet Cinema Dark'
+            }
+        };
 
-            const current = event?.currentTarget;
-            if (current) {
-                current.classList.add('active', 'border-2');
-                if (preset === 'capcut') current.classList.add('border-[#00e5cc]');
-                else if (preset === 'midnight') current.classList.add('border-[#3b82f6]');
-                else if (preset === 'emerald') current.classList.add('border-[#10b981]');
-                else if (preset === 'purple') current.classList.add('border-[#a855f7]');
+        const STUDIO_FONTS = {
+            kantumruy: {
+                id: 'kantumruy',
+                name: 'Kantumruy Pro',
+                css: "'Kantumruy Pro', 'Inter', sans-serif"
+            },
+            battambang: {
+                id: 'battambang',
+                name: 'Battambang',
+                css: "'Battambang', cursive, serif"
+            },
+            inter: {
+                id: 'inter',
+                name: 'Inter',
+                css: "'Inter', 'Kantumruy Pro', sans-serif"
+            },
+            siemreap: {
+                id: 'siemreap',
+                name: 'Siemreap',
+                css: "'Siemreap', cursive, sans-serif"
+            }
+        };
+
+        window.currentStudioThemeKey = 'capcut';
+        window.currentStudioThemeAccent = '#00e5cc';
+        window.currentTimelineDensity = 'comfortable';
+
+        function applyThemePreset(preset, showNotification = true) {
+            const theme = STUDIO_THEMES[preset] || STUDIO_THEMES['capcut'];
+            window.currentStudioThemeKey = theme.id;
+            window.currentStudioThemeAccent = theme.accent;
+
+            // 1. Dynamic CSS style element injection / update
+            let styleEl = document.getElementById('dynamicStudioThemeStyle');
+            if (!styleEl) {
+                styleEl = document.createElement('style');
+                styleEl.id = 'dynamicStudioThemeStyle';
+                document.head.appendChild(styleEl);
             }
 
-            localStorage.setItem('khmer_studio_theme_preset', preset);
-            showToast(`បានអនុវត្ត Theme: ${preset.toUpperCase()}!`, 'success');
+            styleEl.innerHTML = `
+                :root {
+                    --theme-accent: ${theme.accent} !important;
+                    --theme-accent-hover: ${theme.accentHover} !important;
+                    --theme-accent-rgb: ${theme.accentRgb} !important;
+                    --theme-accent-tint: ${theme.accentTint} !important;
+                    --theme-glow: ${theme.glowShadow} !important;
+                }
+                /* Recolor all primary Teal classes across CapCut UI */
+                [class*="text-[#00e5cc]"],
+                .text-\\[\\#00e5cc\\],
+                .text-cc-teal,
+                .theme-accent-text {
+                    color: ${theme.accent} !important;
+                }
+                [class*="bg-[#00e5cc]"],
+                .bg-\\[\\#00e5cc\\],
+                .bg-cc-teal,
+                .theme-accent-bg {
+                    background-color: ${theme.accent} !important;
+                }
+                [class*="border-[#00e5cc]"],
+                .border-\\[\\#00e5cc\\],
+                .border-cc-teal,
+                .theme-accent-border {
+                    border-color: ${theme.accent} !important;
+                }
+                [class*="hover:bg-[#00e5cc]"]:hover,
+                .hover\\:bg-\\[\\#00e5cc\\]:hover {
+                    background-color: ${theme.accent} !important;
+                }
+                [class*="hover:text-[#00e5cc]"]:hover,
+                .hover\\:text-\\[\\#00e5cc\\]:hover {
+                    color: ${theme.accent} !important;
+                }
+                [class*="hover:border-[#00e5cc]"]:hover,
+                .hover\\:border-\\[\\#00e5cc\\]:hover {
+                    border-color: ${theme.accent} !important;
+                }
+                /* Neon Glow Shadows */
+                .shadow-\\[0_0_8px_\\#00e5cc\\],
+                .shadow-\\[0_0_12px_\\#00e5cc\\],
+                .shadow-\\[0_0_15px_\\#00e5cc\\],
+                .shadow-\\[0_0_16px_rgba\\(0\\,229\\,204\\,0\\.25\\)\\],
+                .shadow-\\[0_0_12px_rgba\\(0\\,229\\,204\\,0\\.35\\)\\] {
+                    box-shadow: ${theme.glowShadow} !important;
+                }
+                /* Active CapCut Top Nav Tab underline & glow */
+                .cc-top-tab.active {
+                    color: ${theme.accent} !important;
+                }
+                .cc-top-tab.active i {
+                    text-shadow: 0 0 12px rgba(${theme.accentRgb}, 0.5) !important;
+                }
+                .cc-top-tab.active::after {
+                    background-color: ${theme.accent} !important;
+                    box-shadow: 0 0 8px rgba(${theme.accentRgb}, 0.7) !important;
+                }
+                /* Active Left Sidebar Pills */
+                .cc-side-item.active {
+                    color: ${theme.accent} !important;
+                    background-color: rgba(${theme.accentRgb}, 0.12) !important;
+                }
+                .cc-side-item.active::before {
+                    background-color: ${theme.accent} !important;
+                    box-shadow: 2px 0 10px rgba(${theme.accentRgb}, 0.7) !important;
+                }
+                /* Active Cards */
+                .cc-card-active {
+                    border-color: ${theme.accent} !important;
+                    background-color: rgba(${theme.accentRgb}, 0.08) !important;
+                    box-shadow: 0 0 16px rgba(${theme.accentRgb}, 0.25) !important;
+                }
+                /* Form Controls Focus & Range */
+                .cc-input:focus {
+                    border-color: ${theme.accent} !important;
+                }
+                input[type="range"] {
+                    accent-color: ${theme.accent} !important;
+                }
+                /* Timeline Playhead line and diamond indicator */
+                #timelinePlayhead {
+                    border-left-color: ${theme.accent} !important;
+                }
+                #timelinePlayhead > div:first-child {
+                    background-color: ${theme.accent} !important;
+                    box-shadow: 0 0 10px rgba(${theme.accentRgb}, 0.8) !important;
+                }
+                /* Scrollbar hover */
+                ::-webkit-scrollbar-thumb:hover {
+                    background: ${theme.accent} !important;
+                }
+            `;
+
+            // 2. Update 4 Theme Cards UI in Modal
+            ['capcut', 'midnight', 'emerald', 'purple'].forEach(k => {
+                const card = document.getElementById(`themeCard-${k}`);
+                const check = document.getElementById(`themeCheck-${k}`);
+                if (card) {
+                    if (k === theme.id) {
+                        card.classList.add('active', 'border-2');
+                        card.classList.remove('border', 'border-[#2b2b36]');
+                        card.style.borderColor = theme.accent;
+                        card.style.boxShadow = theme.glowShadow;
+                        if (check) {
+                            check.classList.remove('hidden');
+                            check.style.backgroundColor = theme.accent;
+                            check.style.color = (theme.id === 'capcut' || theme.id === 'emerald') ? '#000000' : '#ffffff';
+                        }
+                    } else {
+                        card.classList.remove('active', 'border-2');
+                        card.classList.add('border', 'border-[#2b2b36]');
+                        card.style.borderColor = '#2b2b36';
+                        card.style.boxShadow = 'none';
+                        if (check) check.classList.add('hidden');
+                    }
+                }
+            });
+
+            // 3. Update Modal Header Badge & Live Preview Box
+            const activeThemeBadge = document.getElementById('activeThemeBadge');
+            const activeThemeDot = document.getElementById('activeThemeDot');
+            const activeThemeTitle = document.getElementById('activeThemeTitle');
+            if (activeThemeBadge && activeThemeDot && activeThemeTitle) {
+                activeThemeTitle.textContent = theme.name;
+                activeThemeBadge.style.color = theme.accent;
+                activeThemeBadge.style.borderColor = `rgba(${theme.accentRgb}, 0.4)`;
+                activeThemeBadge.style.backgroundColor = `rgba(${theme.accentRgb}, 0.12)`;
+                activeThemeDot.style.backgroundColor = theme.accent;
+                activeThemeDot.style.boxShadow = `0 0 8px ${theme.accent}`;
+            }
+
+            const previewThemeHex = document.getElementById('previewThemeHex');
+            if (previewThemeHex) {
+                previewThemeHex.textContent = `Accent: ${theme.accent}`;
+                previewThemeHex.style.color = theme.accent;
+                previewThemeHex.style.borderColor = `rgba(${theme.accentRgb}, 0.3)`;
+            }
+
+            const previewLogoBox = document.getElementById('previewLogoBox');
+            const previewLogoIcon = document.getElementById('previewLogoIcon');
+            if (previewLogoBox && previewLogoIcon) {
+                previewLogoBox.style.backgroundColor = `rgba(${theme.accentRgb}, 0.15)`;
+                previewLogoBox.style.borderColor = `rgba(${theme.accentRgb}, 0.4)`;
+                previewLogoBox.style.boxShadow = `0 0 12px rgba(${theme.accentRgb}, 0.3)`;
+                previewLogoIcon.style.color = theme.accent;
+            }
+
+            const previewTagPill = document.getElementById('previewTagPill');
+            if (previewTagPill) {
+                previewTagPill.style.backgroundColor = `rgba(${theme.accentRgb}, 0.2)`;
+                previewTagPill.style.color = theme.accent;
+            }
+
+            const previewBtnAccent = document.getElementById('previewBtnAccent');
+            if (previewBtnAccent) {
+                previewBtnAccent.style.backgroundColor = theme.accent;
+                previewBtnAccent.style.boxShadow = `0 0 12px rgba(${theme.accentRgb}, 0.35)`;
+                previewBtnAccent.style.color = (theme.id === 'capcut' || theme.id === 'emerald') ? '#000000' : '#ffffff';
+            }
+
+            const previewWaveform = document.getElementById('previewWaveform');
+            if (previewWaveform) {
+                const encodedHex = encodeURIComponent(theme.accent);
+                previewWaveform.style.backgroundImage = `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none' viewBox='0 0 100 20'><path d='M0,10 L3,5 L6,15 L9,8 L12,14 L15,3 L18,17 L21,9 L24,12 L27,6 L30,15 L33,7 L36,13 L39,4 L42,16 L45,9 L48,12 L51,5 L54,16 L57,8 L60,13 L63,4 L66,17 L69,9 L72,12 L75,6 L78,14 L81,5 L84,16 L87,8 L90,13 L93,6 L96,15 L100,10' fill='none' stroke='${encodedHex}' stroke-width='1.4' stroke-linecap='round'/></svg>")`;
+            }
+
+            // 4. Re-render Timeline Audio Waveforms live with new theme accent
+            if (typeof renderTimelineSegments === 'function' && typeof timelineSegments !== 'undefined' && timelineSegments && timelineSegments.length > 0) {
+                renderTimelineSegments();
+            }
+
+            // 5. Persist to localStorage
+            localStorage.setItem('khmer_studio_theme_preset', theme.id);
+
+            if (showNotification) {
+                showToast(`បានអនុវត្ត Theme «${theme.name}» (${theme.khmerName}) ជោគជ័យ!`, 'success');
+            }
+        }
+
+        function setStudioFont(fontKey, showNotification = true) {
+            const font = STUDIO_FONTS[fontKey] || STUDIO_FONTS['kantumruy'];
+            document.body.style.fontFamily = font.css;
+            document.documentElement.style.fontFamily = font.css;
+
+            const fontSelect = document.getElementById('fontSelect');
+            if (fontSelect) fontSelect.value = font.id;
+
+            const sample = document.getElementById('fontSamplePreview');
+            if (sample) sample.style.fontFamily = font.css;
+
+            localStorage.setItem('khmer_studio_font', font.id);
+            if (showNotification) {
+                showToast(`បានប្ដូរពុម្ពអក្សរទៅ «${font.name}»!`, 'info');
+            }
+        }
+
+        function setStudioFontScale(scaleKey, showNotification = true) {
+            ['compact', 'normal', 'large'].forEach(k => {
+                const btn = document.getElementById(`fontScaleBtn-${k}`);
+                if (btn) {
+                    if (k === scaleKey) {
+                        btn.className = 'px-2.5 py-1 rounded text-[11px] font-bold bg-[#00e5cc]/20 text-[#00e5cc] transition-all';
+                    } else {
+                        btn.className = 'px-2.5 py-1 rounded text-[11px] font-medium text-slate-400 hover:text-white transition-all';
+                    }
+                }
+            });
+
+            if (scaleKey === 'large') {
+                document.documentElement.style.fontSize = '15.5px';
+            } else if (scaleKey === 'compact') {
+                document.documentElement.style.fontSize = '13px';
+            } else {
+                document.documentElement.style.fontSize = '14px';
+            }
+
+            localStorage.setItem('khmer_studio_font_scale', scaleKey);
+            if (showNotification) {
+                showToast(`បានកំណត់ទំហំអក្សរ: ${scaleKey.toUpperCase()}`, 'info');
+            }
+        }
+
+        function setStudioGlow(glowKey, showNotification = true) {
+            ['soft', 'standard', 'high'].forEach(k => {
+                const btn = document.getElementById(`glowBtn-${k}`);
+                if (btn) {
+                    if (k === glowKey) {
+                        btn.className = 'py-1 rounded text-[10.5px] font-bold bg-[#00e5cc]/20 text-[#00e5cc] transition-all text-center';
+                    } else {
+                        btn.className = 'py-1 rounded text-[10.5px] font-medium text-slate-400 hover:text-white transition-all text-center';
+                    }
+                }
+            });
+
+            const activeGlowText = document.getElementById('activeGlowText');
+            if (activeGlowText) {
+                activeGlowText.textContent = glowKey.charAt(0).toUpperCase() + glowKey.slice(1);
+            }
+
+            document.body.classList.remove('glow-soft', 'glow-standard', 'glow-high');
+            document.body.classList.add(`glow-${glowKey}`);
+
+            localStorage.setItem('khmer_studio_glow', glowKey);
+            if (showNotification) {
+                showToast(`បានកំណត់កម្រិតពន្លឺ Neon: ${glowKey.toUpperCase()}`, 'info');
+            }
+        }
+
+        function setTimelineDensity(densityKey, showNotification = true) {
+            window.currentTimelineDensity = densityKey;
+            ['compact', 'comfortable'].forEach(k => {
+                const btn = document.getElementById(`densityBtn-${k}`);
+                if (btn) {
+                    if (k === densityKey) {
+                        btn.className = 'py-1 rounded text-[10.5px] font-bold bg-[#00e5cc]/20 text-[#00e5cc] transition-all text-center';
+                    } else {
+                        btn.className = 'py-1 rounded text-[10.5px] font-medium text-slate-400 hover:text-white transition-all text-center';
+                    }
+                }
+            });
+
+            const densityText = document.getElementById('activeDensityText');
+            if (densityText) {
+                densityText.textContent = densityKey === 'compact' ? '26px' : '32px';
+            }
+
+            if (typeof renderTimelineSegments === 'function' && typeof timelineSegments !== 'undefined' && timelineSegments && timelineSegments.length > 0) {
+                renderTimelineSegments();
+            }
+
+            localStorage.setItem('khmer_studio_timeline_density', densityKey);
+            if (showNotification) {
+                showToast(`បានកំណត់កម្ពស់ Timeline: ${densityKey === 'compact' ? '26px (បង្រួម)' : '32px (ទូលាយ)'}`, 'info');
+            }
+        }
+
+        function resetAppearanceDefaults() {
+            applyThemePreset('capcut', false);
+            setStudioFont('kantumruy', false);
+            setStudioFontScale('normal', false);
+            setStudioGlow('standard', false);
+            setTimelineDensity('comfortable', false);
+            showToast('បានកំណត់រូបរាងទៅលំនាំដើម (Default) ជោគជ័យ!', 'success');
+        }
+
+        function saveAppearanceSettingsManual() {
+            const currentTheme = window.currentStudioThemeKey || 'capcut';
+            const currentFont = localStorage.getItem('khmer_studio_font') || 'kantumruy';
+            showToast(`បានរក្សាទុកស្ទាយ ${currentTheme.toUpperCase()} & ${currentFont.toUpperCase()} រួចរាល់!`, 'success');
+        }
+
+        function initAppearanceSettings() {
+            const savedTheme = localStorage.getItem('khmer_studio_theme_preset') || 'capcut';
+            const savedFont = localStorage.getItem('khmer_studio_font') || 'kantumruy';
+            const savedScale = localStorage.getItem('khmer_studio_font_scale') || 'normal';
+            const savedGlow = localStorage.getItem('khmer_studio_glow') || 'standard';
+            const savedDensity = localStorage.getItem('khmer_studio_timeline_density') || 'comfortable';
+
+            applyThemePreset(savedTheme, false);
+            setStudioFont(savedFont, false);
+            setStudioFontScale(savedScale, false);
+            setStudioGlow(savedGlow, false);
+            setTimelineDensity(savedDensity, false);
         }
 
         function resetWorkspaceData() {

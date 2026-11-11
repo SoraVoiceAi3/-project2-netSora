@@ -11,7 +11,7 @@
     <!-- Google Fonts: Kantumruy Pro, Battambang, JetBrains Mono & Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Kantumruy+Pro:wght@300;400;500;600;700&family=Siemreap&display=swap" rel="stylesheet">
     
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -1740,64 +1740,220 @@
                         </div>
                     </div>
 
-                    <!-- ==================== PANEL 4: APPEARANCE ==================== -->
+                    <!-- ==================== PANEL 4: APPEARANCE & THEMES ==================== -->
                     <div id="setPanel-appearance" class="settings-content-panel hidden relative z-10 space-y-6">
-                        <div class="border-b border-[#282834] pb-4">
-                            <h3 class="text-white text-base font-extrabold flex items-center gap-2">
-                                <i class="fa-solid fa-palette text-purple-400"></i>
-                                Appearance & Themes (រូបរាង និងពណ៌ស្ទាយ)
-                            </h3>
-                            <p class="text-[11px] text-[#788294] mt-0.5">ប្តូរពណ៌ Theme តាមចំណូលចិត្តរបស់អ្នក</p>
-                        </div>
-
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-300 mb-3">ពណ៌ Theme ស្តូឌីយោ (Studio Color Themes)</label>
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                <div onclick="applyThemePreset('capcut')" class="theme-card active p-3 rounded-xl bg-[#14141c] border-2 border-[#00e5cc] cursor-pointer text-center group hover:scale-[1.02] transition-transform">
-                                    <div class="h-10 rounded-lg bg-gradient-to-r from-[#0e0e12] to-[#181822] border border-[#2b2b36] mb-2 flex items-center justify-center">
-                                        <div class="w-4 h-4 rounded-full bg-[#00e5cc] shadow-[0_0_8px_#00e5cc]"></div>
-                                    </div>
-                                    <div class="text-[11px] font-bold text-white">Cyber CapCut</div>
-                                    <div class="text-[9px] text-[#00e5cc]">Default Dark</div>
-                                </div>
-
-                                <div onclick="applyThemePreset('midnight')" class="theme-card p-3 rounded-xl bg-[#14141c] border border-[#2b2b36] cursor-pointer text-center group hover:scale-[1.02] transition-transform">
-                                    <div class="h-10 rounded-lg bg-gradient-to-r from-[#090d16] to-[#121c2e] border border-[#2b2b36] mb-2 flex items-center justify-center">
-                                        <div class="w-4 h-4 rounded-full bg-[#3b82f6] shadow-[0_0_8px_#3b82f6]"></div>
-                                    </div>
-                                    <div class="text-[11px] font-bold text-white">Midnight Blue</div>
-                                    <div class="text-[9px] text-blue-400">Deep Blue</div>
-                                </div>
-
-                                <div onclick="applyThemePreset('emerald')" class="theme-card p-3 rounded-xl bg-[#14141c] border border-[#2b2b36] cursor-pointer text-center group hover:scale-[1.02] transition-transform">
-                                    <div class="h-10 rounded-lg bg-gradient-to-r from-[#0a1410] to-[#12241d] border border-[#2b2b36] mb-2 flex items-center justify-center">
-                                        <div class="w-4 h-4 rounded-full bg-[#10b981] shadow-[0_0_8px_#10b981]"></div>
-                                    </div>
-                                    <div class="text-[11px] font-bold text-white">Emerald Matrix</div>
-                                    <div class="text-[9px] text-emerald-400">Forest Neon</div>
-                                </div>
-
-                                <div onclick="applyThemePreset('purple')" class="theme-card p-3 rounded-xl bg-[#14141c] border border-[#2b2b36] cursor-pointer text-center group hover:scale-[1.02] transition-transform">
-                                    <div class="h-10 rounded-lg bg-gradient-to-r from-[#140a1c] to-[#241232] border border-[#2b2b36] mb-2 flex items-center justify-center">
-                                        <div class="w-4 h-4 rounded-full bg-[#a855f7] shadow-[0_0_8px_#a855f7]"></div>
-                                    </div>
-                                    <div class="text-[11px] font-bold text-white">Royal Amethyst</div>
-                                    <div class="text-[9px] text-purple-400">Velvet Dark</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Font Family Selection -->
-                        <div class="p-4 rounded-xl bg-[#181822] border border-[#2b2b36] flex items-center justify-between">
+                        <!-- Header with Active Theme Badge -->
+                        <div class="border-b border-[#282834] pb-4 flex items-center justify-between">
                             <div>
-                                <div class="text-[12.5px] font-bold text-white">ពុម្ពអក្សរខ្មែរ (Khmer Typography)</div>
-                                <div class="text-[11px] text-[#8e8e98]">ជ្រើសរើសទម្រង់អក្សរសម្រាប់បង្ហាញលើអេក្រង់</div>
+                                <h3 class="text-white text-base font-extrabold flex items-center gap-2">
+                                    <i class="fa-solid fa-palette text-purple-400"></i>
+                                    Appearance & Themes (រូបរាង និងពណ៌ស្ទាយ)
+                                </h3>
+                                <p class="text-[11px] text-[#788294] mt-0.5">ប្តូរពណ៌ Theme ស្តូឌីយោ ពុម្ពអក្សរខ្មែរ និងកម្រិតពន្លឺ Neon ភ្លាមៗ (Live Instant)</p>
                             </div>
-                            <select id="fontSelect" onchange="document.body.style.fontFamily = this.value" class="bg-[#121218] border border-[#2e2e3a] text-slate-200 text-[11.5px] rounded-lg px-3 py-1.5 outline-none cursor-pointer">
-                                <option value="'Kantumruy Pro', sans-serif">Kantumruy Pro (ណែនាំ - ទំនើប)</option>
-                                <option value="'Battambang', sans-serif">Battambang (បុរាណ)</option>
-                                <option value="'Inter', sans-serif">Inter (អន្តរជាតិ)</option>
-                            </select>
+                            <div id="activeThemeBadge" class="flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-bold bg-[#00e5cc]/15 text-[#00e5cc] border border-[#00e5cc]/40 shadow-sm transition-all duration-300">
+                                <span id="activeThemeDot" class="w-2 h-2 rounded-full bg-[#00e5cc] shadow-[0_0_8px_#00e5cc] animate-pulse"></span>
+                                <span id="activeThemeTitle">Cyber CapCut</span>
+                            </div>
+                        </div>
+
+                        <!-- Live Interactive Studio Preview Box -->
+                        <div class="p-4 rounded-2xl bg-gradient-to-b from-[#161622] to-[#111118] border border-[#282838] shadow-inner space-y-3">
+                            <div class="flex items-center justify-between text-[11px] font-bold text-slate-300">
+                                <span class="flex items-center gap-2">
+                                    <i class="fa-solid fa-wand-magic-sparkles text-purple-400"></i>
+                                    ផ្ទាំងបង្ហាញគំរូផ្ទាល់ (Live Theme Preview)
+                                </span>
+                                <span id="previewThemeHex" class="font-mono text-[10.5px] px-2 py-0.5 rounded bg-black/40 text-[#00e5cc] border border-[#00e5cc]/20">Accent: #00e5cc</span>
+                            </div>
+
+                            <div class="p-3 rounded-xl bg-[#0b0b10] border border-[#20202c] flex flex-wrap items-center gap-3 justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div id="previewLogoBox" class="w-9 h-9 rounded-xl bg-[#00e5cc]/15 border border-[#00e5cc]/40 flex items-center justify-center shadow-[0_0_12px_rgba(0,229,204,0.3)] transition-all">
+                                        <i id="previewLogoIcon" class="fa-solid fa-film text-[#00e5cc] text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-[12.5px] font-bold text-white flex items-center gap-2">
+                                            Khmer Story Studio
+                                            <span id="previewTagPill" class="text-[9px] px-2 py-0.5 rounded-full bg-[#00e5cc]/20 text-[#00e5cc] font-black uppercase tracking-wider">Active</span>
+                                        </div>
+                                        <div class="text-[10px] text-slate-400">CapCut Pro Next-Gen Desktop</div>
+                                    </div>
+                                </div>
+
+                                <!-- Mini Timeline Audio Waveform Preview -->
+                                <div class="flex-1 min-w-[180px] max-w-[240px] h-9 rounded-lg bg-[#141b27] border border-[#24334a] relative overflow-hidden flex items-center px-3">
+                                    <div id="previewWaveform" class="absolute inset-0 opacity-85 transition-all" style="background-image: url(&quot;data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none' viewBox='0 0 100 20'><path d='M0,10 L3,5 L6,15 L9,8 L12,14 L15,3 L18,17 L21,9 L24,12 L27,6 L30,15 L33,7 L36,13 L39,4 L42,16 L45,9 L48,12 L51,5 L54,16 L57,8 L60,13 L63,4 L66,17 L69,9 L72,12 L75,6 L78,14 L81,5 L84,16 L87,8 L90,13 L93,6 L96,15 L100,10' fill='none' stroke='%2300e5cc' stroke-width='1.4' stroke-linecap='round'/></svg>&quot;); background-size: 45px 85%; background-position: center; background-repeat: repeat-x;"></div>
+                                    <span class="relative z-10 text-[9.5px] text-slate-200 font-semibold drop-shadow-sm flex items-center gap-1.5 pointer-events-none">
+                                        <i class="fa-solid fa-waveform-lines text-[10px] opacity-75"></i> 01 សំឡេង AI សម្រាយ
+                                    </span>
+                                </div>
+
+                                <!-- Action Button Preview -->
+                                <button id="previewBtnAccent" class="px-3.5 py-1.5 rounded-lg bg-[#00e5cc] text-black font-extrabold text-[11px] shadow-[0_0_12px_rgba(0,229,204,0.35)] flex items-center gap-1.5 pointer-events-none transition-all">
+                                    <i class="fa-solid fa-play text-[10px]"></i> Play
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 4 Interactive Theme Preset Cards -->
+                        <div>
+                            <div class="flex items-center justify-between mb-3">
+                                <label class="text-[11.5px] font-bold text-slate-200 flex items-center gap-2">
+                                    <i class="fa-solid fa-swatchbook text-[#00e5cc]"></i>
+                                    ពណ៌ Theme ស្តូឌីយោ (Studio Color Themes)
+                                </label>
+                                <span class="text-[10px] text-slate-400">ចុចដើម្បីប្ដូរពណ៌ផ្ទាល់ (Click to switch live)</span>
+                            </div>
+
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                <!-- Card 1: Cyber CapCut (Default Teal) -->
+                                <div id="themeCard-capcut" onclick="applyThemePreset('capcut')" class="theme-card active relative p-3 rounded-xl bg-[#14141c] border-2 border-[#00e5cc] shadow-[0_0_16px_rgba(0,229,204,0.25)] cursor-pointer text-center group hover:scale-[1.02] transition-all">
+                                    <span id="themeCheck-capcut" class="theme-check-badge absolute top-2 right-2 w-5 h-5 rounded-full bg-[#00e5cc] text-black text-[10px] flex items-center justify-center font-bold shadow-md">
+                                        <i class="fa-solid fa-check"></i>
+                                    </span>
+                                    <div class="h-11 rounded-lg bg-gradient-to-r from-[#0a1215] via-[#102422] to-[#181822] border border-[#00e5cc]/30 mb-2 flex items-center justify-center relative overflow-hidden">
+                                        <div class="w-5 h-5 rounded-full bg-[#00e5cc] shadow-[0_0_12px_#00e5cc] ring-2 ring-[#00e5cc]/50"></div>
+                                    </div>
+                                    <div class="text-[11.5px] font-extrabold text-white">Cyber CapCut</div>
+                                    <div class="text-[9.5px] text-[#00e5cc] font-semibold mt-0.5">Teal ស្តង់ដារ (Default)</div>
+                                </div>
+
+                                <!-- Card 2: Midnight Blue -->
+                                <div id="themeCard-midnight" onclick="applyThemePreset('midnight')" class="theme-card relative p-3 rounded-xl bg-[#14141c] border border-[#2b2b36] cursor-pointer text-center group hover:scale-[1.02] transition-all">
+                                    <span id="themeCheck-midnight" class="theme-check-badge hidden absolute top-2 right-2 w-5 h-5 rounded-full bg-[#3b82f6] text-white text-[10px] flex items-center justify-center font-bold shadow-md">
+                                        <i class="fa-solid fa-check"></i>
+                                    </span>
+                                    <div class="h-11 rounded-lg bg-gradient-to-r from-[#090d16] via-[#111e36] to-[#121c2e] border border-[#3b82f6]/30 mb-2 flex items-center justify-center relative overflow-hidden">
+                                        <div class="w-5 h-5 rounded-full bg-[#3b82f6] shadow-[0_0_12px_#3b82f6] ring-2 ring-[#3b82f6]/50"></div>
+                                    </div>
+                                    <div class="text-[11.5px] font-extrabold text-white">Midnight Blue</div>
+                                    <div class="text-[9.5px] text-blue-400 font-semibold mt-0.5">ខៀវរាត្រី (Electric Blue)</div>
+                                </div>
+
+                                <!-- Card 3: Emerald Matrix -->
+                                <div id="themeCard-emerald" onclick="applyThemePreset('emerald')" class="theme-card relative p-3 rounded-xl bg-[#14141c] border border-[#2b2b36] cursor-pointer text-center group hover:scale-[1.02] transition-all">
+                                    <span id="themeCheck-emerald" class="theme-check-badge hidden absolute top-2 right-2 w-5 h-5 rounded-full bg-[#10b981] text-black text-[10px] flex items-center justify-center font-bold shadow-md">
+                                        <i class="fa-solid fa-check"></i>
+                                    </span>
+                                    <div class="h-11 rounded-lg bg-gradient-to-r from-[#08120e] via-[#0e261b] to-[#12241d] border border-[#10b981]/30 mb-2 flex items-center justify-center relative overflow-hidden">
+                                        <div class="w-5 h-5 rounded-full bg-[#10b981] shadow-[0_0_12px_#10b981] ring-2 ring-[#10b981]/50"></div>
+                                    </div>
+                                    <div class="text-[11.5px] font-extrabold text-white">Emerald Matrix</div>
+                                    <div class="text-[9.5px] text-emerald-400 font-semibold mt-0.5">បៃតងត្បូង (Neon Forest)</div>
+                                </div>
+
+                                <!-- Card 4: Royal Amethyst -->
+                                <div id="themeCard-purple" onclick="applyThemePreset('purple')" class="theme-card relative p-3 rounded-xl bg-[#14141c] border border-[#2b2b36] cursor-pointer text-center group hover:scale-[1.02] transition-all">
+                                    <span id="themeCheck-purple" class="theme-check-badge hidden absolute top-2 right-2 w-5 h-5 rounded-full bg-[#a855f7] text-white text-[10px] flex items-center justify-center font-bold shadow-md">
+                                        <i class="fa-solid fa-check"></i>
+                                    </span>
+                                    <div class="h-11 rounded-lg bg-gradient-to-r from-[#120817] via-[#261033] to-[#241232] border border-[#a855f7]/30 mb-2 flex items-center justify-center relative overflow-hidden">
+                                        <div class="w-5 h-5 rounded-full bg-[#a855f7] shadow-[0_0_12px_#a855f7] ring-2 ring-[#a855f7]/50"></div>
+                                    </div>
+                                    <div class="text-[11.5px] font-extrabold text-white">Royal Amethyst</div>
+                                    <div class="text-[9.5px] text-purple-400 font-semibold mt-0.5">ស្វាយភាពយន្ត (Velvet)</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Khmer Typography & Scale -->
+                        <div class="p-4 rounded-xl bg-[#181822] border border-[#2b2b36] space-y-3.5">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div>
+                                    <div class="text-[12.5px] font-bold text-white flex items-center gap-2">
+                                        <i class="fa-solid fa-font text-blue-400"></i>
+                                        ពុម្ពអក្សរខ្មែរ (Khmer Typography)
+                                    </div>
+                                    <div class="text-[11px] text-[#8e8e98]">ជ្រើសរើសទម្រង់ពុម្ពអក្សរសម្រាប់បង្ហាញលើអេក្រង់ទាំងមូល</div>
+                                </div>
+                                <select id="fontSelect" onchange="setStudioFont(this.value)" class="bg-[#121218] border border-[#2e2e3a] text-slate-100 font-medium text-[12px] rounded-lg px-3 py-2 outline-none cursor-pointer focus:border-[#00e5cc] transition-colors">
+                                    <option value="kantumruy">Kantumruy Pro (ណែនាំ - ទំនើប ស្រួលមើល)</option>
+                                    <option value="battambang">Battambang (បុរាណ - សម្រាប់សម្រាយរឿង)</option>
+                                    <option value="inter">Inter (អន្តរជាតិ - Modern Sans)</option>
+                                    <option value="siemreap">Siemreap (សៀមរាប - ប្រពៃណីខ្មែរ)</option>
+                                </select>
+                            </div>
+
+                            <!-- Live Font Sentence Preview -->
+                            <div class="space-y-1.5">
+                                <span class="text-[10px] text-slate-400 font-semibold">គំរូអក្សរជាក់ស្ដែង (Preview):</span>
+                                <div id="fontSamplePreview" class="p-3 rounded-lg bg-[#111116] border border-[#23232e] text-[12.5px] text-slate-200 transition-all leading-relaxed">
+                                    «សូមស្វាគមន៍មកកាន់ Khmer AI Story Studio — បង្កើតវីដេអូសម្រាយរឿងបែប CapCut កម្រិតខ្ពស់»
+                                </div>
+                            </div>
+
+                            <!-- Font Size Scale -->
+                            <div class="flex items-center justify-between pt-2 border-t border-[#232330]">
+                                <span class="text-[11px] text-slate-300 font-bold">ទំហំអក្សរ (Font Scaling)</span>
+                                <div class="flex items-center gap-1.5 bg-[#121218] p-1 rounded-lg border border-[#2b2b36]">
+                                    <button type="button" onclick="setStudioFontScale('compact')" id="fontScaleBtn-compact" class="px-2.5 py-1 rounded text-[11px] font-medium text-slate-400 hover:text-white transition-all">
+                                        បង្រួម (92%)
+                                    </button>
+                                    <button type="button" onclick="setStudioFontScale('normal')" id="fontScaleBtn-normal" class="px-2.5 py-1 rounded text-[11px] font-bold bg-[#00e5cc]/20 text-[#00e5cc] transition-all">
+                                        ធម្មតា (100%)
+                                    </button>
+                                    <button type="button" onclick="setStudioFontScale('large')" id="fontScaleBtn-large" class="px-2.5 py-1 rounded text-[11px] font-medium text-slate-400 hover:text-white transition-all">
+                                        ធំល្មម (108%)
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Neon Glow & Visual Density Controls -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <!-- Studio Neon Glow Control -->
+                            <div class="p-4 rounded-xl bg-[#181822] border border-[#2b2b36] space-y-2.5">
+                                <div class="flex items-center justify-between">
+                                    <div class="text-[12px] font-bold text-white flex items-center gap-2">
+                                        <i class="fa-solid fa-sun text-amber-400"></i>
+                                        ពន្លឺ Neon (Studio Glow)
+                                    </div>
+                                    <span id="activeGlowText" class="text-[10px] text-[#00e5cc] font-mono font-bold">Standard</span>
+                                </div>
+                                <div class="grid grid-cols-3 gap-1.5 bg-[#121218] p-1 rounded-lg border border-[#2b2b36]">
+                                    <button type="button" onclick="setStudioGlow('soft')" id="glowBtn-soft" class="py-1 rounded text-[10.5px] font-medium text-slate-400 hover:text-white transition-all text-center">
+                                        🌙 ស្រទន់
+                                    </button>
+                                    <button type="button" onclick="setStudioGlow('standard')" id="glowBtn-standard" class="py-1 rounded text-[10.5px] font-bold bg-[#00e5cc]/20 text-[#00e5cc] transition-all text-center">
+                                        ✨ ស្តង់ដារ
+                                    </button>
+                                    <button type="button" onclick="setStudioGlow('high')" id="glowBtn-high" class="py-1 rounded text-[10.5px] font-medium text-slate-400 hover:text-white transition-all text-center">
+                                        🔥 ភ្លឺខ្លាំង
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Timeline Density Control -->
+                            <div class="p-4 rounded-xl bg-[#181822] border border-[#2b2b36] space-y-2.5">
+                                <div class="flex items-center justify-between">
+                                    <div class="text-[12px] font-bold text-white flex items-center gap-2">
+                                        <i class="fa-solid fa-bars-staggered text-emerald-400"></i>
+                                        កម្ពស់ Timeline (Track Height)
+                                    </div>
+                                    <span id="activeDensityText" class="text-[10px] text-slate-300 font-mono font-bold">32px</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-1.5 bg-[#121218] p-1 rounded-lg border border-[#2b2b36]">
+                                    <button type="button" onclick="setTimelineDensity('compact')" id="densityBtn-compact" class="py-1 rounded text-[10.5px] font-medium text-slate-400 hover:text-white transition-all text-center">
+                                        បង្រួម (Compact 26px)
+                                    </button>
+                                    <button type="button" onclick="setTimelineDensity('comfortable')" id="densityBtn-comfortable" class="py-1 rounded text-[10.5px] font-bold bg-[#00e5cc]/20 text-[#00e5cc] transition-all text-center">
+                                        ទូលាយ (Comfortable 32px)
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer Action Buttons -->
+                        <div class="pt-2 flex items-center justify-between border-t border-[#232330]">
+                            <button type="button" onclick="resetAppearanceDefaults()" class="px-4 py-2 rounded-xl bg-[#1d1d26] hover:bg-[#252532] text-slate-300 hover:text-white text-xs font-semibold border border-[#303040] transition-colors flex items-center gap-2">
+                                <i class="fa-solid fa-rotate-left text-slate-400"></i>
+                                កំណត់ឡើងវិញ (Reset Defaults)
+                            </button>
+                            <button type="button" onclick="saveAppearanceSettingsManual()" class="px-5 py-2 rounded-xl bg-[#00e5cc] hover:bg-[#00c4ae] text-black text-xs font-extrabold shadow-[0_0_15px_rgba(0,229,204,0.3)] transition-all flex items-center gap-2">
+                                <i class="fa-solid fa-check text-xs"></i>
+                                រក្សាទុកស្ទាយ (Save Appearance)
+                            </button>
                         </div>
                     </div>
 
