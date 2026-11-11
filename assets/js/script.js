@@ -2067,12 +2067,29 @@ const apiKey = "";
                 const endSecs = String((prevTotal + seg.duration) % 60).padStart(2, '0');
                 const timeString = `${startMins}:${startSecs}.00 - ${endMins}:${endSecs}.00`;
 
+                const handleClipClick = (e, index) => {
+                    e.stopPropagation();
+                    if (timelineToolMode === 'razor') {
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        const clickOffset = e.clientX - rect.left;
+                        const tracksArea = document.getElementById('timelineTracksArea');
+                        const playhead = document.getElementById('timelinePlayhead');
+                        const playheadX = rect.left - tracksArea.getBoundingClientRect().left + tracksArea.scrollLeft + clickOffset;
+                        if (playhead) playhead.style.left = `${Math.max(24, playheadX)}px`;
+                        selectTimelineSegment(index);
+                        splitActiveTimelineClip();
+                        showToast('✂️ បានកាត់ឈុតត្រង់កន្លែងចុចកាំបិត (Razor Split)!', 'success');
+                    } else {
+                        selectTimelineSegment(index);
+                    }
+                };
+
                 // 1. Text/Script Clip (Amber)
                 const textClip = document.createElement('div');
                 textClip.className = `timeline-clip shrink-0 h-[24px] bg-[#9a4e1c] text-amber-100 rounded-sm border ${isSelected ? 'border-white ring-1 ring-white/50' : 'border-[#b86227]'} overflow-hidden shadow-sm`;
                 textClip.style.width = `${widthPx}px`;
                 textClip.innerHTML = `<span class="font-bold mr-1">${seg.section}</span>${seg.text}`;
-                textClip.onclick = (e) => { e.stopPropagation(); selectTimelineSegment(idx); };
+                textClip.onclick = (e) => handleClipClick(e, idx);
                 textRow.appendChild(textClip);
 
                 // 2. Video/Scene Clip (CapCut Dark Video Style)
@@ -2106,7 +2123,7 @@ const apiKey = "";
                         <span class="text-[11px] text-[#8e8e98] truncate font-sans">${clipLabel}</span>
                     </div>
                 `;
-                videoClip.onclick = (e) => { e.stopPropagation(); selectTimelineSegment(idx); };
+                videoClip.onclick = (e) => handleClipClick(e, idx);
                 videoRow.appendChild(videoClip);
 
                 // 3. Audio/Voiceover Clip (CapCut Waveform Dark Style)
@@ -2132,7 +2149,7 @@ const apiKey = "";
                 audioText.textContent = seg.cue;
                 audioClip.appendChild(audioText);
                 
-                audioClip.onclick = (e) => { e.stopPropagation(); selectTimelineSegment(idx); };
+                audioClip.onclick = (e) => handleClipClick(e, idx);
                 audioRow.appendChild(audioClip);
             });
 
@@ -2258,7 +2275,338 @@ const apiKey = "";
             }
         }
 
+        // ==================== CAPCUT PRO TIMELINE ENGINE ====================
+        let timelineHistory = [];
+        let timelineRedoStack = [];
+        let timelineToolMode = 'select'; // 'select' | 'razor'
+        let isTimelineMagnetActive = true;
+        let isTimelineSnappingActive = true;
+        let isTimelineLinked = true;
+        let timelineRulerMode = 'timecode'; // 'timecode' | 'frames'
+        let trackStates = {
+            video: { hidden: false, locked: false, muted: false },
+            text: { hidden: false, locked: false },
+            audio: { muted: false, locked: false, solo: false }
+        };
+
+        function saveTimelineSnapshot(actionName = 'Edit') {
+            const snapshot = {
+                action: actionName,
+                segments: JSON.parse(JSON.stringify(timelineSegments || [])),
+                activeIndex: activeSegmentIndex
+            };
+            timelineHistory.push(snapshot);
+            if (timelineHistory.length > 25) timelineHistory.shift();
+            timelineRedoStack = []; // clear redo on new action
+            updateTimelineUndoRedoUI();
+        }
+
+        function undoTimelineAction() {
+            if (timelineHistory.length === 0) {
+                showToast('គ្មានសកម្មភាពអាចត្រឡប់ក្រោយបានទេ', 'info');
+                return;
+            }
+            const currentSnapshot = {
+                action: 'Current',
+                segments: JSON.parse(JSON.stringify(timelineSegments || [])),
+                activeIndex: activeSegmentIndex
+            };
+            timelineRedoStack.push(currentSnapshot);
+
+            const prev = timelineHistory.pop();
+            timelineSegments = prev.segments;
+            activeSegmentIndex = Math.min(prev.activeIndex, Math.max(0, timelineSegments.length - 1));
+
+            renderTimelineTracks();
+            selectTimelineSegment(activeSegmentIndex);
+            updateTimelineUndoRedoUI();
+            showToast(`↩️ បានត្រឡប់ក្រោយ (Undo): ${prev.action}`, 'info');
+        }
+
+        function redoTimelineAction() {
+            if (timelineRedoStack.length === 0) {
+                showToast('គ្មានសកម្មភាពអាចធ្វើឡើងវិញបានទេ', 'info');
+                return;
+            }
+            const next = timelineRedoStack.pop();
+            saveTimelineSnapshot('Redo');
+            timelineSegments = next.segments;
+            activeSegmentIndex = Math.min(next.activeIndex, Math.max(0, timelineSegments.length - 1));
+
+            renderTimelineTracks();
+            selectTimelineSegment(activeSegmentIndex);
+            updateTimelineUndoRedoUI();
+            showToast(`↪️ បានធ្វើឡើងវិញ (Redo)`, 'info');
+        }
+
+        function updateTimelineUndoRedoUI() {
+            const undoBtn = document.getElementById('btnTimelineUndo');
+            const redoBtn = document.getElementById('btnTimelineRedo');
+
+            if (undoBtn) {
+                if (timelineHistory.length > 0) {
+                    undoBtn.className = 'w-8 h-8 flex items-center justify-center rounded hover:bg-[#2b2b33] text-white transition-colors cursor-pointer';
+                    undoBtn.title = `ត្រលប់ក្រោយ (Undo - Ctrl+Z) [${timelineHistory.length}]`;
+                } else {
+                    undoBtn.className = 'w-8 h-8 flex items-center justify-center rounded hover:bg-[#2b2b33] text-[#52525b] transition-colors cursor-not-allowed';
+                    undoBtn.title = 'ត្រលប់ក្រោយ (Undo - គ្មានប្រវត្តិ)';
+                }
+            }
+
+            if (redoBtn) {
+                if (timelineRedoStack.length > 0) {
+                    redoBtn.className = 'w-8 h-8 flex items-center justify-center rounded hover:bg-[#2b2b33] text-white transition-colors cursor-pointer';
+                    redoBtn.title = `ធ្វើឡើងវិញ (Redo - Ctrl+Y) [${timelineRedoStack.length}]`;
+                } else {
+                    redoBtn.className = 'w-8 h-8 flex items-center justify-center rounded hover:bg-[#2b2b33] text-[#52525b] transition-colors cursor-not-allowed';
+                    redoBtn.title = 'ធ្វើឡើងវិញ (Redo - គ្មានប្រវត្តិ)';
+                }
+            }
+        }
+
+        function toggleTimelineToolDropdown() {
+            const dd = document.getElementById('timelineToolDropdown');
+            if (dd) dd.classList.toggle('hidden');
+        }
+
+        function setTimelineToolMode(mode) {
+            timelineToolMode = mode;
+            const btn = document.getElementById('btnTimelineToolMode');
+            const icon = document.getElementById('timelineToolModeIcon');
+            const text = document.getElementById('timelineToolModeText');
+            const tracksArea = document.getElementById('timelineTracksArea');
+            const dd = document.getElementById('timelineToolDropdown');
+            if (dd) dd.classList.add('hidden');
+
+            if (mode === 'razor') {
+                if (btn) btn.className = 'h-[28px] px-2 flex items-center justify-center rounded-[8px] border border-amber-500/50 bg-amber-500/15 text-amber-300 hover:bg-amber-500/25 transition-all gap-1.5 cursor-pointer shadow-sm';
+                if (icon) icon.className = 'fa-solid fa-scissors text-[12px] text-amber-400';
+                if (text) text.textContent = 'Razor (B)';
+                if (tracksArea) tracksArea.style.cursor = 'crosshair';
+                showToast('✂️ បានបើកឧបករណ៍កាត់ (Razor Blade Tool) - ចុចលើឈុតណាមួយដើម្បីកាត់ភ្លាមៗ!', 'info');
+            } else {
+                if (btn) btn.className = 'h-[28px] px-2 flex items-center justify-center rounded-[8px] border border-[#00e5cc]/40 bg-[#00e5cc]/10 text-[#00e5cc] hover:bg-[#00e5cc]/20 transition-all gap-1.5 cursor-pointer shadow-sm';
+                if (icon) icon.className = 'fa-solid fa-arrow-pointer text-[12px]';
+                if (text) text.textContent = 'Select (A)';
+                if (tracksArea) tracksArea.style.cursor = 'default';
+                showToast('↖️ បានប្តូរទៅកាន់ឧបករណ៍ជ្រើសរើស (Select Tool)', 'info');
+            }
+        }
+
+        function freezeFrameAtPlayhead() {
+            if (trackStates.video.locked) {
+                showToast('Track វីដេអូត្រូវបានចាក់សោ (Locked) មិនអាចកែសម្រួលបានទេ!', 'warning');
+                return;
+            }
+
+            saveTimelineSnapshot('Freeze Frame');
+
+            const newSeg = {
+                section: '❄️ Freeze Frame',
+                text: '[រូបភាពបង្កក 3.0s]',
+                duration: 3,
+                cue: 'Freeze Frame 3.0s'
+            };
+
+            const insertIndex = activeSegmentIndex >= 0 ? activeSegmentIndex + 1 : timelineSegments.length;
+            timelineSegments.splice(insertIndex, 0, newSeg);
+            activeSegmentIndex = insertIndex;
+
+            renderTimelineTracks();
+            selectTimelineSegment(activeSegmentIndex);
+            showToast('❄️ បានបង្កកប្លង់វីដេអូ (Freeze Frame 3.0s) នៅត្រង់ Playhead ជោគជ័យ!', 'success');
+        }
+
+        function reverseActiveTimelineClip() {
+            if (timelineSegments.length === 0) {
+                showToast('សូមបញ្ចូល ឬជ្រើសរើសឈុតវីដេអូជាមុនសិន!', 'warning');
+                return;
+            }
+
+            saveTimelineSnapshot('Reverse');
+            const seg = timelineSegments[activeSegmentIndex];
+            if (seg) {
+                seg.isReversed = !seg.isReversed;
+                seg.cue = seg.isReversed ? `<< REV (-1.0x) ${seg.cue.replace('<< REV (-1.0x) ', '')}` : seg.cue.replace('<< REV (-1.0x) ', '');
+                renderTimelineTracks();
+                showToast(seg.isReversed ? '↺ បានត្រឡប់ល្បឿនវីដេអូថយក្រោយ (Reverse Playback -1.0x)!' : 'បានត្រឡប់ល្បឿនវីដេអូមកធម្មតា!', 'info');
+            }
+        }
+
+        function toggleTimelineSpeedMenu() {
+            const menu = document.getElementById('timelineSpeedMenu');
+            if (menu) menu.classList.toggle('hidden');
+        }
+
+        function setTimelineClipSpeed(spd) {
+            const menu = document.getElementById('timelineSpeedMenu');
+            if (menu) menu.classList.add('hidden');
+            const display = document.getElementById('timelineSpeedDisplay');
+            if (display) display.textContent = `${spd.toFixed(1)}x`;
+
+            const videoEl = document.getElementById('uploadedVideoPreview');
+            if (videoEl) videoEl.playbackRate = spd;
+
+            showToast(`⚡ បានកំណត់ល្បឿនចាក់វីដេអូ៖ ${spd.toFixed(1)}x`, 'info');
+        }
+
+        function toggleTrackVisibility(trackType) {
+            trackStates[trackType].hidden = !trackStates[trackType].hidden;
+            const isHidden = trackStates[trackType].hidden;
+
+            const eyeBtn = document.getElementById(`trackEye-${trackType}`);
+            if (eyeBtn) {
+                const icon = eyeBtn.querySelector('i');
+                if (isHidden) {
+                    if (icon) icon.className = 'fa-regular fa-eye-slash text-[11px] text-rose-400';
+                    eyeBtn.classList.add('text-rose-400');
+                } else {
+                    if (icon) icon.className = 'fa-regular fa-eye text-[11px]';
+                    eyeBtn.classList.remove('text-rose-400');
+                }
+            }
+
+            if (trackType === 'video') {
+                const videoEl = document.getElementById('uploadedVideoPreview');
+                const imageEl = document.getElementById('uploadedImagePreview');
+                if (videoEl) videoEl.style.opacity = isHidden ? '0' : '1';
+                if (imageEl) imageEl.style.opacity = isHidden ? '0' : '1';
+                showToast(isHidden ? 'បានបិទការបង្ហាញវីដេអូលើ Stage' : 'បានបើកការបង្ហាញវីដេអូលើ Stage ឡើងវិញ', 'info');
+            } else if (trackType === 'text') {
+                const subWrap = document.getElementById('subtitleWrapper');
+                if (subWrap) subWrap.style.opacity = isHidden ? '0' : '1';
+                showToast(isHidden ? 'បានបិទការបង្ហាញ Subtitle' : 'បានបើកការបង្ហាញ Subtitle ឡើងវិញ', 'info');
+            }
+        }
+
+        function toggleTrackLock(trackType) {
+            trackStates[trackType].locked = !trackStates[trackType].locked;
+            const isLocked = trackStates[trackType].locked;
+
+            const lockBtn = document.getElementById(`trackLock-${trackType}`);
+            if (lockBtn) {
+                const icon = lockBtn.querySelector('i');
+                if (isLocked) {
+                    if (icon) icon.className = 'fa-solid fa-lock text-[10px] text-amber-400';
+                    lockBtn.classList.add('text-amber-400');
+                } else {
+                    if (icon) icon.className = 'fa-solid fa-lock-open text-[10px]';
+                    lockBtn.classList.remove('text-amber-400');
+                }
+            }
+
+            const trackRow = document.getElementById(`trackRow-${trackType}`);
+            if (trackRow) {
+                trackRow.style.opacity = isLocked ? '0.6' : '1';
+                trackRow.style.pointerEvents = isLocked ? 'none' : 'auto';
+            }
+
+            showToast(isLocked ? `🔒 បានចាក់សោ Track ${trackType.toUpperCase()} (Locked)` : `🔓 បានដោះសោ Track ${trackType.toUpperCase()}`, 'info');
+        }
+
+        function toggleTrackMute(trackType) {
+            trackStates[trackType].muted = !trackStates[trackType].muted;
+            const isMuted = trackStates[trackType].muted;
+
+            const muteBtn = document.getElementById(`trackMute-${trackType}`);
+            if (muteBtn) {
+                const icon = muteBtn.querySelector('i');
+                if (isMuted) {
+                    if (icon) icon.className = 'fa-solid fa-volume-xmark text-[11px] text-rose-400';
+                } else {
+                    if (icon) icon.className = 'fa-solid fa-volume-high text-[11px]';
+                }
+            }
+
+            if (trackType === 'video') {
+                const videoEl = document.getElementById('uploadedVideoPreview');
+                if (videoEl) videoEl.muted = isMuted;
+                showToast(isMuted ? '🔇 បានបិទសំឡេងដើមរបស់វីដេអូ' : '🔊 បានបើកសំឡេងដើមរបស់វីដេអូ', 'info');
+            } else if (trackType === 'audio') {
+                const bgmAudio = document.getElementById('bgmAudioPlayer');
+                const ttsAudio = document.getElementById('aiAudioPlayer');
+                if (bgmAudio) bgmAudio.muted = isMuted;
+                if (ttsAudio) ttsAudio.muted = isMuted;
+                showToast(isMuted ? '🔇 បានបិទសំឡេង AI & BGM' : '🔊 បានបើកសំឡេង AI & BGM ឡើងវិញ', 'info');
+            }
+        }
+
+        function toggleTrackSolo(trackType) {
+            trackStates[trackType].solo = !trackStates[trackType].solo;
+            const isSolo = trackStates[trackType].solo;
+
+            const soloBtn = document.getElementById(`trackSolo-${trackType}`);
+            if (soloBtn) {
+                soloBtn.classList.toggle('text-[#00e5cc]', isSolo);
+            }
+            showToast(isSolo ? `🎧 Solo Track ${trackType.toUpperCase()} បើកដំណើរការ` : 'បានបិទ Solo Track', 'info');
+        }
+
+        function triggerTimelineVoiceover() {
+            showToast('🎙️ ត្រៀមថតសំឡេងនិទានផ្ទាល់លើ Timeline... (3... 2... 1...)', 'info');
+            setTimeout(() => {
+                toggleApiModal('voxcmp');
+                showToast('សូមចុចប៊ូតុង "ថតសំឡេងផ្ទាល់" ក្នុង VoxCMP Studio!', 'info');
+            }, 600);
+        }
+
+        function toggleTimelineMagnet() {
+            isTimelineMagnetActive = !isTimelineMagnetActive;
+            const btn = document.getElementById('btnTimelineMagnet');
+            if (btn) {
+                if (isTimelineMagnetActive) {
+                    btn.className = 'w-[30px] h-[28px] flex items-center justify-center rounded-[6px] bg-[#32323d] text-[#00e5cc] hover:bg-[#3f3f4c] transition-all cursor-pointer shadow-sm';
+                } else {
+                    btn.className = 'w-[30px] h-[28px] flex items-center justify-center rounded-[6px] bg-[#1d1d24] text-slate-500 hover:text-white transition-all cursor-pointer';
+                }
+            }
+            showToast(isTimelineMagnetActive ? '🧲 បានបើក Main Track Magnet (ស្អិតជាប់ស្វ័យប្រវត្តិតាមចង្វាក់)' : 'បានបិទ Track Magnet (Manual Spacing)', 'info');
+        }
+
+        function toggleTimelineSnapping() {
+            isTimelineSnappingActive = !isTimelineSnappingActive;
+            const btn = document.getElementById('btnTimelineSnapping');
+            if (btn) {
+                if (isTimelineSnappingActive) {
+                    btn.className = 'w-[30px] h-[28px] flex items-center justify-center rounded-[6px] bg-[#32323d] text-[#00e5cc] hover:bg-[#3f3f4c] transition-all cursor-pointer shadow-sm';
+                } else {
+                    btn.className = 'w-[30px] h-[28px] flex items-center justify-center rounded-[6px] bg-[#1d1d24] text-slate-500 hover:text-white transition-all cursor-pointer';
+                }
+            }
+            showToast(isTimelineSnappingActive ? '✨ បានបើក Auto Snapping (តម្រឹម Playhead & Clip ស្វ័យប្រវត្តិ)' : 'បានបិទ Auto Snapping', 'info');
+        }
+
+        function toggleTimelineLinkage() {
+            isTimelineLinked = !isTimelineLinked;
+            const btn = document.getElementById('btnTimelineLink');
+            if (btn) {
+                btn.classList.toggle('text-[#00e5cc]', isTimelineLinked);
+            }
+            showToast(isTimelineLinked ? '🔗 បានភ្ជាប់វីដេអូ និងសំឡេង (Linked Tracks - កាត់តដំណាលគ្នា)' : 'បានផ្តាច់ Link Tracks (Independent Editing)', 'info');
+        }
+
+        function toggleTimelineQualityMenu() {
+            const menu = document.getElementById('timelineQualityMenu');
+            if (menu) menu.classList.toggle('hidden');
+        }
+
+        function setTimelineQuality(res) {
+            const menu = document.getElementById('timelineQualityMenu');
+            if (menu) menu.classList.add('hidden');
+            const label = document.getElementById('timelineQualityLabel');
+            if (label) label.textContent = res;
+            showToast(`🖥 បានកំណត់គុណភាព Preview ៖ ${res}`, 'info');
+        }
+
+        function toggleTimelineRulerFormat() {
+            timelineRulerMode = timelineRulerMode === 'timecode' ? 'frames' : 'timecode';
+            const totalDuration = timelineSegments.reduce((acc, s) => acc + s.duration, 0) || 120;
+            renderTimelineRuler(totalDuration + 60);
+            showToast(`📏 បានប្តូរទម្រង់បន្ទាត់ម៉ោងទៅជា៖ ${timelineRulerMode === 'timecode' ? 'Timecode (00:00:05:00)' : 'Frames (30fps)'}`, 'info');
+        }
+
         function splitActiveTimelineClip() {
+            saveTimelineSnapshot('Split Clip');
             const playhead = document.getElementById('timelinePlayhead');
             const playheadLeftPx = parseFloat(playhead.style.left) || 24;
 
@@ -2372,6 +2720,7 @@ const apiKey = "";
         }
 
         function deleteSelectedClip() {
+            saveTimelineSnapshot('Delete Clip');
             if (activeTimelineElement && activeTimelineElement.dataset.isFake === 'true') {
                 activeTimelineElement.remove();
                 activeTimelineElement = null;

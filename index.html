@@ -946,81 +946,137 @@
     </div>
 
     <!-- BOTTOM PANEL: CAPCUT MULTI-TRACK TIMELINE -->
-    <footer class="h-60 cc-panel mx-1 mb-1 rounded-sm flex flex-col justify-between shrink-0 overflow-hidden select-none">
+    <footer class="h-64 cc-panel mx-1 mb-1 rounded-sm flex flex-col justify-between shrink-0 overflow-hidden select-none border-t border-[#1f202a]">
         
-        <!-- 1. Timeline Top Toolbar (Exact CapCut Icons) -->
-        <div class="h-10 px-4 border-b border-[#1a1a20] bg-[#141418] flex items-center justify-between text-xs shrink-0">
+        <!-- 1. Timeline Top Toolbar (Exact CapCut Professional Desktop Layout) -->
+        <div class="h-10 px-3 border-b border-[#1a1a20] bg-[#141418] flex items-center justify-between text-xs shrink-0 relative z-30">
             <!-- Left Editing Tools -->
-            <div class="flex items-center gap-2.5 text-[#9ca3af]">
-                <!-- Select Arrow (Active State) -->
-                <button class="w-[46px] h-[28px] flex items-center justify-center rounded-[8px] border-2 border-[#e4e4e7] text-[#e4e4e7] hover:bg-white/5 transition-colors gap-1.5" title="Select (A)">
-                    <i class="fa-solid fa-arrow-pointer text-[13px]"></i>
-                    <i class="fa-solid fa-caret-down text-[10px] -ml-0.5"></i>
+            <div class="flex items-center gap-1.5 text-[#9ca3af]">
+                <!-- Select vs Razor Blade Tool Dropdown -->
+                <div class="relative">
+                    <button id="btnTimelineToolMode" onclick="toggleTimelineToolDropdown()" class="h-[28px] px-2 flex items-center justify-center rounded-[8px] border border-[#00e5cc]/40 bg-[#00e5cc]/10 text-[#00e5cc] hover:bg-[#00e5cc]/20 transition-all gap-1.5 cursor-pointer shadow-sm" title="ឧបករណ៍បញ្ជា (A: Select, B: Razor)">
+                        <i id="timelineToolModeIcon" class="fa-solid fa-arrow-pointer text-[12px]"></i>
+                        <span id="timelineToolModeText" class="text-[11px] font-bold">Select (A)</span>
+                        <i class="fa-solid fa-caret-down text-[9px] -ml-0.5 opacity-70"></i>
+                    </button>
+                    <!-- Dropdown Menu -->
+                    <div id="timelineToolDropdown" class="hidden absolute top-full left-0 mt-1 w-44 rounded-xl bg-[#14141c] border border-[#2c2d3d] shadow-2xl p-1.5 z-50 text-[11px] space-y-1">
+                        <div onclick="setTimelineToolMode('select')" class="p-2 rounded-lg hover:bg-white/5 flex items-center justify-between cursor-pointer text-white">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-arrow-pointer text-[#00e5cc]"></i> ជ្រើសរើស (Select)</span>
+                            <kbd class="px-1.5 py-0.5 bg-black/40 rounded text-[9px] font-mono text-slate-400">A</kbd>
+                        </div>
+                        <div onclick="setTimelineToolMode('razor')" class="p-2 rounded-lg hover:bg-white/5 flex items-center justify-between cursor-pointer text-slate-300 hover:text-white">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-scissors text-amber-400"></i> កាំបិតកាត់ (Razor)</span>
+                            <kbd class="px-1.5 py-0.5 bg-black/40 rounded text-[9px] font-mono text-slate-400">B</kbd>
+                        </div>
+                    </div>
+                </div>
+                
+                <span class="h-[14px] w-[1px] bg-[#2b2b33] mx-1"></span>
+                
+                <!-- Undo & Redo (Real Active State) -->
+                <button id="btnTimelineUndo" onclick="undoTimelineAction()" class="w-8 h-8 flex items-center justify-center rounded hover:bg-[#2b2b33] text-slate-300 hover:text-white transition-colors cursor-pointer" title="ត្រលប់ក្រោយ (Undo - Ctrl+Z)">
+                    <i class="fa-solid fa-rotate-left text-[13px]"></i>
+                </button>
+                <button id="btnTimelineRedo" onclick="redoTimelineAction()" class="w-8 h-8 flex items-center justify-center rounded hover:bg-[#2b2b33] text-slate-300 hover:text-white transition-colors cursor-pointer" title="ធ្វើឡើងវិញ (Redo - Ctrl+Y)">
+                    <i class="fa-solid fa-rotate-right text-[13px]"></i>
                 </button>
                 
                 <span class="h-[14px] w-[1px] bg-[#2b2b33] mx-1"></span>
                 
-                <!-- Undo/Redo (Disabled State) -->
-                <button onclick="undoScriptChange()" class="w-8 h-8 flex items-center justify-center rounded hover:bg-[#2b2b33] transition-colors text-[#52525b] cursor-not-allowed" title="ត្រលប់ក្រោយ (Undo)"><i class="fa-solid fa-rotate-left text-[14px]"></i></button>
-                <button onclick="redoScriptChange()" class="w-8 h-8 flex items-center justify-center rounded hover:bg-[#2b2b33] transition-colors text-[#52525b] cursor-not-allowed" title="ធ្វើឡើងវិញ (Redo)"><i class="fa-solid fa-rotate-right text-[14px]"></i></button>
+                <!-- Split Clip at Playhead -->
+                <button id="btnTimelineSplit" onclick="splitActiveTimelineClip()" class="w-8 h-8 flex items-center justify-center rounded hover:bg-[#2b2b33] text-slate-200 hover:text-[#00e5cc] transition-colors cursor-pointer group" title="កាត់បំបែកឈុតត្រង់បន្ទាត់ (Split - S)">
+                    <i class="fa-solid fa-table-columns text-[13px] group-hover:scale-110 transition-transform"></i>
+                </button>
+                
+                <!-- Delete Clip -->
+                <button id="btnTimelineDelete" onclick="deleteSelectedClip()" class="w-8 h-8 flex items-center justify-center rounded hover:bg-[#2b2b33] text-slate-200 hover:text-rose-400 transition-colors cursor-pointer group" title="លុបឈុតដែលជ្រើសរើស (Delete - Del)">
+                    <i class="fa-regular fa-trash-can text-[13px] group-hover:scale-110 transition-transform"></i>
+                </button>
                 
                 <span class="h-[14px] w-[1px] bg-[#2b2b33] mx-1"></span>
                 
-                <!-- Split -->
-                <button onclick="splitActiveTimelineClip()" class="w-8 h-8 flex items-center justify-center rounded hover:bg-[#2b2b33] hover:text-white transition-colors" title="កាត់បំបែកឈុត (Split)"><i class="fa-solid fa-table-columns text-[14px]"></i></button>
-                
-                <!-- Delete (Disabled State) -->
-                <button onclick="deleteSelectedClip()" class="w-8 h-8 flex items-center justify-center rounded hover:bg-[#2b2b33] transition-colors text-[#52525b] cursor-not-allowed" title="លុបឈុត (Delete)"><i class="fa-regular fa-trash-can text-[14px]"></i></button>
-                
-                <span class="h-[14px] w-[1px] bg-[#2b2b33] mx-1"></span>
-                
-                <!-- Freeze, Reverse -->
-                <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-[#2b2b33] hover:text-white transition-colors" title="Freeze frame"><i class="fa-regular fa-snowflake text-[14px]"></i></button>
-                <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-[#2b2b33] hover:text-white transition-colors" title="Reverse"><i class="fa-solid fa-clock-rotate-left text-[14px]"></i></button>
+                <!-- Freeze Frame & Reverse (CapCut Special Tools) -->
+                <button id="btnTimelineFreeze" onclick="freezeFrameAtPlayhead()" class="w-8 h-8 flex items-center justify-center rounded hover:bg-[#2b2b33] text-slate-300 hover:text-sky-400 transition-colors cursor-pointer group" title="Freeze frame (បង្កកប្លង់ ៣ វិនាទី)">
+                    <i class="fa-regular fa-snowflake text-[13px] group-hover:rotate-180 transition-transform duration-500"></i>
+                </button>
+                <button id="btnTimelineReverse" onclick="reverseActiveTimelineClip()" class="w-8 h-8 flex items-center justify-center rounded hover:bg-[#2b2b33] text-slate-300 hover:text-amber-400 transition-colors cursor-pointer group" title="Reverse (ចាក់ថយក្រោយ)">
+                    <i class="fa-solid fa-clock-rotate-left text-[13px] group-hover:-rotate-90 transition-transform"></i>
+                </button>
+
+                <!-- Speed Adjustment Dropdown -->
+                <div class="relative">
+                    <button onclick="toggleTimelineSpeedMenu()" id="btnTimelineSpeed" class="h-[28px] px-2 flex items-center justify-center rounded hover:bg-[#2b2b33] text-slate-300 hover:text-[#00e5cc] transition-colors cursor-pointer gap-1" title="ល្បឿនចាក់វីដេអូ">
+                        <i class="fa-solid fa-gauge-high text-[11px]"></i>
+                        <span id="timelineSpeedDisplay" class="text-[10px] font-bold">1.0x</span>
+                        <i class="fa-solid fa-caret-down text-[8px] opacity-70"></i>
+                    </button>
+                    <!-- Speed Menu -->
+                    <div id="timelineSpeedMenu" class="hidden absolute top-full left-0 mt-1 w-28 rounded-xl bg-[#14141c] border border-[#2c2d3d] shadow-2xl p-1 z-50 text-[11px] space-y-0.5">
+                        <div onclick="setTimelineClipSpeed(0.5)" class="p-1.5 rounded-lg hover:bg-white/5 cursor-pointer text-slate-300 hover:text-white">0.5x (យឺត)</div>
+                        <div onclick="setTimelineClipSpeed(1.0)" class="p-1.5 rounded-lg hover:bg-white/5 cursor-pointer text-[#00e5cc] font-bold">1.0x (ធម្មតា)</div>
+                        <div onclick="setTimelineClipSpeed(1.5)" class="p-1.5 rounded-lg hover:bg-white/5 cursor-pointer text-slate-300 hover:text-white">1.5x (លឿន)</div>
+                        <div onclick="setTimelineClipSpeed(2.0)" class="p-1.5 rounded-lg hover:bg-white/5 cursor-pointer text-slate-300 hover:text-white">2.0x (ទ្វេដង)</div>
+                    </div>
+                </div>
             </div>
 
             <!-- Right Timeline Controls -->
-            <div class="flex items-center gap-2 text-[#9ca3af]">
-                <button onclick="generateAndPlayTTS()" class="w-[34px] h-[28px] flex items-center justify-center rounded hover:bg-[#2b2b33] hover:text-white transition-colors" title="ថត/ចាក់សំឡេងនិទាន AI">
-                    <i class="fa-solid fa-microphone text-[14px]"></i>
+            <div class="flex items-center gap-1.5 text-[#9ca3af]">
+                <!-- Microphone Voiceover Recorder on Timeline -->
+                <button id="btnTimelineVoiceover" onclick="triggerTimelineVoiceover()" class="h-[28px] px-2 flex items-center justify-center rounded hover:bg-[#2b2b33] text-slate-300 hover:text-purple-400 transition-colors gap-1.5 cursor-pointer" title="ថតសំឡេងនិទានផ្ទាល់លើ Timeline">
+                    <i class="fa-solid fa-microphone text-[12px] text-purple-400"></i>
+                    <span class="text-[10.5px] font-bold hidden sm:inline">ថតសំឡេង</span>
                 </button>
                 
-                <span class="h-[14px] w-[1px] bg-[#2b2b33] mx-1.5"></span>
+                <span class="h-[14px] w-[1px] bg-[#2b2b33] mx-1"></span>
                 
-                <!-- Magnet & Snap (Active Blocks) -->
-                <div class="flex items-center gap-1.5">
-                    <button class="w-[32px] h-[28px] flex items-center justify-center rounded-[6px] bg-[#32323d] text-[#00e5cc] hover:bg-[#3f3f4c] transition-colors" title="Main track magnet">
-                        <i class="fa-solid fa-magnet text-[14px]"></i>
+                <!-- Magnet & Snap (Toggleable CapCut Magnetic Track) -->
+                <div class="flex items-center gap-1">
+                    <button id="btnTimelineMagnet" onclick="toggleTimelineMagnet()" class="w-[30px] h-[28px] flex items-center justify-center rounded-[6px] bg-[#32323d] text-[#00e5cc] hover:bg-[#3f3f4c] transition-all cursor-pointer shadow-sm" title="Main track magnet (ស្អិតជាប់ស្វ័យប្រវត្តិតាមចង្វាក់)">
+                        <i class="fa-solid fa-magnet text-[13px]"></i>
                     </button>
-                    <button class="w-[32px] h-[28px] flex items-center justify-center rounded-[6px] bg-[#32323d] text-[#00e5cc] hover:bg-[#3f3f4c] transition-colors" title="Auto snapping">
-                        <i class="fa-solid fa-arrows-to-dot text-[14px]"></i>
+                    <button id="btnTimelineSnapping" onclick="toggleTimelineSnapping()" class="w-[30px] h-[28px] flex items-center justify-center rounded-[6px] bg-[#32323d] text-[#00e5cc] hover:bg-[#3f3f4c] transition-all cursor-pointer shadow-sm" title="Auto snapping (តម្រឹមបន្ទាត់ Playhead & ឈុត)">
+                        <i class="fa-solid fa-arrows-to-dot text-[13px]"></i>
                     </button>
                 </div>
                 
-                <button class="w-10 h-[28px] flex items-center justify-center rounded hover:bg-[#2b2b33] hover:text-white transition-colors gap-1.5 ml-1" title="Linkage">
-                    <i class="fa-solid fa-link text-[14px]"></i>
-                    <i class="fa-solid fa-caret-down text-[10px] -ml-0.5 text-[#585863]"></i>
+                <!-- Linkage Tool -->
+                <button id="btnTimelineLink" onclick="toggleTimelineLinkage()" class="w-8 h-[28px] flex items-center justify-center rounded hover:bg-[#2b2b33] text-slate-300 hover:text-[#00e5cc] transition-colors cursor-pointer" title="ភ្ជាប់វីដេអូ និងសំឡេង (Link Tracks)">
+                    <i class="fa-solid fa-link text-[12px]"></i>
                 </button>
-                <button class="w-10 h-[28px] flex items-center justify-center rounded hover:bg-[#2b2b33] hover:text-white transition-colors gap-1.5" title="Preview Quality">
-                    <i class="fa-solid fa-display text-[14px]"></i>
-                    <i class="fa-solid fa-caret-down text-[10px] -ml-0.5 text-[#585863]"></i>
+
+                <!-- Preview Quality Dropdown -->
+                <div class="relative">
+                    <button id="btnTimelineQuality" onclick="toggleTimelineQualityMenu()" class="h-[28px] px-2 flex items-center justify-center rounded hover:bg-[#2b2b33] text-slate-300 hover:text-white transition-colors gap-1 cursor-pointer" title="គុណភាព Preview វីដេអូ">
+                        <i class="fa-solid fa-display text-[12px]"></i>
+                        <span id="timelineQualityLabel" class="text-[10px] font-mono font-bold">1080p</span>
+                        <i class="fa-solid fa-caret-down text-[8px] opacity-70"></i>
+                    </button>
+                    <!-- Quality Menu -->
+                    <div id="timelineQualityMenu" class="hidden absolute top-full right-0 mt-1 w-36 rounded-xl bg-[#14141c] border border-[#2c2d3d] shadow-2xl p-1 z-50 text-[11px] space-y-0.5">
+                        <div onclick="setTimelineQuality('1080p')" class="p-1.5 rounded-lg hover:bg-white/5 cursor-pointer text-[#00e5cc] font-bold">Full HD (1080p)</div>
+                        <div onclick="setTimelineQuality('720p')" class="p-1.5 rounded-lg hover:bg-white/5 cursor-pointer text-slate-300 hover:text-white">1/2 Draft (720p)</div>
+                        <div onclick="setTimelineQuality('540p')" class="p-1.5 rounded-lg hover:bg-white/5 cursor-pointer text-slate-300 hover:text-white">1/4 Fast (540p)</div>
+                    </div>
+                </div>
+                
+                <span class="h-[14px] w-[1px] bg-[#2b2b33] mx-1"></span>
+                
+                <!-- Time Ruler Mode Toggle -->
+                <button id="btnTimelineRulerMode" onclick="toggleTimelineRulerFormat()" class="w-[30px] h-[28px] flex items-center justify-center rounded hover:bg-[#2b2b33] text-slate-300 hover:text-white transition-colors cursor-pointer" title="ប្តូរទម្រង់ Timecode ↔ Frames">
+                    <i class="fa-solid fa-ruler-horizontal text-[12px]"></i>
                 </button>
                 
-                <span class="h-[14px] w-[1px] bg-[#2b2b33] mx-1.5"></span>
-                
-                <button class="w-[34px] h-[28px] flex items-center justify-center rounded hover:bg-[#2b2b33] hover:text-white transition-colors" title="Time Ruler">
-                    <i class="fa-solid fa-ruler-horizontal text-[14px]"></i>
-                </button>
-                
-                <!-- Zoom Controls -->
-                <div class="hidden sm:flex items-center gap-3 ml-1.5">
-                    <button onclick="changeZoom(-1)" class="w-6 h-6 flex items-center justify-center rounded hover:bg-[#2b2b33] hover:text-white transition-colors"><i class="fa-solid fa-minus text-[13px]"></i></button>
+                <!-- Smooth Zoom Controls -->
+                <div class="hidden sm:flex items-center gap-2 ml-1">
+                    <button onclick="changeZoom(-1)" class="w-6 h-6 flex items-center justify-center rounded hover:bg-[#2b2b33] text-slate-400 hover:text-white transition-colors cursor-pointer" title="Zoom Out (-)"><i class="fa-solid fa-minus text-[11px]"></i></button>
                     <!-- Custom Zoom Slider -->
                     <input id="timelineZoomSlider" type="range" min="10" max="60" value="22" oninput="handleZoomChange()" 
-                           class="w-[84px] h-[4px] bg-[#2b2b33] rounded-full appearance-none outline-none cursor-pointer
-                                  [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:bg-[#00e5cc] [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-[0_0_10px_rgba(0,229,204,0.6)]
-                                  [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-3.5 [&::-moz-range-thumb]:h-3.5 [&::-moz-range-thumb]:bg-[#00e5cc] [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:shadow-[0_0_10px_rgba(0,229,204,0.6)]">
-                    <button onclick="changeZoom(1)" class="w-6 h-6 flex items-center justify-center rounded hover:bg-[#2b2b33] hover:text-white transition-colors"><i class="fa-solid fa-plus text-[13px]"></i></button>
+                           class="w-[74px] h-[4px] bg-[#2b2b33] rounded-full appearance-none outline-none cursor-pointer
+                                  [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-[#00e5cc] [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-[0_0_8px_rgba(0,229,204,0.6)]
+                                  [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-3 [&::-moz-range-thumb]:h-3 [&::-moz-range-thumb]:bg-[#00e5cc] [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:shadow-[0_0_8px_rgba(0,229,204,0.6)]">
+                    <button onclick="changeZoom(1)" class="w-6 h-6 flex items-center justify-center rounded hover:bg-[#2b2b33] text-slate-400 hover:text-white transition-colors cursor-pointer" title="Zoom In (+)"><i class="fa-solid fa-plus text-[11px]"></i></button>
                 </div>
             </div>
         </div>
@@ -1028,28 +1084,94 @@
         <!-- 2. Timeline Tracks Workspace (Left Track Headers + Right Scrollable Clips & Playhead) -->
         <div class="flex-1 flex min-h-0 relative overflow-hidden bg-[#111115]">
             
-            <!-- Left Track Header Column (T រឿង/អក្សរ, វីដេអូ, សំឡេងនិទាន) -->
-            <div class="w-[185px] bg-[#111115] border-r border-[#1a1a20] flex flex-col justify-between py-0 shrink-0 z-20">
-                <!-- Ruler Spacer -->
-                <div class="h-[30px] px-3 flex items-center">
+            <!-- Left Track Header Column (AUTHENTIC CAPCUT TRACK HEADERS: V1, T1, A1) -->
+            <div class="w-[195px] bg-[#111115] border-r border-[#1a1a20] flex flex-col justify-between py-0 shrink-0 z-20">
+                <!-- Ruler Spacer Header -->
+                <div class="h-6 px-3 flex items-center justify-between border-b border-[#1a1a20] text-[10px] text-slate-500 font-bold tracking-wider uppercase">
+                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-layer-group text-slate-400 text-[10px]"></i> Tracks</span>
+                    <span id="timelineTotalTracksBadge" class="text-[9px] px-1.5 py-0.2 rounded bg-white/5 font-mono text-slate-400">3 Tracks</span>
                 </div>
 
-                <!-- 3 Track Headers Matching Khmer Screenshot -->
-                
+                <!-- 3 Authentic CapCut Track Headers Aligned with Tracks -->
+                <div class="flex-1 flex flex-col justify-start gap-0 px-2 pt-2">
+                    <!-- Track Header 1: Video V1 -->
+                    <div class="h-11 flex items-center justify-between px-2.5 rounded-lg bg-[#161722] border border-[#232435] shadow-sm">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-film text-[#00e5cc] text-[12px]"></i>
+                            <div>
+                                <div class="text-[11px] font-extrabold text-white leading-tight">Video V1</div>
+                                <div class="text-[9px] text-slate-400">មេឌៀ & ប្លង់រឿង</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1 text-slate-400">
+                            <button id="trackEye-video" onclick="toggleTrackVisibility('video')" class="w-6 h-6 rounded hover:bg-white/10 hover:text-white flex items-center justify-center transition-colors cursor-pointer" title="បិទ/បើកវីដេអូ">
+                                <i class="fa-regular fa-eye text-[11px]"></i>
+                            </button>
+                            <button id="trackLock-video" onclick="toggleTrackLock('video')" class="w-6 h-6 rounded hover:bg-white/10 hover:text-white flex items-center justify-center transition-colors cursor-pointer" title="ចាក់សោ Track">
+                                <i class="fa-solid fa-lock-open text-[10px]"></i>
+                            </button>
+                            <button id="trackMute-video" onclick="toggleTrackMute('video')" class="w-6 h-6 rounded hover:bg-white/10 hover:text-white flex items-center justify-center transition-colors cursor-pointer" title="បិទសំឡេងដើម">
+                                <i class="fa-solid fa-volume-high text-[11px]"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Track Header 2: Text T1 -->
+                    <div class="h-11 flex items-center justify-between px-2.5 rounded-lg bg-[#161722] border border-[#232435] shadow-sm mt-1.5">
+                        <div class="flex items-center gap-2">
+                            <div class="w-4 h-4 rounded bg-amber-400/20 text-amber-300 font-black text-[10px] flex items-center justify-center">T</div>
+                            <div>
+                                <div class="text-[11px] font-extrabold text-white leading-tight">Text T1</div>
+                                <div class="text-[9px] text-slate-400">អក្សរ & Subtitle</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1 text-slate-400">
+                            <button id="trackEye-text" onclick="toggleTrackVisibility('text')" class="w-6 h-6 rounded hover:bg-white/10 hover:text-white flex items-center justify-center transition-colors cursor-pointer" title="បិទ/បើក Subtitle">
+                                <i class="fa-regular fa-eye text-[11px]"></i>
+                            </button>
+                            <button id="trackLock-text" onclick="toggleTrackLock('text')" class="w-6 h-6 rounded hover:bg-white/10 hover:text-white flex items-center justify-center transition-colors cursor-pointer" title="ចាក់សោ Track">
+                                <i class="fa-solid fa-lock-open text-[10px]"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Track Header 3: Audio A1 -->
+                    <div class="h-11 flex items-center justify-between px-2.5 rounded-lg bg-[#161722] border border-[#232435] shadow-sm mt-1.5">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-waveform-lines text-indigo-400 text-[12px]"></i>
+                            <div>
+                                <div class="text-[11px] font-extrabold text-white leading-tight">Audio A1</div>
+                                <div class="text-[9px] text-slate-400">សំឡេង AI & BGM</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1 text-slate-400">
+                            <button id="trackMute-audio" onclick="toggleTrackMute('audio')" class="w-6 h-6 rounded hover:bg-white/10 hover:text-white flex items-center justify-center transition-colors cursor-pointer" title="បិទ/បើកសំឡេង">
+                                <i class="fa-solid fa-volume-high text-[11px]"></i>
+                            </button>
+                            <button id="trackLock-audio" onclick="toggleTrackLock('audio')" class="w-6 h-6 rounded hover:bg-white/10 hover:text-white flex items-center justify-center transition-colors cursor-pointer" title="ចាក់សោ Track">
+                                <i class="fa-solid fa-lock-open text-[10px]"></i>
+                            </button>
+                            <button id="trackSolo-audio" onclick="toggleTrackSolo('audio')" class="w-6 h-6 rounded hover:bg-white/10 hover:text-white flex items-center justify-center transition-colors cursor-pointer" title="Solo Track">
+                                <i class="fa-solid fa-headphones text-[10px]"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Bottom Drop Bar Left Label -->
-                <div class="h-6 px-2.5 flex items-center text-[10px] text-[#788294] border-t border-[#1a1a20]">
-                    <i class="fa-solid fa-film mr-1.5"></i> Timeline 01
+                <div class="h-6 px-3 flex items-center justify-between text-[10px] text-[#788294] border-t border-[#1a1a20]">
+                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-film text-[#00e5cc] text-[9px]"></i> Timeline 01</span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                 </div>
             </div>
 
             <!-- Right Scrollable Timeline Area -->
             <div id="timelineTracksArea" onclick="handleTimelineAreaClick(event)" ondragover="handleTimelineDragOver(event)" ondrop="handleTimelineDrop(event)" class="flex-1 flex flex-col justify-between bg-[#111115] relative overflow-x-auto overflow-y-hidden cursor-pointer">
                 
-                <!-- Playhead Vertical Line -->
-                <div id="timelinePlayhead" class="absolute top-0 bottom-0 w-[1.5px] bg-[#f0f0f5] z-30 pointer-events-none shadow-[0_0_8px_rgba(255,255,255,0.6)]" style="left: 24px;">
+                <!-- Playhead Vertical Line with Glow -->
+                <div id="timelinePlayhead" class="absolute top-0 bottom-0 w-[1.5px] bg-[#f0f0f5] z-30 pointer-events-none shadow-[0_0_10px_rgba(0,229,204,0.8)]" style="left: 24px;">
                     <!-- Playhead Handle (CapCut Style Polygon) -->
-                    <div id="playheadHandle" class="absolute -top-[1px] -left-[6px] w-[14px] h-[18px] text-[#f0f0f5] drop-shadow-md pointer-events-auto cursor-ew-resize hover:scale-110 transition-transform">
+                    <div id="playheadHandle" class="absolute -top-[1px] -left-[6px] w-[14px] h-[18px] text-[#00e5cc] drop-shadow-md pointer-events-auto cursor-ew-resize hover:scale-110 transition-transform">
                         <svg viewBox="0 0 14 18" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                             <path d="M0 0 h14 v12 L7 18 L0 12 Z"/>
                         </svg>
@@ -1088,10 +1210,10 @@
                 <!-- Bottom Hint Bar: អូសសម្ភារៈចូលទីនេះដើម្បីចាប់ផ្តើម -->
                 <div class="h-6 px-4 bg-[#111115] border-t border-[#1a1a20] flex items-center justify-between text-[11px] text-[#788294] shrink-0">
                     <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-film text-xs"></i>
+                        <i class="fa-solid fa-film text-xs text-[#00e5cc]"></i>
                         <span>អូសសម្ភារៈចូលទីនេះដើម្បីចាប់ផ្តើម — ចុចលើប្លុកឈុតណាមួយនៅលើ Timeline ដើម្បីមើល និងស្ដាប់សំឡេង</span>
                     </div>
-                    <span id="timelineClipSummary" class="text-[10px] text-[#00e5cc]">0 ឈុតនៅលើ Timeline</span>
+                    <span id="timelineClipSummary" class="text-[10px] text-[#00e5cc] font-bold">0 ឈុតនៅលើ Timeline</span>
                 </div>
             </div>
         </div>
